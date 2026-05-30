@@ -6,10 +6,11 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex h-screen bg-[--muted]">
+    <div className="min-h-screen bg-[--background]">
       <Sidebar />
-      <div className="ml-64 flex flex-1 flex-col overflow-hidden">
-        <main className="flex-1 overflow-y-auto">{children}</main>
+      {/* Main content — margem fixa de 64px (sidebar colapsada) */}
+      <div className="ml-16 flex flex-col min-h-screen">
+        {children}
       </div>
     </div>
   )

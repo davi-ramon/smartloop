@@ -4,7 +4,6 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* Cores semânticas mapeadas para variáveis CSS */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -24,14 +23,16 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-sidebar-active-text: var(--sidebar-active-text);
+  --color-sidebar-icon: var(--sidebar-icon);
+  --color-sidebar-icon-active: var(--sidebar-icon-active);
   --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Status das OS */
   --color-status-received: var(--status-received);
   --color-status-analyzing: var(--status-analyzing);
   --color-status-waiting: var(--status-waiting);
@@ -39,78 +40,146 @@
   --color-status-delivered: var(--status-delivered);
   --color-status-cancelled: var(--status-cancelled);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xs: 0.25rem;
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+  --radius-full: 9999px;
 }
 
-/* FixOS Design System — Paleta de Cores */
+/* ──────────────────────────────────────────
+   FixOS — Light Theme (padrão)
+────────────────────────────────────────── */
 :root {
-  /* Base */
   --background: #ffffff;
-  --foreground: #0f172a;
+  --foreground: #111827;
 
-  /* Card */
   --card: #ffffff;
-  --card-foreground: #0f172a;
-
-  /* Popover */
+  --card-foreground: #111827;
   --popover: #ffffff;
-  --popover-foreground: #0f172a;
+  --popover-foreground: #111827;
 
-  /* Primary — Azul FixOS */
   --primary: #2563eb;
   --primary-foreground: #ffffff;
 
-  /* Secondary */
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
+  --secondary: #f9fafb;
+  --secondary-foreground: #374151;
 
-  /* Muted */
-  --muted: #f8fafc;
-  --muted-foreground: #64748b;
+  --muted: #f3f4f6;
+  --muted-foreground: #9ca3af;
 
-  /* Accent — Laranja FixOS */
-  --accent: #ea580c;
+  --accent: #f97316;
   --accent-foreground: #ffffff;
 
-  /* Destructive */
-  --destructive: #dc2626;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
 
-  /* Borders & Inputs */
-  --border: #e2e8f0;
-  --input: #e2e8f0;
+  --border: #e5e7eb;
+  --input: #f3f4f6;
   --ring: #2563eb;
 
-  /* Sidebar — Fundo escuro */
-  --sidebar: #1e293b;
-  --sidebar-foreground: #f1f5f9;
-  --sidebar-accent: #334155;
-  --sidebar-accent-foreground: #f1f5f9;
-  --sidebar-border: #334155;
-  --sidebar-ring: #2563eb;
+  /* Sidebar — light */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #374151;
+  --sidebar-hover: #f3f4f6;
+  --sidebar-active: #eff6ff;
+  --sidebar-active-text: #1d4ed8;
+  --sidebar-icon: #9ca3af;
+  --sidebar-icon-active: #2563eb;
+  --sidebar-border: #e5e7eb;
 
-  /* Radius base */
-  --radius: 0.5rem;
-
-  /* Status das OS */
+  /* OS status */
   --status-received: #6366f1;
   --status-analyzing: #f59e0b;
   --status-waiting: #ef4444;
-  --status-ready: #22c55e;
+  --status-ready: #10b981;
   --status-delivered: #64748b;
-  --status-cancelled: #94a3b8;
+  --status-cancelled: #d1d5db;
+
+  --radius: 0.5rem;
+}
+
+/* ──────────────────────────────────────────
+   Dark Theme
+────────────────────────────────────────── */
+.dark {
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+
+  --card: #1e293b;
+  --card-foreground: #f1f5f9;
+  --popover: #1e293b;
+  --popover-foreground: #f1f5f9;
+
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+
+  --secondary: #1e293b;
+  --secondary-foreground: #cbd5e1;
+
+  --muted: #1e293b;
+  --muted-foreground: #64748b;
+
+  --accent: #f97316;
+  --accent-foreground: #ffffff;
+
+  --destructive: #f87171;
+  --destructive-foreground: #ffffff;
+
+  --border: #334155;
+  --input: #1e293b;
+  --ring: #3b82f6;
+
+  --sidebar: #0f172a;
+  --sidebar-foreground: #cbd5e1;
+  --sidebar-hover: #1e293b;
+  --sidebar-active: #1e3a5f;
+  --sidebar-active-text: #93c5fd;
+  --sidebar-icon: #64748b;
+  --sidebar-icon-active: #60a5fa;
+  --sidebar-border: #1e293b;
+}
+
+/* ──────────────────────────────────────────
+   Base
+────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  border-color: var(--border);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  font-feature-settings: "rlig" 1, "calt" 1;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  border-color: var(--border);
-  outline-color: var(--ring);
+/* Scrollbar customizada */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Focus ring */
+[data-focus-visible] {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }

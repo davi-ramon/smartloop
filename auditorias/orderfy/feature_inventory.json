@@ -1,0 +1,3934 @@
+{
+  "target": {
+    "name": "Ordenfy",
+    "official_url": "https://ordemfy.com.br/auth",
+    "environment": "production_or_public_webapp",
+    "authenticated": true,
+    "user_role": null,
+    "credentials_persisted": false,
+    "last_audited_at": "2026-05-30T02:49:08.547Z"
+  },
+  "audit_scope": {
+    "allowed": [
+      "feature inventory",
+      "screen and workflow mapping",
+      "observable business rules",
+      "passive stack observation",
+      "UX improvement notes for a proprietary Smartloop/FixOS implementation"
+    ],
+    "not_allowed": [
+      "source code extraction",
+      "secret extraction",
+      "permission bypass",
+      "aggressive scraping",
+      "copying brand identity or proprietary long-form copy"
+    ]
+  },
+  "live_log": [
+    {
+      "area": "access",
+      "action": "awaiting_official_url",
+      "result": "Credentials were provided in chat, but the exact target URL is still pending.",
+      "evidence": null
+    },
+    {
+      "at": "2026-05-30T02:44:44.343Z",
+      "area": "auth",
+      "action": "login_attempt",
+      "result": "authenticated_or_dashboard_reached",
+      "evidence": "auditorias/orderfy/evidencias/01-login.png",
+      "details": {
+        "login_action": "button[type='submit']",
+        "before_title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+        "after_title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+        "after_url": "https://ordemfy.com.br/dashboard"
+      }
+    },
+    {
+      "at": "2026-05-30T02:47:49.885Z",
+      "area": "auth",
+      "action": "login_attempt",
+      "result": "authenticated_or_dashboard_reached",
+      "evidence": "auditorias/orderfy/evidencias/01-login.png",
+      "details": {
+        "login_action": "button[type='submit']",
+        "before_title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+        "after_title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+        "after_url": "https://ordemfy.com.br/dashboard"
+      }
+    },
+    {
+      "at": "2026-05-30T02:52:38.901Z",
+      "area": "auth",
+      "action": "login_attempt",
+      "result": "authenticated_or_dashboard_reached",
+      "evidence": "auditorias/orderfy/evidencias/01-login.png",
+      "details": {
+        "login_action": "button[type='submit']",
+        "before_title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+        "after_title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+        "after_url": "https://ordemfy.com.br/dashboard"
+      }
+    }
+  ],
+  "navigation": [
+    {
+      "menu_or_route": "Clientes",
+      "url": "https://ordemfy.com.br/dashboard/customers",
+      "type": "same_origin_link",
+      "objective": "Pendente de classificacao manual",
+      "actions": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Link de Cadastro",
+        "Importar",
+        "10"
+      ],
+      "observations": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas Serviços Marketing Estoque Financeiro Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Clientes Buscar... Período de teste: 12 dias restantes Ver Planos Clientes 0 clientes Link de Cadastro Importar Novo Cliente Nenhum cliente Novo Cliente Exibir 10 por página"
+    },
+    {
+      "menu_or_route": "Técnicos",
+      "url": "https://ordemfy.com.br/dashboard/technicians",
+      "type": "same_origin_link",
+      "objective": "Pendente de classificacao manual",
+      "actions": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar"
+      ],
+      "observations": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas Serviços Marketing Estoque Financeiro Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Técnicos Buscar... Período de teste: 12 dias restantes Ver Planos Técnicos 0 técnicos Novo Técnico Nenhum técnico Novo Técnico"
+    },
+    {
+      "menu_or_route": "Fornecedores",
+      "url": "https://ordemfy.com.br/dashboard/suppliers",
+      "type": "same_origin_link",
+      "objective": "Pendente de classificacao manual",
+      "actions": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar"
+      ],
+      "observations": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas Serviços Marketing Estoque Financeiro Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Fornecedores Buscar... Período de teste: 12 dias restantes Ver Planos Fornecedores 0 fornecedores Novo Fornecedor Nenhum fornecedor Novo Fornecedor"
+    },
+    {
+      "menu_or_route": "Integrações",
+      "url": "https://ordemfy.com.br/dashboard/integrations",
+      "type": "same_origin_link",
+      "objective": "Pendente de classificacao manual",
+      "actions": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Todos",
+        "Pagamentos",
+        "Marketplaces",
+        "E-commerce",
+        "API",
+        "Automação",
+        "Conectar"
+      ],
+      "observations": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas Serviços Marketing Estoque Financeiro Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Integrações Buscar... Período de teste: 12 dias restantes Ver Planos Integrações Conecte o Ordemfy aos serviços que você usa todos os dias. 0 ativas 8 disponíveis Todos Pagamentos Financeiro Marketplaces E-commerce API Automação Mercado Pago Point Maquininhas de cartão Aceite pagamentos no PDV com as maquininhas Point integradas ao seu fluxo de venda. PAGAMENTOS Conectar Mercado Pago Conta Movimentações da conta MP Importe movimentações, retiradas, taxas, estornos e entradas da sua conta Mercado Pago. FINANCEIRO Conectar Banco Inter Conta PJ • API Bancária Importe extratos, saldos e movimentações da sua conta Inter Empresas para conciliação financeira. FINANCEIRO Conectar Mercado Livre Anúncios e pedidos Conecte sua conta para publicar anúncios e receber pedidos diretamente no Ordemfy. MARKETPLACES Conectar OLX Anúncios de smartphones Publique e gerencie anúncios de smartphones diretamente do seu estoque. MARKETPLACES Conectar E-commerce Loja virtual sincronizada Sincronize produtos, estoque e pedidos com sua loja virtual. E-COMMERCE Conectar API do Ordemfy Para desenvolvedores Conecte sistemas externos, integre agentes de IA e crie automações. API Conectar Controle por WhatsApp Tokens por tipo de usuário para chatbot/IA Gere tokens de acesso à API por perfil (Admin, Técnico, Financeiro, Atendente). As permissões do token seguem as do usuário escolhido. AUTOMAÇÃO Conectar"
+    },
+    {
+      "menu_or_route": "Assinatura",
+      "url": "https://ordemfy.com.br/dashboard/subscription",
+      "type": "same_origin_link",
+      "objective": "Pendente de classificacao manual",
+      "actions": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Trocar Plano"
+      ],
+      "observations": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas Serviços Marketing Estoque Financeiro Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Assinatura Buscar... Período de teste: 12 dias restantes Ver Planos Gerenciar Assinatura Visualize e gerencie sua assinatura do Ordemfy Ordemfy Start Período de Teste Plano Mensal Trocar Plano Valor R$ 49,99/mês Próximo Vencimento 10 de junho de 2026 Usuários Até 2 usuários Uso do Plano (Mês Atual) Ordens de Serviço 0/100 Armazenamento 0.02MB/600MB Recursos inclusos Ordens de Serviço Cadastro de Clientes Painel do Técnico PDV Completo Controle de Caixa Gestão de Estoque Financeiro Completo Notas Fiscais (NF-e, NFS-e, NFC-e) Películas Compatíveis Garantia Estendida Orçamento Rápido Precisa de ajuda? Entre em contato com nosso suporte para dúvidas sobre sua assinatura. Email WhatsApp"
+    },
+    {
+      "menu_or_route": "Configurações",
+      "url": "https://ordemfy.com.br/dashboard/settings",
+      "type": "same_origin_link",
+      "objective": "Pendente de classificacao manual",
+      "actions": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Dados da Empresa Logo, CNPJ, endereço e contato",
+        "Assinatura e Plano Consumo de OS e limites",
+        "Armazenamento Gerenciar espaço e arquivos",
+        "Política de Privacidade Termos e política de privacidade",
+        "Zona de Perigo Ações irreversíveis de limpeza",
+        "Usuários e Acesso Gerenciar usuários e permissões",
+        "Comissões Gestão de comissões de vendas",
+        "Tipos de Equipamentos Tipos de dispositivos aceitos",
+        "Campos Personalizados Campos extras nas OS",
+        "Checklist de Entrada e Saída Verificações ao criar e finalizar OS",
+        "Termos de Garantia Textos e condições de garantia",
+        "Orçamento Rápido Garantia e parcelamento padrão",
+        "Vídeos de Serviço Vídeos para serem usados em orçamento rápido",
+        "Métodos de Pagamento Formas de pagamento e taxas",
+        "Categorias Financeiras Categorias de receitas e despesas",
+        "Centros de Custo Organização e relatórios",
+        "Abertura e Fechamento de Caixa Modo de conferência no fechamento",
+        "Configurações Fiscais NF-e, NFC-e, NFS-e",
+        "Categorias de Produtos Organização de produtos",
+        "Películas Compatíveis Modelos de películas",
+        "Central de Impressões Layout, papel, margens e auto-impressão em um só lugar",
+        "Mercado Pago Point Maquininhas de cartão integradas",
+        "OLX Anúncios de smartphones na OLX",
+        "E-commerce Sincronize produtos, estoque e pedidos",
+        "Mercado Livre Conecte sua conta para publicar e gerenciar anúncios",
+        "API do Ordemfy Conecte sistemas externos e agentes de IA"
+      ],
+      "observations": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas Serviços Marketing Estoque Financeiro Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Configurações Buscar... Período de teste: 12 dias restantes Ver Planos Configurações Gerencie as configurações da sua empresa / EMPRESA & SISTEMA Dados da Empresa Logo, CNPJ, endereço e contato Assinatura e Plano Consumo de OS e limites Armazenamento Gerenciar espaço e arquivos Política de Privacidade Termos e política de privacidade Zona de Perigo Ações irreversíveis de limpeza EQUIPE E PERMISSÕES Usuários e Acesso Gerenciar usuários e permissões Comissões Gestão de comissões de vendas ORDENS DE SERVIÇO Tipos de Equipamentos Tipos de dispositivos aceitos Campos Personalizados Campos extras nas OS Checklist de Entrada e Saída Verificações ao criar e finalizar OS Termos de Garantia Textos e condições de garantia Orçamento Rápido Garantia e parcelamento padrão Vídeos de Serviço Vídeos para serem usados em orçamento rápido FINANCEIRO E VENDAS Métodos de Pagamento Formas de pagamento e taxas Categorias Financeiras Categorias de receitas e despesas Centros de Custo Organização e relatórios Abertura e Fechamento de Caixa Modo de conferência no fechamento Configurações Fiscais NF-e, NFC-e, NFS-e CATÁLOGO DE PRODUTOS Categorias de Produtos Organização de produtos Películas Compatíveis Modelos de películas IMPRESSÃO E DOCUMENTOS Central de Impressões Layout, papel, margens e auto-impressão em um só lugar INTEGRAÇÕES Mercado Pago Point Maquininhas de cartão integradas OLX Anúncios de smartphones na OLX E-commerce Sincronize produtos, estoque e pedidos Mercado Livre Conecte sua conta para publicar e gerenciar anúncios API do Ordemfy Conecte sistemas externos e agentes de IA"
+    },
+    {
+      "menu_or_route": "Ajuda",
+      "url": "https://ordemfy.com.br/dashboard/support",
+      "type": "same_origin_link",
+      "objective": "Pendente de classificacao manual",
+      "actions": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Introdução ao Ordemfy Primeiros Passos",
+        "Acesso ao Sistema Primeiros Passos",
+        "Conhecendo o Dashboard Visão Geral",
+        "Criando Ordem de Serviço Ordem de Serviço",
+        "Gerenciando Clientes Cadastros",
+        "Configurações Iniciais Configurações",
+        "Ponto de Venda (PDV) Vendas",
+        "Orçamento Rápido Vendas",
+        "Controle de Estoque Estoque",
+        "Gestão Financeira Financeiro",
+        "Emissão de Notas Fiscais Fiscal",
+        "Gestão de Técnicos Cadastros",
+        "Controle de Fornecedores Cadastros",
+        "Relatórios e Dashboards Relatórios",
+        "Sistema de Permissões Configurações",
+        "Dicas e Boas Práticas Dicas",
+        "Canais de Suporte Ajuda"
+      ],
+      "observations": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas Serviços Marketing Estoque Financeiro Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Ajuda Buscar... Período de teste: 12 dias restantes Ver Planos Central de Ajuda Encontre respostas para suas dúvidas sobre o Ordemfy Email WhatsApp Todos (17) Primeiros Passos (2) Visão Geral (1) Ordem de Serviço (1) Cadastros (3) Vendas (2) Estoque (1) Financeiro (1) Fiscal (1) Relatórios (1) Configurações (2) Dicas (1) Ajuda (1) Todos os Tópicos Clique em um tópico para expandir ou ver o artigo completo Introdução ao Ordemfy Primeiros Passos Acesso ao Sistema Primeiros Passos Conhecendo o Dashboard Visão Geral Criando Ordem de Serviço Ordem de Serviço Gerenciando Clientes Cadastros Configurações Iniciais Configurações Ponto de Venda (PDV) Vendas Orçamento Rápido Vendas Controle de Estoque Estoque Gestão Financeira Financeiro Emissão de Notas Fiscais Fiscal Gestão de Técnicos Cadastros Controle de Fornecedores Cadastros Relatórios e Dashboards Relatórios Sistema de Permissões Configurações Dicas e Boas Práticas Dicas Canais de Suporte Ajuda"
+    }
+  ],
+  "features": [
+    {
+      "name": "Dashboard",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Clientes",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Técnicos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Fornecedores",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Integrações",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Assinatura",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Configurações",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ajuda",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Fay",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Faturamento de Hoje",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ordens Recentes",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ações Rápidas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Vendas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Serviços",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Marketing",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Estoque",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Financeiro",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Garantia",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Relatórios Avançados",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Fiscal",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Buscar...",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nova OS",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nova Venda",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Abrir PDV",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "0 operações",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ver Todas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nova Ordem de Serviço",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Cadastrar Cliente",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Orçamento Rápido",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Saiba mais sobre o Dashboard",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nenhum cliente",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "0 notificações pendentes",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ver Planos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Fechar",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Link de Cadastro",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Importar",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "10",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nenhum técnico",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nenhum fornecedor",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Mercado Pago Point",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Mercado Pago Conta",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Banco Inter",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Mercado Livre",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "OLX",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "E-commerce",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "API do Ordemfy",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Controle por WhatsApp",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Todos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Pagamentos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Marketplaces",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "API",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Automação",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Conectar",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Gerenciar Assinatura",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ordemfy Start Período de Teste",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Precisa de ajuda?",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Trocar Plano",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "EMPRESA & SISTEMA",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "EQUIPE E PERMISSÕES",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "ORDENS DE SERVIÇO",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "FINANCEIRO E VENDAS",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "CATÁLOGO DE PRODUTOS",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "IMPRESSÃO E DOCUMENTOS",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "INTEGRAÇÕES",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Dados da Empresa Logo, CNPJ, endereço e contato",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Assinatura e Plano Consumo de OS e limites",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Armazenamento Gerenciar espaço e arquivos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Política de Privacidade Termos e política de privacidade",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Zona de Perigo Ações irreversíveis de limpeza",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Usuários e Acesso Gerenciar usuários e permissões",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Comissões Gestão de comissões de vendas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Tipos de Equipamentos Tipos de dispositivos aceitos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Campos Personalizados Campos extras nas OS",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Checklist de Entrada e Saída Verificações ao criar e finalizar OS",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Termos de Garantia Textos e condições de garantia",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Orçamento Rápido Garantia e parcelamento padrão",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Vídeos de Serviço Vídeos para serem usados em orçamento rápido",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Métodos de Pagamento Formas de pagamento e taxas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Categorias Financeiras Categorias de receitas e despesas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Centros de Custo Organização e relatórios",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Abertura e Fechamento de Caixa Modo de conferência no fechamento",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Configurações Fiscais NF-e, NFC-e, NFS-e",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Categorias de Produtos Organização de produtos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Películas Compatíveis Modelos de películas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Central de Impressões Layout, papel, margens e auto-impressão em um só lugar",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Mercado Pago Point Maquininhas de cartão integradas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "OLX Anúncios de smartphones na OLX",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "E-commerce Sincronize produtos, estoque e pedidos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Mercado Livre Conecte sua conta para publicar e gerenciar anúncios",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "API do Ordemfy Conecte sistemas externos e agentes de IA",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Central de Ajuda",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Todos os Tópicos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Introdução ao Ordemfy Primeiros Passos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Acesso ao Sistema Primeiros Passos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Conhecendo o Dashboard Visão Geral",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Criando Ordem de Serviço Ordem de Serviço",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Gerenciando Clientes Cadastros",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Configurações Iniciais Configurações",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ponto de Venda (PDV) Vendas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Orçamento Rápido Vendas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Controle de Estoque Estoque",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Gestão Financeira Financeiro",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Emissão de Notas Fiscais Fiscal",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Gestão de Técnicos Cadastros",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Controle de Fornecedores Cadastros",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Relatórios e Dashboards Relatórios",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Sistema de Permissões Configurações",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Dicas e Boas Práticas Dicas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Canais de Suporte Ajuda",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Agenda da Semana",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ver Calendário",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "SEX 29 -",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "SÁB 30 -",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "DOM 31 -",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "SEG 1 -",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "TER 2 -",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "QUA 3 -",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "QUI 4 -",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Criar primeira OS",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "PDV",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Pedidos de Vendas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Películas Compatíveis",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Notas Fiscais Consumidor",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Notas Fiscais",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Relatório de Vendas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ordem de Serviço",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Notas de Serviço",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Relatórios",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Bancada",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Removedor de Vírus",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Checklist Avulso",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Aniversários",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Follow Up",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Upsell de Vendas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Upsell de Serviços",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Cadastro de Produtos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Notas de Entrada",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Captura NF-e",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ordem de Compra",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Gerenciamento",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Etiquetas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Dashboard Financeiro",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Contas a Receber",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Contas a Pagar",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Contas Bancárias",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Extrato",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Transferências",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Conciliação",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Revisão Financeira",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "DRE",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Auditoria de Saldos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Visão Geral",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "NFS-e (Serviço)",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "NFC-e (Consumidor)",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "NF-e (Produto)",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Exportação",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Quem é o cliente?",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Continuar",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nome, CPF ou telefone...",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Novo Cliente",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Informações Básicas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Endereço",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Observações",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "UF",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Cancelar",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nome *",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "CPF/CNPJ",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Email",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Telefone",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "WhatsApp",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Data de Nascimento",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Cliente Ativo",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "CEP",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Logradouro",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Número",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Bairro",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Cidade",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Estado",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nome completo",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "[cpf]",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "[email]",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "(00) 00000-0000",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "00000-000",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Rua, Avenida...",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nº",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Observações sobre o cliente...",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Caixa Fechado",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Fechado",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Abrir",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Abrir Caixa",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Saiba mais sobre o PDV",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nenhum orçamento cadastrado",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Saiba mais sobre Orçamento Rápido",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Modelo",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Novo",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Identificar",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Baixar Modelo",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Importar Planilha",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Criar Orçamento",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Digite o IMEI (15 dígitos)",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Buscar por modelo ou código técnico (ex: iPhone 7 ou A1778)...",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ordens de Serviço",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nenhuma OS encontrada",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Saiba como criar ordens de serviço",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Cards",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Lista",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Todas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Garantia de Semi-Novos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Filtros",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Copiar",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Hoje",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Atrasados",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Buscar por número, cliente, marca ou modelo...",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Buscar por nome, email ou especialidade...",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Buscar por nome, documento ou email...",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nenhuma venda encontrada",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "7 dias",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "30 dias",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Exportar",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Buscar por número da venda...",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "404",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Visão geral do Marketing",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ações rápidas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Venda Cruzada (PDV)",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Venda Sugerida (OS)",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Follow-up",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Histórico",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nova Venda Cruzada (PDV)",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nova Venda Sugerida (OS)",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ver aniversariantes",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Follow-ups",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ver histórico completo",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Produtos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nenhum produto",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Saiba como cadastrar produtos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Semi-Novos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Todas categorias",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Todo estoque",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Todos vínculos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Nome A-Z",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Buscar por nome, SKU ou código de barras...",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Calendário Financeiro",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Saldo em Contas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Total a Receber",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Resultado do Período",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Recebido",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Pago",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Vendas (PDV)",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Serviços (OS)",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Entenda o módulo financeiro",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "01/05/2026 - 31/05/2026",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Abrir Calendário",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Saldo em Contas R$ 0,00 Soma das contas ativas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ver detalhamento por conta",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Módulo de Garantia",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Garantias Ativas (0)",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Ativas",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Acionamentos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Vales",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Prejuízos",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Estendida",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Buscar integrações...",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Buscar configurações...",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    },
+    {
+      "name": "Buscar artigos, tutoriais e dúvidas frequentes...",
+      "source": "authenticated_ui_observation",
+      "status": "observed_label_or_action"
+    }
+  ],
+  "entities": [
+    {
+      "name": "service_order",
+      "source": "project_context",
+      "status": "planned_for_smartloop_fixos",
+      "fields_observed": [],
+      "fields_expected": [
+        "customer",
+        "device_brand",
+        "device_model",
+        "imei",
+        "problem_description",
+        "status",
+        "technician",
+        "photos",
+        "quote"
+      ]
+    },
+    {
+      "name": "customer",
+      "source": "project_context",
+      "status": "planned_for_smartloop_fixos",
+      "fields_observed": [],
+      "fields_expected": [
+        "name",
+        "phone",
+        "email",
+        "cpf",
+        "history"
+      ]
+    },
+    {
+      "name": "quote",
+      "source": "project_context",
+      "status": "planned_for_smartloop_fixos",
+      "fields_observed": [],
+      "fields_expected": [
+        "items",
+        "parts_total",
+        "labor_total",
+        "discount",
+        "total",
+        "approval_link",
+        "pdf"
+      ]
+    }
+  ],
+  "observable_stack": [
+    {
+      "name": "[object Object]",
+      "source": "passive_browser_observation"
+    },
+    {
+      "name": "Service Worker API disponivel no navegador",
+      "source": "passive_browser_observation"
+    }
+  ],
+  "requirements_for_smartloop_fixos": [
+    {
+      "priority": "high",
+      "requirement": "Create and manage service orders with customer and device data.",
+      "source": "project_context",
+      "implementation_note": "Core MVP workflow."
+    },
+    {
+      "priority": "high",
+      "requirement": "Generate quotes with parts, labor, totals, PDF, and approval flow.",
+      "source": "project_context",
+      "implementation_note": "Use proprietary templates and approval links."
+    },
+    {
+      "priority": "medium",
+      "requirement": "QR Code photo upload for service order evidence.",
+      "source": "project_context",
+      "implementation_note": "Smartloop/FixOS differentiator."
+    },
+    {
+      "priority": "medium",
+      "requirement": "Camera-based IMEI reader with manual fallback.",
+      "source": "project_context",
+      "implementation_note": "Smartloop/FixOS differentiator."
+    }
+  ],
+  "pending_questions": [
+    "Confirmar se a conta e tenant demo/teste ou producao real antes de criar dados ficticios.",
+    "Confirmar autorizacao para criar clientes, OS, orcamentos, produtos e vendas ficticias durante uma proxima passada QA."
+  ],
+  "nav_interactions": [
+    {
+      "label": "Dashboard",
+      "before_url": "https://ordemfy.com.br/dashboard",
+      "after_url": "https://ordemfy.com.br/dashboard",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Dashboard",
+        "Fay",
+        "Faturamento de Hoje",
+        "Agenda da Semana",
+        "Ordens Recentes",
+        "Ações Rápidas"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Nova OS",
+        "Nova Venda",
+        "Abrir PDV",
+        "0 operações",
+        "Ver Calendário",
+        "SEX 29 -",
+        "SÁB 30 -",
+        "DOM 31 -",
+        "SEG 1 -",
+        "TER 2 -",
+        "QUA 3 -",
+        "QUI 4 -",
+        "Ver Todas",
+        "Criar primeira OS",
+        "Nova Ordem de Serviço",
+        "Cadastrar Cliente",
+        "Orçamento Rápido",
+        "Saiba mais sobre o Dashboard"
+      ],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas Serviços Marketing Estoque Financeiro Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Dashboard Buscar... Período de teste: 12 dias restantes Ver Planos Dashboard Bem-vindo! Aqui está o resumo da sua assistência. Nova OS Nova Venda Fay IA Nenhum pedido em aberto — Você não tem nenhum pedido em aberto ou aguardando peças. Considere ações para atrair mais demanda. +4 OS Abertas 0 Clientes Ativos 0 Receita Mensal R$ 0,00 Tempo Médio - Ticket Médio R$ 0,00 Faturamento de Hoje Abrir PDV Total R$ 0,00 0 operações Produtos R$ 0,00 Serviços R$ 0,00 Líquido R$ 0,00 Agenda da Semana Ver Calendário SEX 29 - SÁB 30 - DOM 31 - SEG 1 - TER 2 - QUA 3 - QUI 4 - Receber Pagar OS Compromisso PROVÉRBIOS O preguiçoso deseja e nada tem, mas os desejos do diligente serão satisfeitos. — Pv 13:4 Ordens Recentes Ver Todas Nenhuma ordem de serviço ainda Criar primeira OS Ações Rápidas Nova Ordem de Serviço Cadastrar Cliente Abrir PDV Orçamento Rápido Saiba mais sobre o Dashboard"
+    },
+    {
+      "label": "Clientes",
+      "before_url": "https://ordemfy.com.br/dashboard",
+      "after_url": "https://ordemfy.com.br/dashboard/customers",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Clientes",
+        "Nenhum cliente"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Link de Cadastro",
+        "Importar",
+        "10"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas Serviços Marketing Estoque Financeiro Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Clientes Buscar... Período de teste: 12 dias restantes Ver Planos Clientes 0 clientes Link de Cadastro Importar Novo Cliente Nenhum cliente Novo Cliente Exibir 10 por página"
+    },
+    {
+      "label": "Técnicos",
+      "before_url": "https://ordemfy.com.br/dashboard/customers",
+      "after_url": "https://ordemfy.com.br/dashboard/technicians",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Técnicos",
+        "Nenhum técnico"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar por nome, email ou especialidade..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas Serviços Marketing Estoque Financeiro Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Técnicos Buscar... Período de teste: 12 dias restantes Ver Planos Técnicos 0 técnicos Novo Técnico Nenhum técnico Novo Técnico"
+    },
+    {
+      "label": "Fornecedores",
+      "before_url": "https://ordemfy.com.br/dashboard/technicians",
+      "after_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Fornecedores",
+        "Nenhum fornecedor"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar por nome, documento ou email..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas Serviços Marketing Estoque Financeiro Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Fornecedores Buscar... Período de teste: 12 dias restantes Ver Planos Fornecedores 0 fornecedores Novo Fornecedor Nenhum fornecedor Novo Fornecedor"
+    },
+    {
+      "label": "Vendas",
+      "before_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "after_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Fornecedores",
+        "Nenhum fornecedor"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "PDV",
+        "Pedidos de Vendas",
+        "Películas Compatíveis",
+        "Notas Fiscais Consumidor",
+        "Notas Fiscais",
+        "Relatório de Vendas",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar por nome, documento ou email..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Marketing Estoque Financeiro Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Fornecedores Buscar... Período de teste: 12 dias restantes Ver Planos Fornecedores 0 fornecedores Novo Fornecedor Nenhum fornecedor Novo Fornecedor"
+    },
+    {
+      "label": "Serviços",
+      "before_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "after_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Fornecedores",
+        "Nenhum fornecedor"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "PDV",
+        "Pedidos de Vendas",
+        "Películas Compatíveis",
+        "Notas Fiscais Consumidor",
+        "Notas Fiscais",
+        "Relatório de Vendas",
+        "Ordem de Serviço",
+        "Orçamento Rápido",
+        "Notas de Serviço",
+        "Relatórios",
+        "Bancada",
+        "Removedor de Vírus",
+        "Checklist Avulso",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar por nome, documento ou email..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Estoque Financeiro Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Fornecedores Buscar... Período de teste: 12 dias restantes Ver Planos Fornecedores 0 fornecedores Novo Fornecedor Nenhum fornecedor Novo Fornecedor"
+    },
+    {
+      "label": "Marketing",
+      "before_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "after_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Fornecedores",
+        "Nenhum fornecedor"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "PDV",
+        "Pedidos de Vendas",
+        "Películas Compatíveis",
+        "Notas Fiscais Consumidor",
+        "Notas Fiscais",
+        "Relatório de Vendas",
+        "Ordem de Serviço",
+        "Orçamento Rápido",
+        "Notas de Serviço",
+        "Relatórios",
+        "Bancada",
+        "Removedor de Vírus",
+        "Checklist Avulso",
+        "Aniversários",
+        "Follow Up",
+        "Upsell de Vendas",
+        "Upsell de Serviços",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar por nome, documento ou email..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Financeiro Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Fornecedores Buscar... Período de teste: 12 dias restantes Ver Planos Fornecedores 0 fornecedores Novo Fornecedor Nenhum fornecedor Novo Fornecedor"
+    },
+    {
+      "label": "Estoque",
+      "before_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "after_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Fornecedores",
+        "Nenhum fornecedor"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "PDV",
+        "Pedidos de Vendas",
+        "Películas Compatíveis",
+        "Notas Fiscais Consumidor",
+        "Notas Fiscais",
+        "Relatório de Vendas",
+        "Ordem de Serviço",
+        "Orçamento Rápido",
+        "Notas de Serviço",
+        "Relatórios",
+        "Bancada",
+        "Removedor de Vírus",
+        "Checklist Avulso",
+        "Aniversários",
+        "Follow Up",
+        "Upsell de Vendas",
+        "Upsell de Serviços",
+        "Cadastro de Produtos",
+        "Notas de Entrada",
+        "Captura NF-e",
+        "Ordem de Compra",
+        "Gerenciamento",
+        "Etiquetas",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar por nome, documento ou email..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Fornecedores Buscar... Período de teste: 12 dias restantes Ver Planos Fornecedores 0 fornecedores Novo Fornecedor Nenhum fornecedor Novo Fornecedor"
+    },
+    {
+      "label": "Financeiro",
+      "before_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "after_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Fornecedores",
+        "Nenhum fornecedor"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "PDV",
+        "Pedidos de Vendas",
+        "Películas Compatíveis",
+        "Notas Fiscais Consumidor",
+        "Notas Fiscais",
+        "Relatório de Vendas",
+        "Ordem de Serviço",
+        "Orçamento Rápido",
+        "Notas de Serviço",
+        "Relatórios",
+        "Bancada",
+        "Removedor de Vírus",
+        "Checklist Avulso",
+        "Aniversários",
+        "Follow Up",
+        "Upsell de Vendas",
+        "Upsell de Serviços",
+        "Cadastro de Produtos",
+        "Notas de Entrada",
+        "Captura NF-e",
+        "Ordem de Compra",
+        "Gerenciamento",
+        "Etiquetas",
+        "Dashboard Financeiro",
+        "Contas a Receber",
+        "Contas a Pagar",
+        "Contas Bancárias",
+        "Extrato",
+        "Transferências",
+        "Conciliação",
+        "Revisão Financeira",
+        "DRE",
+        "Auditoria de Saldos",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar por nome, documento ou email..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Fornecedores Buscar... Período de teste: 12 dias restantes Ver Planos Fornecedores 0 fornecedores Novo Fornecedor Nenhum fornecedor Novo Fornecedor"
+    },
+    {
+      "label": "Garantia",
+      "before_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "after_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Fornecedores",
+        "Nenhum fornecedor"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "PDV",
+        "Pedidos de Vendas",
+        "Películas Compatíveis",
+        "Notas Fiscais Consumidor",
+        "Notas Fiscais",
+        "Relatório de Vendas",
+        "Ordem de Serviço",
+        "Orçamento Rápido",
+        "Notas de Serviço",
+        "Relatórios",
+        "Bancada",
+        "Removedor de Vírus",
+        "Checklist Avulso",
+        "Aniversários",
+        "Follow Up",
+        "Upsell de Vendas",
+        "Upsell de Serviços",
+        "Cadastro de Produtos",
+        "Notas de Entrada",
+        "Captura NF-e",
+        "Ordem de Compra",
+        "Gerenciamento",
+        "Etiquetas",
+        "Dashboard Financeiro",
+        "Contas a Receber",
+        "Contas a Pagar",
+        "Contas Bancárias",
+        "Extrato",
+        "Transferências",
+        "Conciliação",
+        "Revisão Financeira",
+        "DRE",
+        "Auditoria de Saldos",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar por nome, documento ou email..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Fiscal Integrações Assinatura Configurações Ajuda [email] Online Fornecedores Buscar... Período de teste: 12 dias restantes Ver Planos Fornecedores 0 fornecedores Novo Fornecedor Nenhum fornecedor Novo Fornecedor"
+    },
+    {
+      "label": "Relatórios Avançados",
+      "before_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "after_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Fornecedores",
+        "Nenhum fornecedor"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "PDV",
+        "Pedidos de Vendas",
+        "Películas Compatíveis",
+        "Notas Fiscais Consumidor",
+        "Notas Fiscais",
+        "Relatório de Vendas",
+        "Ordem de Serviço",
+        "Orçamento Rápido",
+        "Notas de Serviço",
+        "Relatórios",
+        "Bancada",
+        "Removedor de Vírus",
+        "Checklist Avulso",
+        "Aniversários",
+        "Follow Up",
+        "Upsell de Vendas",
+        "Upsell de Serviços",
+        "Cadastro de Produtos",
+        "Notas de Entrada",
+        "Captura NF-e",
+        "Ordem de Compra",
+        "Gerenciamento",
+        "Etiquetas",
+        "Dashboard Financeiro",
+        "Contas a Receber",
+        "Contas a Pagar",
+        "Contas Bancárias",
+        "Extrato",
+        "Transferências",
+        "Conciliação",
+        "Revisão Financeira",
+        "DRE",
+        "Auditoria de Saldos",
+        "Visão Geral",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar por nome, documento ou email..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Integrações Assinatura Configurações Ajuda [email] Online Fornecedores Buscar... Período de teste: 12 dias restantes Ver Planos Fornecedores 0 fornecedores Novo Fornecedor Nenhum fornecedor Novo Fornecedor"
+    },
+    {
+      "label": "Fiscal",
+      "before_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "after_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Fornecedores",
+        "Nenhum fornecedor"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "PDV",
+        "Pedidos de Vendas",
+        "Películas Compatíveis",
+        "Notas Fiscais Consumidor",
+        "Notas Fiscais",
+        "Relatório de Vendas",
+        "Ordem de Serviço",
+        "Orçamento Rápido",
+        "Notas de Serviço",
+        "Relatórios",
+        "Bancada",
+        "Removedor de Vírus",
+        "Checklist Avulso",
+        "Aniversários",
+        "Follow Up",
+        "Upsell de Vendas",
+        "Upsell de Serviços",
+        "Cadastro de Produtos",
+        "Notas de Entrada",
+        "Captura NF-e",
+        "Ordem de Compra",
+        "Gerenciamento",
+        "Etiquetas",
+        "Dashboard Financeiro",
+        "Contas a Receber",
+        "Contas a Pagar",
+        "Contas Bancárias",
+        "Extrato",
+        "Transferências",
+        "Conciliação",
+        "Revisão Financeira",
+        "DRE",
+        "Auditoria de Saldos",
+        "Visão Geral",
+        "NFS-e (Serviço)",
+        "NFC-e (Consumidor)",
+        "NF-e (Produto)",
+        "Exportação",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar por nome, documento ou email..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Fornecedores Buscar... Período de teste: 12 dias restantes Ver Planos Fornecedores 0 fornecedores Novo Fornecedor Nenhum fornecedor Novo Fornecedor"
+    },
+    {
+      "label": "Integrações",
+      "before_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "after_url": "https://ordemfy.com.br/dashboard/integrations",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Integrações",
+        "Mercado Pago Point",
+        "Mercado Pago Conta",
+        "Banco Inter",
+        "Mercado Livre",
+        "OLX",
+        "E-commerce",
+        "API do Ordemfy",
+        "Controle por WhatsApp"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "PDV",
+        "Pedidos de Vendas",
+        "Películas Compatíveis",
+        "Notas Fiscais Consumidor",
+        "Notas Fiscais",
+        "Relatório de Vendas",
+        "Ordem de Serviço",
+        "Orçamento Rápido",
+        "Notas de Serviço",
+        "Relatórios",
+        "Bancada",
+        "Removedor de Vírus",
+        "Checklist Avulso",
+        "Aniversários",
+        "Follow Up",
+        "Upsell de Vendas",
+        "Upsell de Serviços",
+        "Cadastro de Produtos",
+        "Notas de Entrada",
+        "Captura NF-e",
+        "Ordem de Compra",
+        "Gerenciamento",
+        "Etiquetas",
+        "Dashboard Financeiro",
+        "Contas a Receber",
+        "Contas a Pagar",
+        "Contas Bancárias",
+        "Extrato",
+        "Transferências",
+        "Conciliação",
+        "Revisão Financeira",
+        "DRE",
+        "Auditoria de Saldos",
+        "Visão Geral",
+        "NFS-e (Serviço)",
+        "NFC-e (Consumidor)",
+        "NF-e (Produto)",
+        "Exportação",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Todos",
+        "Pagamentos",
+        "Marketplaces",
+        "E-commerce",
+        "API",
+        "Automação",
+        "Conectar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar integrações..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Integrações Buscar... Período de teste: 12 dias restantes Ver Planos Integrações Conecte o Ordemfy aos serviços que você usa todos os dias. 0 ativas 8 disponíveis Todos Pagamentos Financeiro Marketplaces E-commerce API Automação Mercado Pago Point Maquininhas de cartão Aceite pagamentos no PDV com as maquininhas Point integradas ao seu fluxo de venda. PAGAMENTOS Conectar Mercado Pago Conta Movimentações da conta MP Importe movimentações, retiradas, taxas, estornos e entradas da sua conta Mercado Pago. FINANCEIRO Conectar Banco Inter Conta PJ • API Bancária Importe extratos, saldos e movimentações da sua conta Inter Empresas para conciliação financeira. FINANCEIRO Conectar Mercado Livre Anúncios e pedidos Conecte sua conta para publicar anúncios e receber pedidos diretamente no Ordemfy. MARKETPLACES Conectar OLX Anúncios de smartphones Publique e gerencie anúncios de smartphones diretamente do seu estoque. MARKETPLACES Conectar E-commerce Loja virtual sincronizada Sincronize produtos, estoque e pedidos com sua loja virtual. E-COMMERCE Conectar API do Ordemfy Para desenvolvedores Conecte sistemas externos, integre agentes de IA e crie automações. API Conectar Controle por WhatsApp Tokens por tipo de usuário para chatbot/IA Gere tokens de acesso à API por perfil (Admin, Técnico, Financeiro, Atendente). As permissões do token seguem as do usuário escolhido. AUTOMAÇÃO Conectar"
+    },
+    {
+      "label": "Assinatura",
+      "before_url": "https://ordemfy.com.br/dashboard/integrations",
+      "after_url": "https://ordemfy.com.br/dashboard/subscription",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Assinatura",
+        "Gerenciar Assinatura",
+        "Ordemfy Start Período de Teste",
+        "Precisa de ajuda?"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "PDV",
+        "Pedidos de Vendas",
+        "Películas Compatíveis",
+        "Notas Fiscais Consumidor",
+        "Notas Fiscais",
+        "Relatório de Vendas",
+        "Ordem de Serviço",
+        "Orçamento Rápido",
+        "Notas de Serviço",
+        "Relatórios",
+        "Bancada",
+        "Removedor de Vírus",
+        "Checklist Avulso",
+        "Aniversários",
+        "Follow Up",
+        "Upsell de Vendas",
+        "Upsell de Serviços",
+        "Cadastro de Produtos",
+        "Notas de Entrada",
+        "Captura NF-e",
+        "Ordem de Compra",
+        "Gerenciamento",
+        "Etiquetas",
+        "Dashboard Financeiro",
+        "Contas a Receber",
+        "Contas a Pagar",
+        "Contas Bancárias",
+        "Extrato",
+        "Transferências",
+        "Conciliação",
+        "Revisão Financeira",
+        "DRE",
+        "Auditoria de Saldos",
+        "Visão Geral",
+        "NFS-e (Serviço)",
+        "NFC-e (Consumidor)",
+        "NF-e (Produto)",
+        "Exportação",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Trocar Plano"
+      ],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Assinatura Buscar... Período de teste: 12 dias restantes Ver Planos Gerenciar Assinatura Visualize e gerencie sua assinatura do Ordemfy Ordemfy Start Período de Teste Plano Mensal Trocar Plano Valor R$ 49,99/mês Próximo Vencimento 10 de junho de 2026 Usuários Até 2 usuários Uso do Plano (Mês Atual) Ordens de Serviço 0/100 Armazenamento 0.02MB/600MB Recursos inclusos Ordens de Serviço Cadastro de Clientes Painel do Técnico PDV Completo Controle de Caixa Gestão de Estoque Financeiro Completo Notas Fiscais (NF-e, NFS-e, NFC-e) Películas Compatíveis Garantia Estendida Orçamento Rápido Precisa de ajuda? Entre em contato com nosso suporte para dúvidas sobre sua assinatura. Email WhatsApp"
+    },
+    {
+      "label": "Configurações",
+      "before_url": "https://ordemfy.com.br/dashboard/subscription",
+      "after_url": "https://ordemfy.com.br/dashboard/settings",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Configurações",
+        "EMPRESA & SISTEMA",
+        "EQUIPE E PERMISSÕES",
+        "ORDENS DE SERVIÇO",
+        "FINANCEIRO E VENDAS",
+        "CATÁLOGO DE PRODUTOS",
+        "IMPRESSÃO E DOCUMENTOS",
+        "INTEGRAÇÕES"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "PDV",
+        "Pedidos de Vendas",
+        "Películas Compatíveis",
+        "Notas Fiscais Consumidor",
+        "Notas Fiscais",
+        "Relatório de Vendas",
+        "Ordem de Serviço",
+        "Orçamento Rápido",
+        "Notas de Serviço",
+        "Relatórios",
+        "Bancada",
+        "Removedor de Vírus",
+        "Checklist Avulso",
+        "Aniversários",
+        "Follow Up",
+        "Upsell de Vendas",
+        "Upsell de Serviços",
+        "Cadastro de Produtos",
+        "Notas de Entrada",
+        "Captura NF-e",
+        "Ordem de Compra",
+        "Gerenciamento",
+        "Etiquetas",
+        "Dashboard Financeiro",
+        "Contas a Receber",
+        "Contas a Pagar",
+        "Contas Bancárias",
+        "Extrato",
+        "Transferências",
+        "Conciliação",
+        "Revisão Financeira",
+        "DRE",
+        "Auditoria de Saldos",
+        "Visão Geral",
+        "NFS-e (Serviço)",
+        "NFC-e (Consumidor)",
+        "NF-e (Produto)",
+        "Exportação",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Dados da Empresa Logo, CNPJ, endereço e contato",
+        "Assinatura e Plano Consumo de OS e limites",
+        "Armazenamento Gerenciar espaço e arquivos",
+        "Política de Privacidade Termos e política de privacidade",
+        "Zona de Perigo Ações irreversíveis de limpeza",
+        "Usuários e Acesso Gerenciar usuários e permissões",
+        "Comissões Gestão de comissões de vendas",
+        "Tipos de Equipamentos Tipos de dispositivos aceitos",
+        "Campos Personalizados Campos extras nas OS",
+        "Checklist de Entrada e Saída Verificações ao criar e finalizar OS",
+        "Termos de Garantia Textos e condições de garantia",
+        "Orçamento Rápido Garantia e parcelamento padrão",
+        "Vídeos de Serviço Vídeos para serem usados em orçamento rápido",
+        "Métodos de Pagamento Formas de pagamento e taxas",
+        "Categorias Financeiras Categorias de receitas e despesas",
+        "Centros de Custo Organização e relatórios",
+        "Abertura e Fechamento de Caixa Modo de conferência no fechamento",
+        "Configurações Fiscais NF-e, NFC-e, NFS-e",
+        "Categorias de Produtos Organização de produtos",
+        "Películas Compatíveis Modelos de películas",
+        "Central de Impressões Layout, papel, margens e auto-impressão em um só lugar",
+        "Mercado Pago Point Maquininhas de cartão integradas",
+        "OLX Anúncios de smartphones na OLX",
+        "E-commerce Sincronize produtos, estoque e pedidos",
+        "Mercado Livre Conecte sua conta para publicar e gerenciar anúncios",
+        "API do Ordemfy Conecte sistemas externos e agentes de IA"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar configurações..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Configurações Buscar... Período de teste: 12 dias restantes Ver Planos Configurações Gerencie as configurações da sua empresa / EMPRESA & SISTEMA Dados da Empresa Logo, CNPJ, endereço e contato Assinatura e Plano Consumo de OS e limites Armazenamento Gerenciar espaço e arquivos Política de Privacidade Termos e política de privacidade Zona de Perigo Ações irreversíveis de limpeza EQUIPE E PERMISSÕES Usuários e Acesso Gerenciar usuários e permissões Comissões Gestão de comissões de vendas ORDENS DE SERVIÇO Tipos de Equipamentos Tipos de dispositivos aceitos Campos Personalizados Campos extras nas OS Checklist de Entrada e Saída Verificações ao criar e finalizar OS Termos de Garantia Textos e condições de garantia Orçamento Rápido Garantia e parcelamento padrão Vídeos de Serviço Vídeos para serem usados em orçamento rápido FINANCEIRO E VENDAS Métodos de Pagamento Formas de pagamento e taxas Categorias Financeiras Categorias de receitas e despesas Centros de Custo Organização e relatórios Abertura e Fechamento de Caixa Modo de conferência no fechamento Configurações Fiscais NF-e, NFC-e, NFS-e CATÁLOGO DE PRODUTOS Categorias de Produtos Organização de produtos Películas Compatíveis Modelos de películas IMPRESSÃO E DOCUMENTOS Central de Impressões Layout, papel, margens e auto-impressão em um só lugar INTEGRAÇÕES Mercado Pago Point Maquininhas de cartão integradas OLX Anúncios de smartphones na OLX E-commerce Sincronize produtos, estoque e pedidos Mercado Livre Conecte sua conta par"
+    },
+    {
+      "label": "Ajuda",
+      "before_url": "https://ordemfy.com.br/dashboard/settings",
+      "after_url": "https://ordemfy.com.br/dashboard/support",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Ajuda",
+        "Central de Ajuda",
+        "Todos os Tópicos",
+        "Introdução ao Ordemfy Primeiros Passos",
+        "Acesso ao Sistema Primeiros Passos",
+        "Conhecendo o Dashboard Visão Geral",
+        "Criando Ordem de Serviço Ordem de Serviço",
+        "Gerenciando Clientes Cadastros",
+        "Configurações Iniciais Configurações",
+        "Ponto de Venda (PDV) Vendas",
+        "Orçamento Rápido Vendas",
+        "Controle de Estoque Estoque",
+        "Gestão Financeira Financeiro",
+        "Emissão de Notas Fiscais Fiscal",
+        "Gestão de Técnicos Cadastros",
+        "Controle de Fornecedores Cadastros",
+        "Relatórios e Dashboards Relatórios",
+        "Sistema de Permissões Configurações",
+        "Dicas e Boas Práticas Dicas",
+        "Canais de Suporte Ajuda"
+      ],
+      "navTexts": [
+        "Dashboard",
+        "Clientes",
+        "Técnicos",
+        "Fornecedores",
+        "PDV",
+        "Pedidos de Vendas",
+        "Películas Compatíveis",
+        "Notas Fiscais Consumidor",
+        "Notas Fiscais",
+        "Relatório de Vendas",
+        "Ordem de Serviço",
+        "Orçamento Rápido",
+        "Notas de Serviço",
+        "Relatórios",
+        "Bancada",
+        "Removedor de Vírus",
+        "Checklist Avulso",
+        "Aniversários",
+        "Follow Up",
+        "Upsell de Vendas",
+        "Upsell de Serviços",
+        "Cadastro de Produtos",
+        "Notas de Entrada",
+        "Captura NF-e",
+        "Ordem de Compra",
+        "Gerenciamento",
+        "Etiquetas",
+        "Dashboard Financeiro",
+        "Contas a Receber",
+        "Contas a Pagar",
+        "Contas Bancárias",
+        "Extrato",
+        "Transferências",
+        "Conciliação",
+        "Revisão Financeira",
+        "DRE",
+        "Auditoria de Saldos",
+        "Visão Geral",
+        "NFS-e (Serviço)",
+        "NFC-e (Consumidor)",
+        "NF-e (Produto)",
+        "Exportação",
+        "Integrações",
+        "Assinatura",
+        "Configurações",
+        "Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Introdução ao Ordemfy Primeiros Passos",
+        "Acesso ao Sistema Primeiros Passos",
+        "Conhecendo o Dashboard Visão Geral",
+        "Criando Ordem de Serviço Ordem de Serviço",
+        "Gerenciando Clientes Cadastros",
+        "Configurações Iniciais Configurações",
+        "Ponto de Venda (PDV) Vendas",
+        "Orçamento Rápido Vendas",
+        "Controle de Estoque Estoque",
+        "Gestão Financeira Financeiro",
+        "Emissão de Notas Fiscais Fiscal",
+        "Gestão de Técnicos Cadastros",
+        "Controle de Fornecedores Cadastros",
+        "Relatórios e Dashboards Relatórios",
+        "Sistema de Permissões Configurações",
+        "Dicas e Boas Práticas Dicas",
+        "Canais de Suporte Ajuda"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar artigos, tutoriais e dúvidas frequentes..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Ajuda Buscar... Período de teste: 12 dias restantes Ver Planos Central de Ajuda Encontre respostas para suas dúvidas sobre o Ordemfy Email WhatsApp Todos (17) Primeiros Passos (2) Visão Geral (1) Ordem de Serviço (1) Cadastros (3) Vendas (2) Estoque (1) Financeiro (1) Fiscal (1) Relatórios (1) Configurações (2) Dicas (1) Ajuda (1) Todos os Tópicos Clique em um tópico para expandir ou ver o artigo completo Introdução ao Ordemfy Primeiros Passos Acesso ao Sistema Primeiros Passos Conhecendo o Dashboard Visão Geral Criando Ordem de Serviço Ordem de Serviço Gerenciando Clientes Cadastros Configurações Iniciais Configurações Ponto de Venda (PDV) Vendas Orçamento Rápido Vendas Controle de Estoque Estoque Gestão Financeira Financeiro Emissão de Notas Fiscais Fiscal Gestão de Técnicos Cadastros Controle de Fornecedores Cadastros Relatórios e Dashboards Relatórios Sistema de Permissões Configurações Dicas e Boas Práticas Dicas Canais de Suporte Ajuda"
+    }
+  ],
+  "action_forms": [
+    {
+      "action": "Nova OS",
+      "before_url": "https://ordemfy.com.br/dashboard",
+      "after_url": "https://ordemfy.com.br/dashboard/orders/new",
+      "headings": [
+        "Dashboard",
+        "Nova OS",
+        "Quem é o cliente?"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Continuar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Nome, CPF ou telefone..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Dashboard Buscar... Período de teste: 12 dias restantes Ver Planos Nova OS Etapa 1 de 4 1 Cliente 2 Equipamento 3 Atendimento 4 Resumo Quem é o cliente? Busque ou cadastre um novo Continuar"
+    },
+    {
+      "action": "Nova Ordem de Serviço",
+      "before_url": "https://ordemfy.com.br/dashboard",
+      "after_url": "https://ordemfy.com.br/dashboard/orders/new",
+      "headings": [
+        "Dashboard",
+        "Nova OS",
+        "Quem é o cliente?"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Continuar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Nome, CPF ou telefone..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Dashboard Buscar... Período de teste: 12 dias restantes Ver Planos Nova OS Etapa 1 de 4 1 Cliente 2 Equipamento 3 Atendimento 4 Resumo Quem é o cliente? Busque ou cadastre um novo Continuar"
+    },
+    {
+      "action": "Cadastrar Cliente",
+      "before_url": "https://ordemfy.com.br/dashboard",
+      "after_url": "https://ordemfy.com.br/dashboard/customers/new",
+      "headings": [
+        "Dashboard",
+        "Novo Cliente",
+        "Informações Básicas",
+        "Endereço",
+        "Observações"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "UF",
+        "Cancelar",
+        "Cadastrar Cliente"
+      ],
+      "labels": [
+        "Nome *",
+        "CPF/CNPJ",
+        "Email",
+        "Telefone",
+        "WhatsApp",
+        "Data de Nascimento",
+        "Cliente Ativo",
+        "CEP",
+        "Logradouro",
+        "Número",
+        "Bairro",
+        "Cidade",
+        "Estado"
+      ],
+      "placeholders": [
+        "Nome completo",
+        "[cpf]",
+        "[email]",
+        "(00) 00000-0000",
+        "00000-000",
+        "Rua, Avenida...",
+        "Nº",
+        "Bairro",
+        "Cidade",
+        "Observações sobre o cliente..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Dashboard Buscar... Período de teste: 12 dias restantes Ver Planos Novo Cliente Adicione um novo cliente Informações Básicas Nome * CPF/CNPJ Email Telefone WhatsApp Data de Nascimento Usada no módulo Marketing (aniversários). Cliente Ativo Endereço CEP Logradouro Número Bairro Cidade Estado UF AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO Observações Cancelar Cadastrar Cliente"
+    },
+    {
+      "action": "Nova Venda",
+      "before_url": "https://ordemfy.com.br/dashboard",
+      "after_url": "https://ordemfy.com.br/dashboard/pdv",
+      "headings": [
+        "PDV",
+        "Caixa Fechado"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Fechado",
+        "Abrir",
+        "Abrir Caixa",
+        "Saiba mais sobre o PDV"
+      ],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online PDV Buscar... Período de teste: 12 dias restantes Ver Planos Fechado Abrir Histórico Caixa Fechado Abra o caixa para iniciar as vendas Abrir Caixa Saiba mais sobre o PDV"
+    },
+    {
+      "action": "Abrir PDV",
+      "before_url": "https://ordemfy.com.br/dashboard",
+      "after_url": "https://ordemfy.com.br/dashboard/pdv",
+      "headings": [
+        "PDV",
+        "Caixa Fechado"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Fechado",
+        "Abrir",
+        "Abrir Caixa",
+        "Saiba mais sobre o PDV"
+      ],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online PDV Buscar... Período de teste: 12 dias restantes Ver Planos Fechado Abrir Histórico Caixa Fechado Abra o caixa para iniciar as vendas Abrir Caixa Saiba mais sobre o PDV"
+    },
+    {
+      "action": "Orçamento Rápido",
+      "before_url": "https://ordemfy.com.br/dashboard",
+      "after_url": "https://ordemfy.com.br/dashboard/quick-quotes",
+      "headings": [
+        "Orçamento Rápido",
+        "Nenhum orçamento cadastrado"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Saiba mais sobre Orçamento Rápido",
+        "Modelo",
+        "Importar",
+        "Novo",
+        "Identificar",
+        "Baixar Modelo",
+        "Importar Planilha",
+        "Criar Orçamento"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Digite o IMEI (15 dígitos)",
+        "Buscar por modelo ou código técnico (ex: iPhone 7 ou A1778)..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Orçamento Rápido Buscar... Período de teste: 12 dias restantes Ver Planos Orçamento Rápido Tabela de preços por modelo Saiba mais sobre Orçamento Rápido Modelo Importar Novo Identificar Aparelho por IMEI Identificar 0 aparelhos Nenhum orçamento cadastrado Comece importando uma planilha ou criando manualmente Baixar Modelo Importar Planilha Criar Orçamento Formatos aceitos: XLSX, XLS, CSV, TSV"
+    }
+  ],
+  "direct_routes": [
+    {
+      "route": "/dashboard",
+      "requested_url": "https://ordemfy.com.br/dashboard",
+      "final_url": "https://ordemfy.com.br/dashboard",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Dashboard",
+        "Fay",
+        "Faturamento de Hoje",
+        "Agenda da Semana",
+        "Ordens Recentes",
+        "Ações Rápidas"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Nova OS",
+        "Nova Venda",
+        "Abrir PDV",
+        "0 operações",
+        "Ver Calendário",
+        "SEX 29 -",
+        "SÁB 30 -",
+        "DOM 31 -",
+        "SEG 1 -",
+        "TER 2 -",
+        "QUA 3 -",
+        "QUI 4 -",
+        "Ver Todas",
+        "Criar primeira OS",
+        "Nova Ordem de Serviço",
+        "Cadastrar Cliente",
+        "Orçamento Rápido",
+        "Saiba mais sobre o Dashboard"
+      ],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Dashboard Buscar... Período de teste: 12 dias restantes Ver Planos Dashboard Bem-vindo! Aqui está o resumo da sua assistência. Nova OS Nova Venda Fay IA Nenhum pedido em aberto — Você não tem nenhum pedido em aberto ou aguardando peças. Considere ações para atrair mais demanda. +4 OS Abertas 0 Clientes Ativos 0 Receita Mensal R$ 0,00 Tempo Médio - Ticket Médio R$ 0,00 Faturamento de Hoje Abrir PDV Total R$ 0,00 0 operações Produtos R$ 0,00 Serviços R$ 0,00 Líquido R$ 0,00 Agenda da Semana Ver Calendário SEX 29 - SÁB 30 - DOM 31 - SEG 1 - TER 2 - QUA 3 - QUI 4 - Receber Pagar OS Compromisso PROVÉRBIOS O preguiçoso deseja e nada tem, mas os desejos do diligente serão satisfeitos. — Pv 13:4 Ordens Recentes Ver Todas Nenhuma ordem de serviço ainda Criar primeira OS Ações Rápidas Nova Ordem de Serviço Cadastrar Cliente Abrir PDV Orçamento Rápido Saiba mais sobre o Dashboard"
+    },
+    {
+      "route": "/dashboard/orders",
+      "requested_url": "https://ordemfy.com.br/dashboard/orders",
+      "final_url": "https://ordemfy.com.br/dashboard/orders",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Ordem de Serviço",
+        "Ordens de Serviço",
+        "Nenhuma OS encontrada"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Saiba como criar ordens de serviço",
+        "Cards",
+        "Lista",
+        "Nova OS",
+        "Todas",
+        "Garantia de Semi-Novos",
+        "Filtros",
+        "Copiar",
+        "Hoje",
+        "Atrasados"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar por número, cliente, marca ou modelo..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Ordem de Serviço Buscar... Período de teste: 12 dias restantes Ver Planos Ordens de Serviço Gerencie suas ordens de serviço Saiba como criar ordens de serviço Nova OS Todas Garantia de Semi-Novos Filtros Copiar Hoje Atrasados Nenhuma OS encontrada Crie sua primeira ordem de serviço Nova OS"
+    },
+    {
+      "route": "/dashboard/orders/new",
+      "requested_url": "https://ordemfy.com.br/dashboard/orders/new",
+      "final_url": "https://ordemfy.com.br/dashboard/orders/new",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Dashboard",
+        "Nova OS",
+        "Quem é o cliente?"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Continuar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Nome, CPF ou telefone..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Dashboard Buscar... Período de teste: 12 dias restantes Ver Planos Nova OS Etapa 1 de 4 1 Cliente 2 Equipamento 3 Atendimento 4 Resumo Quem é o cliente? Busque ou cadastre um novo Continuar"
+    },
+    {
+      "route": "/dashboard/customers",
+      "requested_url": "https://ordemfy.com.br/dashboard/customers",
+      "final_url": "https://ordemfy.com.br/dashboard/customers",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Clientes",
+        "Nenhum cliente"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Link de Cadastro",
+        "Importar",
+        "10"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Clientes Buscar... Período de teste: 12 dias restantes Ver Planos Clientes 0 clientes Link de Cadastro Importar Novo Cliente Nenhum cliente Novo Cliente Exibir 10 por página"
+    },
+    {
+      "route": "/dashboard/customers/new",
+      "requested_url": "https://ordemfy.com.br/dashboard/customers/new",
+      "final_url": "https://ordemfy.com.br/dashboard/customers/new",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Dashboard",
+        "Novo Cliente",
+        "Informações Básicas",
+        "Endereço",
+        "Observações"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "UF",
+        "Cancelar",
+        "Cadastrar Cliente"
+      ],
+      "labels": [
+        "Nome *",
+        "CPF/CNPJ",
+        "Email",
+        "Telefone",
+        "WhatsApp",
+        "Data de Nascimento",
+        "Cliente Ativo",
+        "CEP",
+        "Logradouro",
+        "Número",
+        "Bairro",
+        "Cidade",
+        "Estado"
+      ],
+      "placeholders": [
+        "Nome completo",
+        "[cpf]",
+        "[email]",
+        "(00) 00000-0000",
+        "00000-000",
+        "Rua, Avenida...",
+        "Nº",
+        "Bairro",
+        "Cidade",
+        "Observações sobre o cliente..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Dashboard Buscar... Período de teste: 12 dias restantes Ver Planos Novo Cliente Adicione um novo cliente Informações Básicas Nome * CPF/CNPJ Email Telefone WhatsApp Data de Nascimento Usada no módulo Marketing (aniversários). Cliente Ativo Endereço CEP Logradouro Número Bairro Cidade Estado UF AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO Observações Cancelar Cadastrar Cliente"
+    },
+    {
+      "route": "/dashboard/technicians",
+      "requested_url": "https://ordemfy.com.br/dashboard/technicians",
+      "final_url": "https://ordemfy.com.br/dashboard/technicians",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Técnicos",
+        "Nenhum técnico"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar por nome, email ou especialidade..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Técnicos Buscar... Período de teste: 12 dias restantes Ver Planos Técnicos 0 técnicos Novo Técnico Nenhum técnico Novo Técnico"
+    },
+    {
+      "route": "/dashboard/suppliers",
+      "requested_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "final_url": "https://ordemfy.com.br/dashboard/suppliers",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Fornecedores",
+        "Nenhum fornecedor"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar por nome, documento ou email..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Fornecedores Buscar... Período de teste: 12 dias restantes Ver Planos Fornecedores 0 fornecedores Novo Fornecedor Nenhum fornecedor Novo Fornecedor"
+    },
+    {
+      "route": "/dashboard/pdv",
+      "requested_url": "https://ordemfy.com.br/dashboard/pdv",
+      "final_url": "https://ordemfy.com.br/dashboard/pdv",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "PDV",
+        "Caixa Fechado"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Fechado",
+        "Abrir",
+        "Abrir Caixa",
+        "Saiba mais sobre o PDV"
+      ],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online PDV Buscar... Período de teste: 12 dias restantes Ver Planos Fechado Abrir Histórico Caixa Fechado Abra o caixa para iniciar as vendas Abrir Caixa Saiba mais sobre o PDV"
+    },
+    {
+      "route": "/dashboard/quick-quotes",
+      "requested_url": "https://ordemfy.com.br/dashboard/quick-quotes",
+      "final_url": "https://ordemfy.com.br/dashboard/quick-quotes",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Orçamento Rápido",
+        "Nenhum orçamento cadastrado"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Saiba mais sobre Orçamento Rápido",
+        "Modelo",
+        "Importar",
+        "Novo",
+        "Identificar",
+        "Baixar Modelo",
+        "Importar Planilha",
+        "Criar Orçamento"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Digite o IMEI (15 dígitos)",
+        "Buscar por modelo ou código técnico (ex: iPhone 7 ou A1778)..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Orçamento Rápido Buscar... Período de teste: 12 dias restantes Ver Planos Orçamento Rápido Tabela de preços por modelo Saiba mais sobre Orçamento Rápido Modelo Importar Novo Identificar Aparelho por IMEI Identificar 0 aparelhos Nenhum orçamento cadastrado Comece importando uma planilha ou criando manualmente Baixar Modelo Importar Planilha Criar Orçamento Formatos aceitos: XLSX, XLS, CSV, TSV"
+    },
+    {
+      "route": "/dashboard/sales",
+      "requested_url": "https://ordemfy.com.br/dashboard/sales",
+      "final_url": "https://ordemfy.com.br/dashboard/sales",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Relatório de Vendas",
+        "Vendas",
+        "Nenhuma venda encontrada"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Hoje",
+        "7 dias",
+        "30 dias",
+        "Filtros",
+        "Exportar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar por número da venda..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Relatório de Vendas Buscar... Período de teste: 12 dias restantes Ver Planos Vendas Histórico de vendas realizadas Ir para PDV Vendas Hoje 0 Fat. Hoje R$ 0.00 Total Vendas 0 Hoje 7 dias 30 dias Filtros Exportar Nenhuma venda encontrada Ir para PDV"
+    },
+    {
+      "route": "/dashboard/services",
+      "requested_url": "https://ordemfy.com.br/dashboard/services",
+      "final_url": "https://ordemfy.com.br/dashboard/services",
+      "status": "missing_or_not_found",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "404"
+      ],
+      "buttons": [],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "404 Oops! Page not found Return to Home"
+    },
+    {
+      "route": "/dashboard/marketing",
+      "requested_url": "https://ordemfy.com.br/dashboard/marketing",
+      "final_url": "https://ordemfy.com.br/dashboard/marketing",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Dashboard",
+        "Marketing",
+        "Visão geral do Marketing",
+        "Ações rápidas"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Visão Geral",
+        "Venda Cruzada (PDV)",
+        "Venda Sugerida (OS)",
+        "Follow-up",
+        "Aniversários",
+        "Histórico",
+        "Configurações",
+        "Nova Venda Cruzada (PDV)",
+        "Nova Venda Sugerida (OS)",
+        "Ver aniversariantes",
+        "Follow-ups",
+        "Ver histórico completo"
+      ],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Dashboard Buscar... Período de teste: 12 dias restantes Ver Planos Marketing Central de relacionamento, retenção e aumento de ticket médio. Visão Geral Venda Cruzada (PDV) Venda Sugerida (OS) Follow-up Aniversários Histórico Configurações Visão geral do Marketing Acompanhe campanhas ativas, sugestões exibidas/aceitas e a receita estimada gerada pelas ações de marketing nos últimos 30 dias. Regras de Venda Cruzada (PDV) 0 ativas Regras de Venda Sugerida (OS) 0 ativas Aniversariantes do mês 0 Mensagens enviadas (30d) 0 follow-ups + aniversários Sugestões exibidas (30d) 0 Sugestões aceitas (30d) 0 Taxa: 0.0% Sugestões recusadas (30d) 0 Receita estimada (30d) R$ 0,00 gerada por venda cruzada Ações rápidas Nova Venda Cruzada (PDV) Nova Venda Sugerida (OS) Ver aniversariantes Follow-ups Ver histórico completo"
+    },
+    {
+      "route": "/dashboard/stock",
+      "requested_url": "https://ordemfy.com.br/dashboard/stock",
+      "final_url": "https://ordemfy.com.br/dashboard/stock",
+      "status": "missing_or_not_found",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "404"
+      ],
+      "buttons": [],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "404 Oops! Page not found Return to Home"
+    },
+    {
+      "route": "/dashboard/products",
+      "requested_url": "https://ordemfy.com.br/dashboard/products",
+      "final_url": "https://ordemfy.com.br/dashboard/products",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Cadastro de Produtos",
+        "Produtos",
+        "Nenhum produto"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Saiba como cadastrar produtos",
+        "Exportar",
+        "Importar",
+        "Produtos",
+        "Semi-Novos",
+        "Todas categorias",
+        "Todo estoque",
+        "Todos vínculos",
+        "Nome A-Z"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar por nome, SKU ou código de barras..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Cadastro de Produtos Buscar... Período de teste: 12 dias restantes Ver Planos Produtos 0 produtos Saiba como cadastrar produtos Exportar Importar Semi-Novo Novo Produto Produtos Semi-Novos Todas categorias Todo estoque Todos vínculos Nome A-Z Nenhum produto Novo Produto"
+    },
+    {
+      "route": "/dashboard/financial",
+      "requested_url": "https://ordemfy.com.br/dashboard/financial",
+      "final_url": "https://ordemfy.com.br/dashboard/financial",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Dashboard Financeiro",
+        "Financeiro",
+        "Calendário Financeiro",
+        "Saldo em Contas",
+        "Total a Receber",
+        "Resultado do Período",
+        "Recebido",
+        "Pago",
+        "Vendas (PDV)",
+        "Serviços (OS)",
+        "Contas a Receber",
+        "Contas a Pagar"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Entenda o módulo financeiro",
+        "01/05/2026 - 31/05/2026",
+        "Abrir Calendário",
+        "Saldo em Contas R$ 0,00 Soma das contas ativas",
+        "Ver detalhamento por conta"
+      ],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Dashboard Financeiro Buscar... Período de teste: 12 dias restantes Ver Planos Financeiro Visão geral do fluxo de caixa Entenda o módulo financeiro 01/05/2026 - 31/05/2026 Calendário Financeiro Visualize compromissos, vencimentos e prazos Abrir Calendário Saldo em Contas R$ 0,00 Soma das contas ativas Total a Receber R$ 0,00 Vendas + OS pendentes Resultado do Período R$ 0,00 Recebido − Pago no intervalo Recebido R$ 0,00 A receber: R$ 0,00 Pago R$ 0,00 A pagar: R$ 0,00 Vendas (PDV) QUANTIDADE 0 TOTAL R$ 0,00 TICKET MÉDIO R$ 0,00 LUCRO R$ 0,00 Serviços (OS) QUANTIDADE 0 TOTAL R$ 0,00 TICKET MÉDIO R$ 0,00 LUCRO R$ 0,00 Contas a Receber Nenhuma conta a receber pendente Contas a Pagar Nenhuma conta a pagar pendente"
+    },
+    {
+      "route": "/dashboard/finance",
+      "requested_url": "https://ordemfy.com.br/dashboard/finance",
+      "final_url": "https://ordemfy.com.br/dashboard/finance",
+      "status": "missing_or_not_found",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "404"
+      ],
+      "buttons": [],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "404 Oops! Page not found Return to Home"
+    },
+    {
+      "route": "/dashboard/warranty",
+      "requested_url": "https://ordemfy.com.br/dashboard/warranty",
+      "final_url": "https://ordemfy.com.br/dashboard/warranty",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Dashboard",
+        "Módulo de Garantia",
+        "Garantias Ativas (0)"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Ativas",
+        "Acionamentos",
+        "Vales",
+        "Prejuízos",
+        "Estendida",
+        "Todas",
+        "Todos"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Dashboard Buscar... Período de teste: 12 dias restantes Ver Planos Módulo de Garantia Gerencie garantias de serviços e produtos Garantias Ativas 0 Pendentes 0 Vales Ativos R$ 0,00 Prejuízos R$ 0,00 Ativas Acionamentos Vales Prejuízos Estendida Garantias Ativas (0) Todas Todos Nenhuma garantia encontrada"
+    },
+    {
+      "route": "/dashboard/reports",
+      "requested_url": "https://ordemfy.com.br/dashboard/reports",
+      "final_url": "https://ordemfy.com.br/dashboard/reports",
+      "status": "missing_or_not_found",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "404"
+      ],
+      "buttons": [],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "404 Oops! Page not found Return to Home"
+    },
+    {
+      "route": "/dashboard/fiscal",
+      "requested_url": "https://ordemfy.com.br/dashboard/fiscal",
+      "final_url": "https://ordemfy.com.br/dashboard/fiscal",
+      "status": "missing_or_not_found",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "404"
+      ],
+      "buttons": [],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "404 Oops! Page not found Return to Home"
+    },
+    {
+      "route": "/dashboard/integrations",
+      "requested_url": "https://ordemfy.com.br/dashboard/integrations",
+      "final_url": "https://ordemfy.com.br/dashboard/integrations",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Integrações",
+        "Mercado Pago Point",
+        "Mercado Pago Conta",
+        "Banco Inter",
+        "Mercado Livre",
+        "OLX",
+        "E-commerce",
+        "API do Ordemfy",
+        "Controle por WhatsApp"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Todos",
+        "Pagamentos",
+        "Marketplaces",
+        "E-commerce",
+        "API",
+        "Automação",
+        "Conectar"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar integrações..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Integrações Buscar... Período de teste: 12 dias restantes Ver Planos Integrações Conecte o Ordemfy aos serviços que você usa todos os dias. 0 ativas 8 disponíveis Todos Pagamentos Financeiro Marketplaces E-commerce API Automação Mercado Pago Point Maquininhas de cartão Aceite pagamentos no PDV com as maquininhas Point integradas ao seu fluxo de venda. PAGAMENTOS Conectar Mercado Pago Conta Movimentações da conta MP Importe movimentações, retiradas, taxas, estornos e entradas da sua conta Mercado Pago. FINANCEIRO Conectar Banco Inter Conta PJ • API Bancária Importe extratos, saldos e movimentações da sua conta Inter Empresas para conciliação financeira. FINANCEIRO Conectar Mercado Livre Anúncios e pedidos Conecte sua conta para publicar anúncios e receber pedidos diretamente no Ordemfy. MARKETPLACES Conectar OLX Anúncios de smartphones Publique e gerencie anúncios de smartphones diretamente do seu estoque. MARKETPLACES Conectar E-commerce Loja virtual sincronizada Sincronize produtos, estoque e pedidos com sua loja virtual. E-COMMERCE Conectar API do Ordemfy Para desenvolvedores Conecte sistemas externos, integre agentes de IA e crie automações. API Conectar Controle por WhatsApp Tokens por tipo de usuário para chatbot/IA Gere tokens de acesso à API por perfil (Admin, Técnico, Financeiro, Atendente). As permissões do token seguem as do usuário escolhido. AUTOMAÇÃO Conectar"
+    },
+    {
+      "route": "/dashboard/subscription",
+      "requested_url": "https://ordemfy.com.br/dashboard/subscription",
+      "final_url": "https://ordemfy.com.br/dashboard/subscription",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Assinatura",
+        "Gerenciar Assinatura",
+        "Ordemfy Start Período de Teste",
+        "Precisa de ajuda?"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Trocar Plano"
+      ],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Assinatura Buscar... Período de teste: 12 dias restantes Ver Planos Gerenciar Assinatura Visualize e gerencie sua assinatura do Ordemfy Ordemfy Start Período de Teste Plano Mensal Trocar Plano Valor R$ 49,99/mês Próximo Vencimento 10 de junho de 2026 Usuários Até 2 usuários Uso do Plano (Mês Atual) Ordens de Serviço 0/100 Armazenamento 0.02MB/600MB Recursos inclusos Ordens de Serviço Cadastro de Clientes Painel do Técnico PDV Completo Controle de Caixa Gestão de Estoque Financeiro Completo Notas Fiscais (NF-e, NFS-e, NFC-e) Películas Compatíveis Garantia Estendida Orçamento Rápido Precisa de ajuda? Entre em contato com nosso suporte para dúvidas sobre sua assinatura. Email WhatsApp"
+    },
+    {
+      "route": "/dashboard/settings",
+      "requested_url": "https://ordemfy.com.br/dashboard/settings",
+      "final_url": "https://ordemfy.com.br/dashboard/settings",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Configurações",
+        "EMPRESA & SISTEMA",
+        "EQUIPE E PERMISSÕES",
+        "ORDENS DE SERVIÇO",
+        "FINANCEIRO E VENDAS",
+        "CATÁLOGO DE PRODUTOS",
+        "IMPRESSÃO E DOCUMENTOS",
+        "INTEGRAÇÕES"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Dados da Empresa Logo, CNPJ, endereço e contato",
+        "Assinatura e Plano Consumo de OS e limites",
+        "Armazenamento Gerenciar espaço e arquivos",
+        "Política de Privacidade Termos e política de privacidade",
+        "Zona de Perigo Ações irreversíveis de limpeza",
+        "Usuários e Acesso Gerenciar usuários e permissões",
+        "Comissões Gestão de comissões de vendas",
+        "Tipos de Equipamentos Tipos de dispositivos aceitos",
+        "Campos Personalizados Campos extras nas OS",
+        "Checklist de Entrada e Saída Verificações ao criar e finalizar OS",
+        "Termos de Garantia Textos e condições de garantia",
+        "Orçamento Rápido Garantia e parcelamento padrão",
+        "Vídeos de Serviço Vídeos para serem usados em orçamento rápido",
+        "Métodos de Pagamento Formas de pagamento e taxas",
+        "Categorias Financeiras Categorias de receitas e despesas",
+        "Centros de Custo Organização e relatórios",
+        "Abertura e Fechamento de Caixa Modo de conferência no fechamento",
+        "Configurações Fiscais NF-e, NFC-e, NFS-e",
+        "Categorias de Produtos Organização de produtos",
+        "Películas Compatíveis Modelos de películas",
+        "Central de Impressões Layout, papel, margens e auto-impressão em um só lugar",
+        "Mercado Pago Point Maquininhas de cartão integradas",
+        "OLX Anúncios de smartphones na OLX",
+        "E-commerce Sincronize produtos, estoque e pedidos",
+        "Mercado Livre Conecte sua conta para publicar e gerenciar anúncios",
+        "API do Ordemfy Conecte sistemas externos e agentes de IA"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar configurações..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Configurações Buscar... Período de teste: 12 dias restantes Ver Planos Configurações Gerencie as configurações da sua empresa / EMPRESA & SISTEMA Dados da Empresa Logo, CNPJ, endereço e contato Assinatura e Plano Consumo de OS e limites Armazenamento Gerenciar espaço e arquivos Política de Privacidade Termos e política de privacidade Zona de Perigo Ações irreversíveis de limpeza EQUIPE E PERMISSÕES Usuários e Acesso Gerenciar usuários e permissões Comissões Gestão de comissões de vendas ORDENS DE SERVIÇO Tipos de Equipamentos Tipos de dispositivos aceitos Campos Personalizados Campos extras nas OS Checklist de Entrada e Saída Verificações ao criar e finalizar OS Termos de Garantia Textos e condições de garantia Orçamento Rápido Garantia e parcelamento padrão Vídeos de Serviço Vídeos para serem usados em orçamento rápido FINANCEIRO E VENDAS Métodos de Pagamento Formas de pagamento e taxas Categorias Financeiras Categorias de receitas e despesas Centros de Custo Organização e relatórios Abertura e Fechamento de Caixa Modo de conferência no fechamento Configurações Fiscais NF-e, NFC-e, NFS-e CATÁLOGO DE PRODUTOS Categorias de Produtos Organização de produtos Películas Compatíveis Modelos de películas IMPRESSÃO E DOCUMENTOS Central de Impressões Layout, papel, margens e auto-impressão em um só lugar INTEGRAÇÕES Mercado Pago Point Maquininhas de cartão integradas OLX Anúncios de smartphones na OLX E-commerce Sincronize produtos, estoque e pedidos Mercado Livre Conecte sua conta par"
+    },
+    {
+      "route": "/dashboard/settings/users",
+      "requested_url": "https://ordemfy.com.br/dashboard/settings/users",
+      "final_url": "https://ordemfy.com.br/dashboard/settings/users",
+      "status": "missing_or_not_found",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "404"
+      ],
+      "buttons": [],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "404 Oops! Page not found Return to Home"
+    },
+    {
+      "route": "/dashboard/settings/company",
+      "requested_url": "https://ordemfy.com.br/dashboard/settings/company",
+      "final_url": "https://ordemfy.com.br/dashboard/settings/company",
+      "status": "missing_or_not_found",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "404"
+      ],
+      "buttons": [],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "404 Oops! Page not found Return to Home"
+    },
+    {
+      "route": "/dashboard/settings/equipment-types",
+      "requested_url": "https://ordemfy.com.br/dashboard/settings/equipment-types",
+      "final_url": "https://ordemfy.com.br/dashboard/settings/equipment-types",
+      "status": "missing_or_not_found",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "404"
+      ],
+      "buttons": [],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "404 Oops! Page not found Return to Home"
+    },
+    {
+      "route": "/dashboard/settings/custom-fields",
+      "requested_url": "https://ordemfy.com.br/dashboard/settings/custom-fields",
+      "final_url": "https://ordemfy.com.br/dashboard/settings/custom-fields",
+      "status": "missing_or_not_found",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "404"
+      ],
+      "buttons": [],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "404 Oops! Page not found Return to Home"
+    },
+    {
+      "route": "/dashboard/settings/checklists",
+      "requested_url": "https://ordemfy.com.br/dashboard/settings/checklists",
+      "final_url": "https://ordemfy.com.br/dashboard/settings/checklists",
+      "status": "missing_or_not_found",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "404"
+      ],
+      "buttons": [],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "404 Oops! Page not found Return to Home"
+    },
+    {
+      "route": "/dashboard/settings/payment-methods",
+      "requested_url": "https://ordemfy.com.br/dashboard/settings/payment-methods",
+      "final_url": "https://ordemfy.com.br/dashboard/settings/payment-methods",
+      "status": "missing_or_not_found",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "404"
+      ],
+      "buttons": [],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "404 Oops! Page not found Return to Home"
+    },
+    {
+      "route": "/dashboard/settings/product-categories",
+      "requested_url": "https://ordemfy.com.br/dashboard/settings/product-categories",
+      "final_url": "https://ordemfy.com.br/dashboard/settings/product-categories",
+      "status": "missing_or_not_found",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "404"
+      ],
+      "buttons": [],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "404 Oops! Page not found Return to Home"
+    },
+    {
+      "route": "/dashboard/settings/compatible-films",
+      "requested_url": "https://ordemfy.com.br/dashboard/settings/compatible-films",
+      "final_url": "https://ordemfy.com.br/dashboard/settings/compatible-films",
+      "status": "missing_or_not_found",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "404"
+      ],
+      "buttons": [],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "404 Oops! Page not found Return to Home"
+    },
+    {
+      "route": "/dashboard/settings/prints",
+      "requested_url": "https://ordemfy.com.br/dashboard/settings/prints",
+      "final_url": "https://ordemfy.com.br/dashboard/settings/prints",
+      "status": "missing_or_not_found",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "404"
+      ],
+      "buttons": [],
+      "labels": [],
+      "placeholders": [],
+      "bodySample": "404 Oops! Page not found Return to Home"
+    },
+    {
+      "route": "/dashboard/support",
+      "requested_url": "https://ordemfy.com.br/dashboard/support",
+      "final_url": "https://ordemfy.com.br/dashboard/support",
+      "status": "loaded",
+      "title": "Ordemfy — Sistema para Assistência Técnica de Celular e Eletrônicos",
+      "headings": [
+        "Ajuda",
+        "Central de Ajuda",
+        "Todos os Tópicos",
+        "Introdução ao Ordemfy Primeiros Passos",
+        "Acesso ao Sistema Primeiros Passos",
+        "Conhecendo o Dashboard Visão Geral",
+        "Criando Ordem de Serviço Ordem de Serviço",
+        "Gerenciando Clientes Cadastros",
+        "Configurações Iniciais Configurações",
+        "Ponto de Venda (PDV) Vendas",
+        "Orçamento Rápido Vendas",
+        "Controle de Estoque Estoque",
+        "Gestão Financeira Financeiro",
+        "Emissão de Notas Fiscais Fiscal",
+        "Gestão de Técnicos Cadastros",
+        "Controle de Fornecedores Cadastros",
+        "Relatórios e Dashboards Relatórios",
+        "Sistema de Permissões Configurações",
+        "Dicas e Boas Práticas Dicas",
+        "Canais de Suporte Ajuda"
+      ],
+      "buttons": [
+        "Vendas",
+        "Serviços",
+        "Marketing",
+        "Estoque",
+        "Financeiro",
+        "Garantia",
+        "Relatórios Avançados",
+        "Fiscal",
+        "Buscar...",
+        "0 notificações pendentes",
+        "Ver Planos",
+        "Fechar",
+        "Introdução ao Ordemfy Primeiros Passos",
+        "Acesso ao Sistema Primeiros Passos",
+        "Conhecendo o Dashboard Visão Geral",
+        "Criando Ordem de Serviço Ordem de Serviço",
+        "Gerenciando Clientes Cadastros",
+        "Configurações Iniciais Configurações",
+        "Ponto de Venda (PDV) Vendas",
+        "Orçamento Rápido Vendas",
+        "Controle de Estoque Estoque",
+        "Gestão Financeira Financeiro",
+        "Emissão de Notas Fiscais Fiscal",
+        "Gestão de Técnicos Cadastros",
+        "Controle de Fornecedores Cadastros",
+        "Relatórios e Dashboards Relatórios",
+        "Sistema de Permissões Configurações",
+        "Dicas e Boas Práticas Dicas",
+        "Canais de Suporte Ajuda"
+      ],
+      "labels": [],
+      "placeholders": [
+        "Buscar artigos, tutoriais e dúvidas frequentes..."
+      ],
+      "bodySample": "Connect Assistência Admin da Empresa Dashboard Clientes Técnicos Fornecedores Vendas PDV Pedidos de Vendas Películas Compatíveis Notas Fiscais Consumidor Notas Fiscais Relatório de Vendas Serviços Ordem de Serviço Orçamento Rápido Notas de Serviço Relatórios Bancada Removedor de Vírus Checklist Avulso Marketing Aniversários Follow Up Upsell de Vendas Upsell de Serviços Estoque Cadastro de Produtos Notas de Entrada Captura NF-e Ordem de Compra Gerenciamento Etiquetas Relatórios Financeiro Dashboard Financeiro OPERAÇÃO Contas a Receber Contas a Pagar Contas Bancárias Extrato Transferências CONTROLE Conciliação Revisão Financeira ANÁLISE DRE Relatórios AUDITORIA Auditoria de Saldos Garantia Dashboard Relatórios Avançados Visão Geral Fiscal Dashboard NFS-e (Serviço) NFC-e (Consumidor) NF-e (Produto) Exportação Integrações Assinatura Configurações Ajuda [email] Online Ajuda Buscar... Período de teste: 12 dias restantes Ver Planos Central de Ajuda Encontre respostas para suas dúvidas sobre o Ordemfy Email WhatsApp Todos (17) Primeiros Passos (2) Visão Geral (1) Ordem de Serviço (1) Cadastros (3) Vendas (2) Estoque (1) Financeiro (1) Fiscal (1) Relatórios (1) Configurações (2) Dicas (1) Ajuda (1) Todos os Tópicos Clique em um tópico para expandir ou ver o artigo completo Introdução ao Ordemfy Primeiros Passos Acesso ao Sistema Primeiros Passos Conhecendo o Dashboard Visão Geral Criando Ordem de Serviço Ordem de Serviço Gerenciando Clientes Cadastros Configurações Iniciais Configurações Ponto de Venda (PDV) Vendas Orçamento Rápido Vendas Controle de Estoque Estoque Gestão Financeira Financeiro Emissão de Notas Fiscais Fiscal Gestão de Técnicos Cadastros Controle de Fornecedores Cadastros Relatórios e Dashboards Relatórios Sistema de Permissões Configurações Dicas e Boas Práticas Dicas Canais de Suporte Ajuda"
+    }
+  ],
+  "summary": {
+    "authenticated": true,
+    "observed_feature_labels": 264,
+    "verified_routes": 32,
+    "safe_forms_opened": 6,
+    "briefing": "auditorias/orderfy/BRIEFING_DEV_SMARTLOOP.md"
+  }
+}

@@ -1,91 +1,237 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { motion, AnimatePresence } from "motion/react"
 import {
+  LayoutDashboard,
   ClipboardList,
   Users,
+  UserCog,
+  Truck,
   Package,
-  BarChart3,
+  ShoppingCart,
+  Zap,
+  BarChart2,
+  Shield,
+  PieChart,
   Settings,
   Wrench,
-  LogOut,
+  Pin,
+  ChevronRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useSidebarStore } from "@/store/sidebar"
 
-const navItems = [
+const NAV_GROUPS = [
   {
-    label: "Ordens de Serviço",
-    href: "/os",
-    icon: ClipboardList,
+    label: "Principal",
+    items: [
+      { label: "Início", href: "/", icon: LayoutDashboard, exact: true },
+      { label: "Ordens de Serviço", href: "/os", icon: ClipboardList },
+      { label: "Clientes", href: "/clientes", icon: Users },
+      { label: "Técnicos", href: "/tecnicos", icon: UserCog },
+      { label: "Fornecedores", href: "/fornecedores", icon: Truck },
+    ],
   },
   {
-    label: "Clientes",
-    href: "/clientes",
-    icon: Users,
+    label: "Vendas",
+    items: [
+      { label: "PDV", href: "/pdv", icon: ShoppingCart },
+      { label: "Orçamento Rápido", href: "/orcamento-rapido", icon: Zap },
+      { label: "Estoque", href: "/estoque", icon: Package },
+    ],
   },
   {
-    label: "Estoque",
-    href: "/estoque",
-    icon: Package,
-  },
-  {
-    label: "Relatórios",
-    href: "/relatorios",
-    icon: BarChart3,
-  },
-  {
-    label: "Configurações",
-    href: "/configuracoes",
-    icon: Settings,
+    label: "Gestão",
+    items: [
+      { label: "Financeiro", href: "/financeiro", icon: BarChart2 },
+      { label: "Garantia", href: "/garantia", icon: Shield },
+      { label: "Relatórios", href: "/relatorios", icon: PieChart },
+    ],
   },
 ]
 
+const COLLAPSED_W = 64
+const EXPANDED_W = 240
+
+interface NavItemProps {
+  label: string
+  href: string
+  icon: React.ElementType
+  isActive: boolean
+  isExpanded: boolean
+}
+
+function NavItem({ label, href, icon: Icon, isActive, isExpanded }: NavItemProps) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150",
+        isActive
+          ? "bg-[--sidebar-active] text-[--sidebar-active-text]"
+          : "text-[--sidebar-foreground] hover:bg-[--sidebar-hover]"
+      )}
+    >
+      <Icon
+        className={cn(
+          "h-[18px] w-[18px] shrink-0 transition-colors",
+          isActive ? "text-[--sidebar-icon-active]" : "text-[--sidebar-icon]"
+        )}
+      />
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.span
+            initial={{ opacity: 0, x: -4 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -4 }}
+            transition={{ duration: 0.12, ease: "easeOut" }}
+            className="overflow-hidden whitespace-nowrap"
+          >
+            {label}
+          </motion.span>
+        )}
+      </AnimatePresence>
+      {isActive && (
+        <motion.div
+          layoutId="active-indicator"
+          className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-[--sidebar-icon-active]"
+          transition={{ duration: 0.2, ease: "easeInOut" }}
+        />
+      )}
+    </Link>
+  )
+}
+
 export function Sidebar() {
   const pathname = usePathname()
+  const { isPinned, togglePin } = useSidebarStore()
+  const [isHovered, setIsHovered] = useState(false)
+
+  const isExpanded = isPinned || isHovered
+
+  function isActive(href: string, exact?: boolean) {
+    if (exact) return pathname === href
+    return pathname === href || pathname.startsWith(href + "/")
+  }
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col bg-[--sidebar] text-[--sidebar-foreground]">
-      {/* Logo */}
-      <div className="flex h-16 items-center gap-2 border-b border-[--sidebar-border] px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[--primary]">
-          <Wrench className="h-4 w-4 text-white" />
-        </div>
-        <span className="text-lg font-bold tracking-tight text-white">
-          Fix<span className="text-[#60a5fa]">OS</span>
-        </span>
-      </div>
+    <>
+      {/* Overlay backdrop quando expandido mas não fixado */}
+      <AnimatePresence>
+        {isExpanded && !isPinned && (
+          <motion.div
+            className="fixed inset-0 z-40"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            onClick={() => setIsHovered(false)}
+          />
+        )}
+      </AnimatePresence>
 
-      {/* Nav */}
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-        {navItems.map((item) => {
-          const isActive =
-            pathname === item.href || pathname.startsWith(item.href + "/")
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-[--sidebar-accent] text-white"
-                  : "text-[--sidebar-foreground]/70 hover:bg-[--sidebar-accent]/50 hover:text-white"
+      <motion.aside
+        className="fixed inset-y-0 left-0 z-50 flex flex-col bg-[--sidebar] border-r border-[--sidebar-border] overflow-hidden"
+        animate={{ width: isExpanded ? EXPANDED_W : COLLAPSED_W }}
+        transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{
+          boxShadow: isExpanded && !isPinned
+            ? "4px 0 24px rgba(0,0,0,0.08)"
+            : "none",
+        }}
+      >
+        {/* Logo */}
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-[--sidebar-border] px-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[--primary]">
+              <Wrench className="h-4 w-4 text-white" />
+            </div>
+            <AnimatePresence>
+              {isExpanded && (
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="text-[15px] font-bold tracking-tight whitespace-nowrap text-[--foreground]"
+                >
+                  Fix<span className="text-[--primary]">OS</span>
+                </motion.span>
               )}
-            >
-              <item.icon className="h-4 w-4 shrink-0" />
-              {item.label}
-            </Link>
-          )
-        })}
-      </nav>
+            </AnimatePresence>
+          </div>
 
-      {/* Footer */}
-      <div className="border-t border-[--sidebar-border] p-3">
-        <button className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-[--sidebar-foreground]/70 transition-colors hover:bg-[--sidebar-accent]/50 hover:text-white">
-          <LogOut className="h-4 w-4" />
-          Sair
-        </button>
-      </div>
-    </aside>
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.15 }}
+                onClick={togglePin}
+                className={cn(
+                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-md transition-colors",
+                  isPinned
+                    ? "text-[--primary]"
+                    : "text-[--sidebar-icon] hover:text-[--sidebar-foreground]"
+                )}
+                title={isPinned ? "Desafixar sidebar" : "Fixar sidebar"}
+              >
+                <Pin className={cn("h-3.5 w-3.5", isPinned && "rotate-45")} />
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2">
+          {NAV_GROUPS.map((group, gi) => (
+            <div key={gi} className="mb-4">
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.12 }}
+                    className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-[--muted-foreground] whitespace-nowrap"
+                  >
+                    {group.label}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+              <div className="space-y-0.5">
+                {group.items.map((item) => (
+                  <NavItem
+                    key={item.href}
+                    label={item.label}
+                    href={item.href}
+                    icon={item.icon}
+                    isActive={isActive(item.href, item.exact)}
+                    isExpanded={isExpanded}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* Bottom — Settings */}
+        <div className="shrink-0 border-t border-[--sidebar-border] p-2">
+          <NavItem
+            label="Configurações"
+            href="/configuracoes"
+            icon={Settings}
+            isActive={isActive("/configuracoes")}
+            isExpanded={isExpanded}
+          />
+        </div>
+      </motion.aside>
+    </>
   )
 }
