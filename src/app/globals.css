@@ -162,6 +162,53 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ──────────────────────────────────────────
+   Landing page — animações e efeitos
+────────────────────────────────────────── */
+
+/* Orbs animados do hero */
+@keyframes orb-float-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(40px, -30px) scale(1.08); }
+  66%       { transform: translate(-20px, 20px) scale(0.96); }
+}
+@keyframes orb-float-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40%       { transform: translate(-35px, 25px) scale(1.06); }
+  70%       { transform: translate(25px, -15px) scale(0.94); }
+}
+@keyframes orb-float-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(20px, -40px) scale(1.1); }
+}
+@keyframes text-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes fade-up-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes float-y {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+@keyframes grid-fade {
+  0%, 100% { opacity: 0.03; }
+  50%       { opacity: 0.06; }
+}
+
+.orb-1 { animation: orb-float-1 14s ease-in-out infinite; }
+.orb-2 { animation: orb-float-2 18s ease-in-out infinite; }
+.orb-3 { animation: orb-float-3 22s ease-in-out infinite; }
+.animate-float { animation: float-y 6s ease-in-out infinite; }
+.animate-float-slow { animation: float-y 9s ease-in-out infinite 1s; }
+.animate-shimmer {
+  background-size: 200% auto;
+  animation: text-shimmer 4s linear infinite;
+}
+.animate-grid { animation: grid-fade 8s ease-in-out infinite; }
+
 /* Scrollbar customizada */
 ::-webkit-scrollbar {
   width: 4px;
