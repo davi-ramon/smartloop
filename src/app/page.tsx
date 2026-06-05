@@ -953,8 +953,10 @@ function Footer() {
         {/* Bottom */}
         <div className="flex flex-col gap-4 border-t border-white/5 pt-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-slate-600">
-            © 2026 SmartLoop · Desenvolvido por{" "}
-            <span className="text-slate-500">Lazy Labs</span> · Imperatriz, MA
+            © 2026 SmartLoop — uma iniciativa da{" "}
+            <span className="text-slate-400 font-medium">Connect Assistência</span>
+            {" "}·{" "}
+            <span className="text-slate-500">Desenvolvido por Lazy Labs</span>
           </p>
           <div className="flex flex-wrap gap-6">
             {[
