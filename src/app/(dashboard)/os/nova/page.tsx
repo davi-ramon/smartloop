@@ -12,6 +12,7 @@ import {
   Search, Camera, QrCode,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { logger } from "@/lib/logger"
 
 const STEPS = [
   { id: 1, label: "Cliente",  icon: User       },
@@ -48,6 +49,41 @@ export default function NovaOSPage() {
     if (step === 3) return true // IMEI is optional in some flows
     if (step === 4) return !!problem
     return false
+  }
+
+  function goNext() {
+    if (!canAdvance()) {
+      logger.warn("os/nova", `avanço bloqueado na etapa ${step} — requisitos não atendidos`, {
+        step,
+        hasCustomer: !!selectedCustomer,
+        brand,
+        model,
+      })
+      return
+    }
+    const next = Math.min(4, step + 1)
+    logger.info("os/nova", `avançando para etapa ${next}`, { de: step, para: next })
+    setStep(next)
+  }
+
+  function goBack() {
+    const prev = Math.max(1, step - 1)
+    logger.info("os/nova", `voltando para etapa ${prev}`, { de: step, para: prev })
+    setStep(prev)
+  }
+
+  function handleCreate() {
+    if (!canAdvance()) {
+      logger.warn("os/nova", "tentativa de criar OS sem campos obrigatórios", { problem })
+      return
+    }
+    // TODO(Semana 2): persistir no Supabase/Firestore. Hoje é modo demonstração.
+    logger.success("os/nova", "OS criada (modo demo)", {
+      cliente: selectedCustomer?.name,
+      aparelho: `${brand} ${model}`,
+      imei,
+      problem,
+    })
   }
 
   return (
@@ -236,7 +272,7 @@ export default function NovaOSPage() {
           {step === 4 && (
             <Card className="border-[--border] shadow-none">
               <CardContent className="p-6 space-y-4">
-                <h2 className="font-semibold text-[--foreground]">Describe o defeito</h2>
+                <h2 className="font-semibold text-[--foreground]">Descreva o defeito</h2>
 
                 <div className="space-y-1.5">
                   <Label className="text-xs">Defeito relatado pelo cliente *</Label>
@@ -278,21 +314,34 @@ export default function NovaOSPage() {
           {/* Navigation */}
           <div className="mt-6 flex items-center justify-between">
             <Button
+              type="button"
               variant="outline"
-              onClick={() => setStep(Math.max(1, step - 1))}
+              onClick={goBack}
               disabled={step === 1}
+              aria-label="Voltar para a etapa anterior"
             >
               <ChevronLeft className="h-4 w-4 mr-1.5" />
               Voltar
             </Button>
 
             {step < 4 ? (
-              <Button onClick={() => setStep(step + 1)} disabled={!canAdvance()}>
+              <Button
+                type="button"
+                onClick={goNext}
+                disabled={!canAdvance()}
+                aria-label="Avançar para a próxima etapa"
+              >
                 Continuar
                 <ChevronRight className="h-4 w-4 ml-1.5" />
               </Button>
             ) : (
-              <Button disabled={!canAdvance()} className="bg-[#10b981] hover:bg-[#059669]">
+              <Button
+                type="button"
+                onClick={handleCreate}
+                disabled={!canAdvance()}
+                aria-label="Criar ordem de serviço"
+                className="bg-[#10b981] hover:bg-[#059669]"
+              >
                 <Check className="h-4 w-4 mr-1.5" />
                 Criar OS
               </Button>

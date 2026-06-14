@@ -1,0 +1,160 @@
+{
+  "run_id": "2026-06-14T01:48:26.695Z",
+  "target": "https://smartloop-94a06.web.app",
+  "summary": {
+    "total": 10,
+    "passed": 6,
+    "failed": 0,
+    "warnings": 4
+  },
+  "console": {
+    "errors": [],
+    "warnings": []
+  },
+  "results": [
+    {
+      "route": "/login",
+      "action": "submeter login vazio",
+      "status": "warn",
+      "expected": "mostrar validação visível de e-mail/senha em PT-BR",
+      "actual": "não apareceu mensagem de validação clara após submit vazio",
+      "console_evidence": "",
+      "severity": "medium",
+      "repro_steps": [
+        "1. Abrir https://smartloop-94a06.web.app/login",
+        "2. Clicar em Entrar sem preencher campos"
+      ],
+      "suggested_fix": "Adicionar mensagens visíveis/associadas aos inputs obrigatórios do formulário de login."
+    },
+    {
+      "route": "/login",
+      "action": "submeter login preenchido",
+      "status": "warn",
+      "expected": "autenticar e redirecionar ou exibir erro tratado",
+      "actual": "preenchi qa@smartloop.test / 123456; URL permaneceu em /login sem erro visível claro",
+      "console_evidence": "",
+      "severity": "medium",
+      "repro_steps": [
+        "1. Abrir /login",
+        "2. Preencher e-mail e senha",
+        "3. Clicar em Entrar"
+      ],
+      "suggested_fix": "Se auth ainda é mock, mostrar feedback de sucesso/erro e logar [SmartLoop][auth] com o resultado do submit."
+    },
+    {
+      "route": "/os/nova",
+      "action": "clicar em 'Próximo' no formulário multi-step",
+      "status": "warn",
+      "expected": "botão de avanço visível ou validação da etapa atual",
+      "actual": "botão 'Próximo' não foi encontrado no DOM visível",
+      "console_evidence": "",
+      "severity": "medium",
+      "repro_steps": [
+        "1. Abrir /os/nova",
+        "2. Procurar CTA de avanço do step"
+      ],
+      "suggested_fix": "Revisar texto/estrutura do wizard e garantir CTA de avanço com label acessível."
+    },
+    {
+      "route": "/os",
+      "action": "alternar Kanban/lista",
+      "status": "warn",
+      "expected": "controles 'Kanban' e 'Lista' visíveis e clicáveis",
+      "actual": "não encontrei labels Kanban/Lista visíveis na rota /os",
+      "console_evidence": "",
+      "severity": "low",
+      "repro_steps": [
+        "1. Abrir /os",
+        "2. Procurar toggles de visualização"
+      ],
+      "suggested_fix": "Adicionar labels acessíveis aos toggles de visualização ou confirmar novo texto usado na UI."
+    },
+    {
+      "route": "/os",
+      "action": "clicar em 'Nova OS'",
+      "status": "pass",
+      "expected": "abrir /os/nova",
+      "actual": "CTA abriu a rota /os/nova corretamente",
+      "console_evidence": "",
+      "severity": "low",
+      "repro_steps": [
+        "1. Abrir /os",
+        "2. Clicar em Nova OS"
+      ],
+      "suggested_fix": ""
+    },
+    {
+      "route": "/pdv",
+      "action": "estado do botão 'Finalizar' com carrinho vazio",
+      "status": "pass",
+      "expected": "botão desabilitado até haver item/pagamento",
+      "actual": "botão Finalizar estava desabilitado, comportamento correto para carrinho vazio",
+      "console_evidence": "",
+      "severity": "low",
+      "repro_steps": [
+        "1. Abrir /pdv",
+        "2. Verificar botão Finalizar"
+      ],
+      "suggested_fix": ""
+    },
+    {
+      "route": "/orcamento-rapido",
+      "action": "carregar formulário",
+      "status": "pass",
+      "expected": "mostrar campos de IMEI/modelo/orçamento",
+      "actual": "tela carregou conteúdo de orçamento/IMEI sem console error",
+      "console_evidence": "",
+      "severity": "low",
+      "repro_steps": [
+        "1. Abrir /orcamento-rapido"
+      ],
+      "suggested_fix": ""
+    },
+    {
+      "route": "/configuracoes",
+      "action": "verificar seções de configuração",
+      "status": "pass",
+      "expected": "mostrar abas/seções de configuração",
+      "actual": "rota carregou configurações sem console error/4xx/5xx",
+      "console_evidence": "",
+      "severity": "low",
+      "repro_steps": [
+        "1. Abrir /configuracoes"
+      ],
+      "suggested_fix": ""
+    },
+    {
+      "route": "/",
+      "action": "carregar landing page",
+      "status": "pass",
+      "expected": "renderizar sem console error/4xx/5xx",
+      "actual": "landing renderizou sem erros ou warnings capturados",
+      "console_evidence": "",
+      "severity": "low",
+      "repro_steps": [
+        "1. Abrir /"
+      ],
+      "suggested_fix": ""
+    },
+    {
+      "route": "/clientes,/tecnicos,/fornecedores,/estoque,/financeiro,/garantia,/relatorios",
+      "action": "carregar rotas principais",
+      "status": "pass",
+      "expected": "renderizar páginas sem console error/4xx/5xx",
+      "actual": "rotas carregaram sem erros de console, pageerror ou network 4xx/5xx",
+      "console_evidence": "",
+      "severity": "low",
+      "repro_steps": [
+        "1. Abrir cada rota listada",
+        "2. Aguardar network idle"
+      ],
+      "suggested_fix": ""
+    }
+  ],
+  "next_priorities": [
+    "/login: adicionar validação visível para submit vazio",
+    "/login: implementar feedback/redirecionamento ou log [SmartLoop][auth] no submit preenchido",
+    "/os/nova: garantir CTA de avanço do formulário multi-step",
+    "/os: expor labels acessíveis para alternância Kanban/lista"
+  ]
+}

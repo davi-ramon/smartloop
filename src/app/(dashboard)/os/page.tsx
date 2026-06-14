@@ -193,28 +193,38 @@ export default function OSPage() {
           Filtrar
         </button>
 
-        <div className="flex items-center rounded-lg border border-[--border] overflow-hidden">
+        <div className="flex items-center rounded-lg border border-[--border] overflow-hidden" role="group" aria-label="Modo de visualização">
           <button
+            type="button"
             onClick={() => setView("kanban")}
+            aria-label="Visualização em Kanban"
+            aria-pressed={view === "kanban"}
+            title="Kanban"
             className={cn(
-              "flex h-8 w-8 items-center justify-center transition-colors",
+              "flex h-8 items-center gap-1.5 px-2.5 text-xs font-medium transition-colors",
               view === "kanban"
                 ? "bg-[--primary] text-white"
                 : "text-[--muted-foreground] hover:bg-[--muted]"
             )}
           >
             <LayoutGrid className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Kanban</span>
           </button>
           <button
+            type="button"
             onClick={() => setView("list")}
+            aria-label="Visualização em lista"
+            aria-pressed={view === "list"}
+            title="Lista"
             className={cn(
-              "flex h-8 w-8 items-center justify-center transition-colors",
+              "flex h-8 items-center gap-1.5 px-2.5 text-xs font-medium transition-colors",
               view === "list"
                 ? "bg-[--primary] text-white"
                 : "text-[--muted-foreground] hover:bg-[--muted]"
             )}
           >
             <List className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Lista</span>
           </button>
         </div>
 
