@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Header } from "@/components/layout/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,10 +11,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import {
   User, Smartphone, Scan, FileText,
   ChevronRight, ChevronLeft, Check,
-  Search, Camera, QrCode,
+  Search, Camera, QrCode, AlertCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
+import { useAuth } from "@/lib/firebase/auth-context"
+import { watchCustomers, type Customer } from "@/lib/data/customers"
+import { createServiceOrder } from "@/lib/data/service-orders"
 
 const STEPS = [
   { id: 1, label: "Cliente",  icon: User       },
@@ -21,43 +26,50 @@ const STEPS = [
   { id: 4, label: "Defeito",  icon: FileText   },
 ]
 
-const MOCK_CUSTOMERS = [
-  { id: "1", name: "João Silva",   phone: "(63) 98765-4321" },
-  { id: "2", name: "Maria Santos", phone: "(63) 97654-3210" },
-  { id: "3", name: "Pedro Alves",  phone: "(63) 96543-2109" },
-]
-
 export default function NovaOSPage() {
+  const router = useRouter()
+  const { profile } = useAuth()
+  const tenantId = profile?.tenantId
+
   const [step, setStep] = useState(1)
   const [search, setSearch] = useState("")
-  const [selectedCustomer, setSelectedCustomer] = useState<typeof MOCK_CUSTOMERS[0] | null>(null)
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [brand, setBrand] = useState("")
   const [model, setModel] = useState("")
+  const [color, setColor] = useState("")
   const [imei, setImei] = useState("")
   const [problem, setProblem] = useState("")
   const [condition, setCondition] = useState("")
+  const [technician, setTechnician] = useState("")
+  const [saving, setSaving] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
 
-  const filteredCustomers = MOCK_CUSTOMERS.filter(
+  useEffect(() => {
+    if (!tenantId) return
+    const unsub = watchCustomers(tenantId, setCustomers, () => setCustomers([]))
+    return () => unsub()
+  }, [tenantId])
+
+  const filteredCustomers = customers.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.phone.includes(search)
+      (c.whatsapp ?? "").includes(search) ||
+      (c.phone ?? "").includes(search)
   )
 
   const canAdvance = () => {
     if (step === 1) return !!selectedCustomer
     if (step === 2) return !!(brand && model)
-    if (step === 3) return true // IMEI is optional in some flows
+    if (step === 3) return true // IMEI opcional
     if (step === 4) return !!problem
     return false
   }
 
   function goNext() {
     if (!canAdvance()) {
-      logger.warn("os/nova", `avanço bloqueado na etapa ${step} — requisitos não atendidos`, {
-        step,
-        hasCustomer: !!selectedCustomer,
-        brand,
-        model,
+      logger.warn("os/nova", `avanço bloqueado na etapa ${step}`, {
+        step, hasCustomer: !!selectedCustomer, brand, model,
       })
       return
     }
@@ -72,18 +84,36 @@ export default function NovaOSPage() {
     setStep(prev)
   }
 
-  function handleCreate() {
-    if (!canAdvance()) {
+  async function handleCreate() {
+    if (!canAdvance() || !selectedCustomer) {
       logger.warn("os/nova", "tentativa de criar OS sem campos obrigatórios", { problem })
       return
     }
-    // TODO(Semana 2): persistir no Supabase/Firestore. Hoje é modo demonstração.
-    logger.success("os/nova", "OS criada (modo demo)", {
-      cliente: selectedCustomer?.name,
-      aparelho: `${brand} ${model}`,
-      imei,
-      problem,
-    })
+    if (!tenantId) {
+      setCreateError("Sessão ainda carregando. Tente novamente em instantes.")
+      return
+    }
+    setSaving(true)
+    setCreateError(null)
+    try {
+      const { number } = await createServiceOrder(tenantId, {
+        customerId: selectedCustomer.id,
+        customerName: selectedCustomer.name,
+        deviceBrand: brand,
+        deviceModel: model,
+        color,
+        imei,
+        problem,
+        conditionNotes: condition,
+        status: "received",
+        technicianName: technician,
+      })
+      logger.success("os/nova", "OS persistida, redirecionando", { number })
+      router.push("/os")
+    } catch {
+      setCreateError("Não foi possível criar a OS. Tente novamente.")
+      setSaving(false)
+    }
   }
 
   return (
@@ -158,17 +188,26 @@ export default function NovaOSPage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-[--foreground]">{c.name}</p>
-                        <p className="text-xs text-[--muted-foreground]">{c.phone}</p>
+                        <p className="text-xs text-[--muted-foreground]">{c.whatsapp || c.phone || "—"}</p>
                       </div>
                       {selectedCustomer?.id === c.id && (
                         <Check className="ml-auto h-4 w-4 text-[--primary]" />
                       )}
                     </button>
                   ))}
+                  {filteredCustomers.length === 0 && (
+                    <p className="py-3 text-center text-xs text-[--muted-foreground]">
+                      {customers.length === 0
+                        ? "Nenhum cliente cadastrado ainda."
+                        : "Nenhum cliente encontrado."}
+                    </p>
+                  )}
                 </div>
-                <Button variant="outline" className="w-full gap-2">
-                  <User className="h-4 w-4" />
-                  Cadastrar novo cliente
+                <Button variant="outline" className="w-full gap-2" asChild>
+                  <Link href="/clientes/novo">
+                    <User className="h-4 w-4" />
+                    Cadastrar novo cliente
+                  </Link>
                 </Button>
               </CardContent>
             </Card>
@@ -184,7 +223,7 @@ export default function NovaOSPage() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-[--foreground]">{selectedCustomer?.name}</p>
-                    <p className="text-xs text-[--muted-foreground]">{selectedCustomer?.phone}</p>
+                    <p className="text-xs text-[--muted-foreground]">{selectedCustomer?.whatsapp || selectedCustomer?.phone || ""}</p>
                   </div>
                 </div>
 
@@ -202,7 +241,7 @@ export default function NovaOSPage() {
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs">Cor</Label>
-                    <Input placeholder="Preto, Branco..." />
+                    <Input placeholder="Preto, Branco..." value={color} onChange={e => setColor(e.target.value)} />
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs">Número de série (opcional)</Label>
@@ -295,12 +334,8 @@ export default function NovaOSPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Técnico responsável</Label>
-                  <select className="flex h-10 w-full rounded-md border border-[--input] bg-[--background] px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--ring]">
-                    <option value="">Selecionar técnico...</option>
-                    <option value="carlos">Carlos Eduardo</option>
-                    <option value="andre">André Luís</option>
-                  </select>
+                  <Label className="text-xs">Técnico responsável (opcional)</Label>
+                  <Input placeholder="Nome do técnico" value={technician} onChange={e => setTechnician(e.target.value)} />
                 </div>
 
                 <div className="space-y-1.5">
@@ -309,6 +344,13 @@ export default function NovaOSPage() {
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {createError && (
+            <div role="alert" className="mt-4 flex items-center gap-2 rounded-lg border border-[--destructive]/30 bg-[--destructive]/10 px-3 py-2.5 text-sm text-[--destructive]">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              {createError}
+            </div>
           )}
 
           {/* Navigation */}
@@ -338,11 +380,12 @@ export default function NovaOSPage() {
               <Button
                 type="button"
                 onClick={handleCreate}
-                disabled={!canAdvance()}
+                disabled={!canAdvance() || saving}
+                loading={saving}
                 aria-label="Criar ordem de serviço"
                 className="bg-[#10b981] hover:bg-[#059669]"
               >
-                <Check className="h-4 w-4 mr-1.5" />
+                {!saving && <Check className="h-4 w-4 mr-1.5" />}
                 Criar OS
               </Button>
             )}

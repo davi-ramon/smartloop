@@ -137,7 +137,7 @@ export function Sidebar() {
       <AnimatePresence>
         {isExpanded && !isPinned && (
           <motion.div
-            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px]"
+            className="fixed inset-0 left-16 z-40 bg-black/10 backdrop-blur-[3px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -148,7 +148,7 @@ export function Sidebar() {
       </AnimatePresence>
 
       <motion.aside
-        className="fixed inset-y-0 left-0 z-50 flex flex-col overflow-hidden border-r border-[--sidebar-border] bg-[--sidebar]/80 backdrop-blur-2xl backdrop-saturate-150"
+        className="fixed inset-y-0 left-0 z-50 flex flex-col overflow-hidden border-r border-[--sidebar-border] bg-[--sidebar]"
         animate={{ width: isExpanded ? EXPANDED_W : COLLAPSED_W }}
         transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
         onMouseEnter={() => setIsHovered(true)}

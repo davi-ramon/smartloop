@@ -144,14 +144,14 @@ export default function ClientesPage() {
                     </td>
                     <td className="py-3 px-4 hidden sm:table-cell">
                       <div className="space-y-0.5">
+                        {client.whatsapp && (
+                          <div className="flex items-center gap-1.5 text-xs font-medium text-[#10b981]">
+                            <MessageCircle className="h-3 w-3" />{client.whatsapp}
+                          </div>
+                        )}
                         {client.phone && (
                           <div className="flex items-center gap-1.5 text-xs text-[--muted-foreground]">
                             <Phone className="h-3 w-3" />{client.phone}
-                          </div>
-                        )}
-                        {client.whatsapp && (
-                          <div className="flex items-center gap-1.5 text-xs text-[--muted-foreground]">
-                            <MessageCircle className="h-3 w-3" />{client.whatsapp}
                           </div>
                         )}
                         {client.email && (
