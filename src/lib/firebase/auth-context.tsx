@@ -13,14 +13,16 @@ import {
   type User,
 } from "firebase/auth"
 import { auth } from "./config"
+import { ensureUserProfile, type UserProfile } from "./firestore"
 import { logger } from "@/lib/logger"
 
 interface AuthContextValue {
   user: User | null
+  profile: UserProfile | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   loginWithGoogle: () => Promise<void>
-  signup: (name: string, email: string, password: string) => Promise<void>
+  signup: (name: string, email: string, password: string, storeName?: string) => Promise<void>
   logout: () => Promise<void>
   resetPassword: (email: string) => Promise<void>
 }
@@ -29,19 +31,28 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const unsub = onAuthStateChanged(
       auth,
-      (u) => {
+      async (u) => {
         setUser(u)
+        if (u) {
+          logger.info("auth", "sessão ativa", { uid: u.uid, email: u.email })
+          try {
+            const p = await ensureUserProfile(u)
+            setProfile(p)
+          } catch (err) {
+            logger.error("auth", "falha ao carregar/criar perfil", err)
+            setProfile(null)
+          }
+        } else {
+          logger.info("auth", "sem sessão")
+          setProfile(null)
+        }
         setLoading(false)
-        logger.info(
-          "auth",
-          u ? "sessão ativa" : "sem sessão",
-          u ? { uid: u.uid, email: u.email } : undefined
-        )
       },
       (err) => {
         logger.error("auth", "erro no observer de autenticação", err)
@@ -64,13 +75,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logger.success("auth", "login com Google ok")
   }
 
-  async function signup(name: string, email: string, password: string) {
+  async function signup(name: string, email: string, password: string, storeName?: string) {
     logger.info("auth", "cadastro iniciado", { email })
     const cred = await createUserWithEmailAndPassword(auth, email, password)
     if (name) {
       await updateProfile(cred.user, { displayName: name })
     }
-    logger.success("auth", "cadastro concluído", { uid: cred.user.uid, email })
+    // Cria a loja (tenant) e o perfil do dono já no cadastro.
+    const p = await ensureUserProfile(cred.user, storeName)
+    setProfile(p)
+    logger.success("auth", "cadastro concluído", { uid: cred.user.uid, tenantId: p.tenantId })
   }
 
   async function logout() {
@@ -87,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, loginWithGoogle, signup, logout, resetPassword }}
+      value={{ user, profile, loading, login, loginWithGoogle, signup, logout, resetPassword }}
     >
       {children}
     </AuthContext.Provider>

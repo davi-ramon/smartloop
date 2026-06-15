@@ -1,0 +1,32 @@
+rules_version = '2';
+
+// Regras de isolamento multi-tenant do SmartLoop.
+// Cada usuário (users/{uid}) aponta para um tenant. Só pode ler/escrever
+// dados do próprio tenant. tenantId = uid do dono (1 dono = 1 loja no MVP).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function myTenant() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.tenantId;
+    }
+
+    // Perfil do usuário — cada um lê/escreve apenas o seu.
+    match /users/{uid} {
+      allow read, write: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Loja (tenant) e todas as subcoleções (customers, serviceOrders, parts...).
+    match /tenants/{tenantId} {
+      allow read, update, delete: if isSignedIn() && myTenant() == tenantId;
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+
+      match /{document=**} {
+        allow read, write: if isSignedIn() && myTenant() == tenantId;
+      }
+    }
+  }
+}

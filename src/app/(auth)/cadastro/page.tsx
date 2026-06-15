@@ -35,9 +35,8 @@ export default function CadastroPage() {
   async function onSubmit(data: Form) {
     setState({ status: "loading" })
     try {
-      // Sprint A: cria a conta. O tenant (loja) será persistido no Firestore na Sprint B.
-      await signup(data.name, data.email, data.password)
-      logger.info("auth", "loja informada no cadastro (persistir na Sprint B)", { store: data.store })
+      // Cria a conta + a loja (tenant) no Firestore.
+      await signup(data.name, data.email, data.password, data.store)
       setState({ status: "success" })
       router.push("/os")
     } catch (err) {
