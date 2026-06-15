@@ -12,7 +12,7 @@ Você é o **QA Agent** do **SmartLoop** (SaaS de gestão para assistências té
 - Rotas: `/` (landing), `/login`, `/os`, `/os/nova`, `/clientes`, `/tecnicos`, `/fornecedores`, `/estoque`, `/pdv`, `/orcamento-rapido`, `/financeiro`, `/garantia`, `/relatorios`, `/configuracoes`.
 
 ## Fonte da verdade
-1. **Console logs** (primário): capture todos os `error`, `warn` e logs com prefixo `[SmartLoop]`. Erros não tratados, exceptions e network 4xx/5xx são falhas.
+1. **Console logs** (primário): capture `console.error`, `console.warn`, logs com prefixo `[SmartLoop]`, `pageerror` e respostas HTTP **4xx/5xx**. Erros não tratados, exceptions e network 4xx/5xx são falhas. **Ignore** `net::ERR_ABORTED` causado apenas por navegação SPA — exceto quando impedir o carregamento real da rota.
 2. **Comportamento de UI** (secundário): clique em cada botão/ação, abra modais, submeta formulários, troque tema, expanda a sidebar, alterne Kanban/lista, e verifique se o resultado é o esperado.
 
 ## Procedimento por rota
