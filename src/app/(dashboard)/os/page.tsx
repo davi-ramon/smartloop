@@ -43,10 +43,13 @@ const KANBAN_ORDER: ServiceOrderStatus[] = [
   "received", "analyzing", "waiting_part", "ready", "delivered",
 ]
 
-function OSCard({ os }: { os: typeof MOCK_OS[0] }) {
+function OSCard({ os, index = 0 }: { os: typeof MOCK_OS[0]; index?: number }) {
   const cfg = STATUS_CONFIG[os.status]
   return (
-    <Card className="border-[--border] shadow-none hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 cursor-pointer group">
+    <Card
+      style={{ animationDelay: `${index * 60}ms` }}
+      className="animate-rise border-[--border] shadow-none hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 cursor-pointer group"
+    >
       <CardContent className="p-3.5">
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex items-center gap-2">
@@ -102,7 +105,7 @@ function KanbanView({ os }: { os: typeof MOCK_OS }) {
               </span>
             </div>
             <div className="flex flex-col gap-2 min-h-[60px]">
-              {items.map((o) => <OSCard key={o.id} os={o} />)}
+              {items.map((o, i) => <OSCard key={o.id} os={o} index={i} />)}
               {items.length === 0 && (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[--border] py-8">
                   <p className="text-xs text-[--muted-foreground]">Nenhuma OS</p>

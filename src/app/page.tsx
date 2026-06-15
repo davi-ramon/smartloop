@@ -7,9 +7,9 @@ import {
   Wrench, ArrowRight, Check, X, Star, Zap, Shield,
   BarChart2, Users, ClipboardList, Package, Smartphone,
   ChevronDown, Globe, Mail, Phone, Link2, ExternalLink,
-  CheckCircle2, AlertTriangle, TrendingUp, Clock,
+  CheckCircle2, AlertTriangle, TrendingUp, TrendingDown, Clock,
   MessageSquare, QrCode, Scan, FileText, CreditCard,
-  Menu, Sparkles,
+  Menu, Sparkles, Layers, Frown,
 } from "lucide-react"
 
 /* ───────────────────────────────────────────
@@ -326,32 +326,32 @@ function Hero() {
 ─────────────────────────────────────────── */
 const PAINS = [
   {
-    emoji: "📋",
+    icon: ClipboardList,
     title: "OS anotadas em papel ou caderno",
     desc: "Clientes ligando perguntando o status do aparelho. Técnico sem saber o que fazer. OS desaparecendo.",
   },
   {
-    emoji: "💸",
+    icon: TrendingDown,
     title: "Sem saber quanto entrou hoje",
     desc: "Fim do dia e você não sabe se lucrou ou perdeu. Dinheiro no caixa, mas contas chegando. Financeiro no feeling.",
   },
   {
-    emoji: "🗂️",
+    icon: Layers,
     title: "Dados espalhados em mil lugares",
     desc: "Planilha, caderno, WhatsApp, notas do celular. Quando você mais precisa de uma informação, ela some.",
   },
   {
-    emoji: "👤",
+    icon: Users,
     title: "Técnico novo, caos total",
     desc: "Cada técnico tem seu próprio jeito. Não existe processo. Onboarding? Qual onboarding?",
   },
   {
-    emoji: "📈",
+    icon: TrendingUp,
     title: "Crescendo, mas sem estrutura",
     desc: "Segunda filial abrindo, mais técnicos chegando, mais OS — e você gerenciando tudo no braço.",
   },
   {
-    emoji: "🔧",
+    icon: Wrench,
     title: "Sistema incompleto ou quebrado",
     desc: "Pagando por 3 ferramentas diferentes que não conversam entre si. Funcionalidade que você precisa? Não tem.",
   },
@@ -383,8 +383,10 @@ function PainSection() {
               className="group relative overflow-hidden rounded-2xl border border-white/8 bg-gradient-to-br from-white/5 to-white/2 p-6 backdrop-blur-sm hover:border-red-500/30 hover:from-red-500/8 transition-all duration-300"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-red-500/0 to-red-500/0 group-hover:from-red-500/5 group-hover:to-transparent transition-all duration-500" />
-              <span className="text-3xl">{pain.emoji}</span>
-              <h3 className="mt-3 text-base font-bold text-white">{pain.title}</h3>
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/5 ring-1 ring-white/10">
+                <pain.icon className="h-5 w-5 text-[#f87171]" />
+              </div>
+              <h3 className="mt-4 text-base font-bold text-white">{pain.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-400">{pain.desc}</p>
             </motion.div>
           ))}
@@ -392,7 +394,7 @@ function PainSection() {
 
         <Reveal className="mt-16 text-center">
           <div className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-8 py-5">
-            <span className="text-2xl">😤</span>
+            <Frown className="h-6 w-6 shrink-0 text-slate-400" />
             <p className="text-slate-300 text-sm">
               <strong className="text-white">Você não está sozinho.</strong>{" "}
               87% dos donos de assistências técnicas relatam pelo menos 3 desses problemas.
@@ -755,8 +757,9 @@ function PricingSection() {
               }`}
             >
               {plan.highlight && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 py-1 text-xs font-bold text-white shadow-lg">
-                  ⭐ Mais escolhido
+                <div className="absolute -top-4 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-4 py-1 text-xs font-bold text-white shadow-lg">
+                  <Star className="h-3 w-3 fill-white" />
+                  Mais escolhido
                 </div>
               )}
               <div className={`text-sm font-semibold mb-1 ${plan.highlight ? "text-[#a78bfa]" : "text-[#2563eb]"}`}>
@@ -878,9 +881,11 @@ function CTASection() {
             <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
-        <p className="mt-6 text-sm text-slate-600">
-          ✓ Sem cartão &nbsp;·&nbsp; ✓ 14 dias grátis &nbsp;·&nbsp; ✓ Cancele quando quiser
-        </p>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-500">
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#34d399]" />Sem cartão</span>
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#34d399]" />14 dias grátis</span>
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#34d399]" />Cancele quando quiser</span>
+        </div>
       </Reveal>
     </section>
   )

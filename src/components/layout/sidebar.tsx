@@ -31,7 +31,7 @@ const NAV_GROUPS = [
   {
     label: "Principal",
     items: [
-      { label: "Início", href: "/", icon: LayoutDashboard, exact: true },
+      { label: "Início", href: "/home", icon: LayoutDashboard, exact: true },
       { label: "Ordens de Serviço", href: "/os", icon: ClipboardList },
       { label: "Clientes", href: "/clientes", icon: Users },
       { label: "Técnicos", href: "/tecnicos", icon: UserCog },
@@ -72,7 +72,7 @@ function NavItem({ label, href, icon: Icon, isActive, isExpanded }: NavItemProps
     <Link
       href={href}
       className={cn(
-        "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150",
+        "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-[background-color,color,transform] duration-150 ease-out hover:translate-x-0.5 active:scale-[0.98]",
         isActive
           ? "bg-[--sidebar-active] text-[--sidebar-active-text]"
           : "text-[--sidebar-foreground] hover:bg-[--sidebar-hover]"
@@ -133,30 +133,30 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Overlay backdrop quando expandido mas não fixado */}
+      {/* Overlay backdrop quando expandido mas não fixado — escurece e desfoca o fundo */}
       <AnimatePresence>
         {isExpanded && !isPinned && (
           <motion.div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            transition={{ duration: 0.18 }}
             onClick={() => setIsHovered(false)}
           />
         )}
       </AnimatePresence>
 
       <motion.aside
-        className="fixed inset-y-0 left-0 z-50 flex flex-col bg-[--sidebar] border-r border-[--sidebar-border] overflow-hidden"
+        className="fixed inset-y-0 left-0 z-50 flex flex-col overflow-hidden border-r border-[--sidebar-border] bg-[--sidebar]/80 backdrop-blur-2xl backdrop-saturate-150"
         animate={{ width: isExpanded ? EXPANDED_W : COLLAPSED_W }}
         transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{
-          boxShadow: isExpanded && !isPinned
-            ? "4px 0 24px rgba(0,0,0,0.08)"
-            : "none",
+          boxShadow: isExpanded
+            ? "8px 0 40px rgba(2, 6, 23, 0.18)"
+            : "1px 0 0 rgba(0,0,0,0.02)",
         }}
       >
         {/* Logo */}

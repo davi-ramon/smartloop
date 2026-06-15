@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/layout/sidebar"
 import { Protected } from "@/components/auth/protected"
+import { PageTransition } from "@/components/layout/page-transition"
 
 export default function DashboardLayout({
   children,
@@ -12,7 +13,7 @@ export default function DashboardLayout({
         <Sidebar />
         {/* Main content — margem fixa de 64px (sidebar colapsada) */}
         <div className="ml-16 flex flex-col min-h-screen">
-          {children}
+          <PageTransition>{children}</PageTransition>
         </div>
       </div>
     </Protected>
