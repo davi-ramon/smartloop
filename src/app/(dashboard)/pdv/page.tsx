@@ -9,6 +9,7 @@ import {
   Search, Plus, Minus, Trash2, ShoppingCart, CreditCard,
   Banknote, QrCode, User, Package,
 } from "lucide-react"
+import { AnimatedCard } from "@/components/shared/animated-card"
 
 const PRODUCTS = [
   { id: "1", name: "Película iPhone 14",       price: 35,  category: "Películas" },
@@ -68,18 +69,23 @@ export default function PDVPage() {
           <div className="flex-1 overflow-y-auto p-4">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {filtered.map(product => (
-                <button
-                  key={product.id}
-                  onClick={() => addToCart(product)}
-                  className="flex flex-col items-start rounded-xl border border-[--border] bg-[--card] p-4 text-left hover:border-[--primary] hover:bg-[--primary]/5 hover:shadow-sm transition-all group"
-                >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[--muted] group-hover:bg-[--primary]/10 transition-colors">
-                    <Package className="h-4 w-4 text-[--muted-foreground] group-hover:text-[--primary]" />
-                  </div>
-                  <p className="mt-3 text-sm font-medium text-[--foreground] leading-tight line-clamp-2">{product.name}</p>
-                  <p className="mt-1 text-sm font-bold text-[--primary]">{fmt(product.price)}</p>
-                  <span className="mt-1 text-[10px] text-[--muted-foreground]">{product.category}</span>
-                </button>
+                <AnimatedCard key={product.id} scale={1.06}>
+                  <button
+                    onClick={() => addToCart(product)}
+                    aria-label={`Adicionar ${product.name} ao carrinho`}
+                    className="group relative flex w-full flex-col items-start rounded-xl border border-[--border] bg-[--card] p-4 text-left transition-all hover:border-[--primary] hover:bg-[--primary]/5"
+                  >
+                    <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-[--primary] text-white shadow-sm transition-transform group-hover:scale-110">
+                      <Plus className="h-3.5 w-3.5" />
+                    </span>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[--muted] transition-colors group-hover:bg-[--primary]/10">
+                      <Package className="h-4 w-4 text-[--muted-foreground] group-hover:text-[--primary]" />
+                    </div>
+                    <p className="mt-3 line-clamp-2 text-sm font-medium leading-tight text-[--foreground]">{product.name}</p>
+                    <p className="mt-1 text-sm font-bold text-[--primary]">{fmt(product.price)}</p>
+                    <span className="mt-1 text-[10px] text-[--muted-foreground]">{product.category}</span>
+                  </button>
+                </AnimatedCard>
               ))}
             </div>
           </div>

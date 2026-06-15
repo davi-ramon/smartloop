@@ -2,7 +2,8 @@
 
 import { Header } from "@/components/layout/header"
 import { Button } from "@/components/ui/button"
-import { UserCog, ClipboardList, Star, MoreHorizontal } from "lucide-react"
+import { ClipboardList, Star, MoreHorizontal } from "lucide-react"
+import { AnimatedCard } from "@/components/shared/animated-card"
 
 const MOCK_TECHNICIANS = [
   { id: "1", name: "Carlos Eduardo",  role: "Técnico Sênior", os_open: 2, os_month: 14, rating: 4.9, active: true  },
@@ -24,7 +25,7 @@ export default function TecnicosPage() {
       <div className="p-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {MOCK_TECHNICIANS.map((tech, i) => (
-            <div key={tech.id} className="rounded-xl border border-[--border] bg-[--card] p-5 hover:shadow-sm transition-shadow">
+            <AnimatedCard key={tech.id} className="rounded-xl border border-[--border] bg-[--card] p-5">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${COLORS[i % COLORS.length]} text-sm font-bold text-white`}>
@@ -67,7 +68,7 @@ export default function TecnicosPage() {
                   Ver OS
                 </Button>
               </div>
-            </div>
+            </AnimatedCard>
           ))}
         </div>
       </div>

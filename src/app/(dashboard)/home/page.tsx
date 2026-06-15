@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/firebase/auth-context"
+import { AnimatedCard } from "@/components/shared/animated-card"
 import {
   ClipboardList, Users, TrendingUp, CheckCircle2, ShoppingCart,
   Zap, ArrowRight, Clock, Settings,
@@ -36,8 +37,8 @@ export default function HomePage() {
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {STATS.map((stat) => (
-            <Card key={stat.label} className="border-[--border] shadow-none transition-shadow hover:shadow-sm">
-              <CardContent className="p-5">
+            <AnimatedCard key={stat.label} scale={1.06} className="rounded-xl border border-[--border] bg-[--card]">
+              <div className="p-5">
                 <div className="flex items-start justify-between">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-xs font-medium text-[--muted-foreground]">{stat.label}</p>
@@ -48,8 +49,8 @@ export default function HomePage() {
                     <stat.icon className={`h-4 w-4 ${stat.color}`} />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </AnimatedCard>
           ))}
         </div>
 
