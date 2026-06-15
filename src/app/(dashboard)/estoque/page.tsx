@@ -1,23 +1,23 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Header } from "@/components/layout/header"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search, AlertTriangle, Package, MoreHorizontal } from "lucide-react"
+import {
+  Search, AlertTriangle, Package, Pencil, Trash2,
+  Loader2, AlertCircle,
+} from "lucide-react"
+import { useAuth } from "@/lib/firebase/auth-context"
+import { watchParts, deletePart, PART_CATEGORIES, type Part } from "@/lib/data/parts"
+import { PartEditDialog } from "@/components/estoque/part-edit-dialog"
+import { ConfirmDialog } from "@/components/shared/confirm-dialog"
 
-const CATEGORIES = ["Todos", "Telas", "Baterias", "Películas", "Capas", "Conectores", "Outros"]
+const FILTERS = ["Todos", ...PART_CATEGORIES] as const
 
-const MOCK_PARTS = [
-  { id: "1", name: "Tela iPhone 14 Pro OLED",         sku: "TL-IP14P",  category: "Telas",      price: 420,  cost: 280,  stock: 3,  min: 2, supplier: "Moisés Imperosa" },
-  { id: "2", name: "Tela Samsung Galaxy S23",          sku: "TL-SS23",   category: "Telas",      price: 310,  cost: 190,  stock: 2,  min: 2, supplier: "Moisés Imperosa" },
-  { id: "3", name: "Bateria iPhone 13",                sku: "BT-IP13",   category: "Baterias",   price: 120,  cost: 65,   stock: 8,  min: 5, supplier: "Moisés Imperosa" },
-  { id: "4", name: "Bateria Samsung A54",              sku: "BT-SSA54",  category: "Baterias",   price: 85,   cost: 40,   stock: 1,  min: 3, supplier: "TechParts SP"    },
-  { id: "5", name: "Película iPhone 14 Series",        sku: "PL-IP14",   category: "Películas",  price: 35,   cost: 12,   stock: 20, min: 10, supplier: "PeliMax"       },
-  { id: "6", name: "Película Samsung S23 Ultra",       sku: "PL-SS23U",  category: "Películas",  price: 40,   cost: 14,   stock: 15, min: 10, supplier: "PeliMax"       },
-  { id: "7", name: "Conector Carga USB-C Universal",   sku: "CN-USBC",   category: "Conectores", price: 45,   cost: 18,   stock: 12, min: 5, supplier: "ElecParts"      },
-  { id: "8", name: "Capa Silicone iPhone 14",          sku: "CP-IP14",   category: "Capas",      price: 25,   cost: 8,    stock: 0,  min: 5, supplier: "AcessórioBR"    },
-]
+function brl(n: number) {
+  return `R$ ${(n ?? 0).toFixed(2).replace(".", ",")}`
+}
 
 function StockBadge({ stock, min }: { stock: number; min: number }) {
   if (stock === 0)
@@ -28,38 +28,70 @@ function StockBadge({ stock, min }: { stock: number; min: number }) {
 }
 
 export default function EstoquePage() {
+  const { profile } = useAuth()
+  const tenantId = profile?.tenantId
+  const [parts, setParts] = useState<Part[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState("")
-  const [cat, setCat] = useState("Todos")
+  const [cat, setCat] = useState<string>("Todos")
+  const [editing, setEditing] = useState<Part | null>(null)
+  const [confirmDel, setConfirmDel] = useState<Part | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
-  const filtered = MOCK_PARTS.filter(
+  useEffect(() => {
+    if (!tenantId) return
+    setLoading(true)
+    const unsub = watchParts(
+      tenantId,
+      (list) => { setParts(list); setError(null); setLoading(false) },
+      () => { setError("Não foi possível carregar o estoque."); setLoading(false) }
+    )
+    return () => unsub()
+  }, [tenantId])
+
+  async function confirmDelete() {
+    if (!tenantId || !confirmDel) return
+    setDeleting(true)
+    try {
+      await deletePart(tenantId, confirmDel.id)
+      setConfirmDel(null)
+    } catch {
+      setError("Não foi possível remover a peça.")
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  const filtered = parts.filter(
     (p) =>
       (cat === "Todos" || p.category === cat) &&
-      (p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase()))
+      (p.name.toLowerCase().includes(search.toLowerCase()) ||
+        (p.sku ?? "").toLowerCase().includes(search.toLowerCase()))
   )
-
-  const lowStock = MOCK_PARTS.filter((p) => p.stock <= p.min).length
+  const lowStock = parts.filter((p) => p.stock <= p.minStock).length
 
   return (
-    <div className="flex flex-col flex-1">
+    <div className="flex flex-1 flex-col">
       <Header title="Estoque" action={{ label: "Nova Peça", href: "/estoque/nova" }} />
 
       {lowStock > 0 && (
         <div className="mx-6 mt-4 flex items-center gap-3 rounded-lg border border-[#f59e0b]/30 bg-[#f59e0b]/8 px-4 py-3">
-          <AlertTriangle className="h-4 w-4 text-[#f59e0b] shrink-0" />
+          <AlertTriangle className="h-4 w-4 shrink-0 text-[#f59e0b]" />
           <p className="text-sm text-[--foreground]">
             <span className="font-semibold">{lowStock} {lowStock === 1 ? "item" : "itens"}</span> com estoque baixo ou zerado.
           </p>
         </div>
       )}
 
-      <div className="flex items-center gap-3 border-b border-[--border] px-6 py-3 mt-2">
-        <div className="relative flex-1 max-w-sm">
+      <div className="mt-2 flex flex-wrap items-center gap-3 border-b border-[--border] px-6 py-3">
+        <div className="relative max-w-sm flex-1">
           <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[--muted-foreground]" />
-          <Input placeholder="Buscar peça ou SKU..." className="pl-8 h-8 text-sm bg-[--muted] border-transparent" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input placeholder="Buscar peça ou SKU..." className="h-8 border-transparent bg-[--muted] pl-8 text-sm" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
-        <div className="flex gap-1.5">
-          {CATEGORIES.map((c) => (
-            <button key={c} onClick={() => setCat(c)} className={`rounded-lg px-3 h-8 text-xs font-medium transition-colors ${cat === c ? "bg-[--primary] text-white" : "border border-[--border] text-[--muted-foreground] hover:text-[--foreground] hover:bg-[--muted]"}`}>
+        <div className="flex flex-wrap gap-1.5">
+          {FILTERS.map((c) => (
+            <button key={c} onClick={() => setCat(c)} className={`h-8 rounded-lg px-3 text-xs font-medium transition-colors ${cat === c ? "bg-[--primary] text-white" : "border border-[--border] text-[--muted-foreground] hover:bg-[--muted] hover:text-[--foreground]"}`}>
               {c}
             </button>
           ))}
@@ -67,50 +99,77 @@ export default function EstoquePage() {
       </div>
 
       <div className="flex-1 px-6 py-4">
-        <div className="rounded-xl border border-[--border] overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-[--muted]/50 border-b border-[--border]">
-              <tr>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-[--muted-foreground] uppercase tracking-wide">Peça</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-[--muted-foreground] uppercase tracking-wide hidden sm:table-cell">SKU</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-[--muted-foreground] uppercase tracking-wide hidden md:table-cell">Categoria</th>
-                <th className="text-right py-3 px-4 text-xs font-semibold text-[--muted-foreground] uppercase tracking-wide">Custo</th>
-                <th className="text-right py-3 px-4 text-xs font-semibold text-[--muted-foreground] uppercase tracking-wide">Venda</th>
-                <th className="text-center py-3 px-4 text-xs font-semibold text-[--muted-foreground] uppercase tracking-wide">Estoque</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-[--muted-foreground] uppercase tracking-wide hidden lg:table-cell">Fornecedor</th>
-                <th className="py-3 px-4 w-10" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[--border]">
-              {filtered.map((part) => (
-                <tr key={part.id} className="hover:bg-[--muted]/30 transition-colors cursor-pointer">
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[--muted]">
-                        <Package className="h-3.5 w-3.5 text-[--muted-foreground]" />
-                      </div>
-                      <span className="font-medium text-[--foreground]">{part.name}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 text-xs font-mono text-[--muted-foreground] hidden sm:table-cell">{part.sku}</td>
-                  <td className="py-3 px-4 hidden md:table-cell">
-                    <span className="rounded-md bg-[--muted] px-2 py-0.5 text-xs text-[--muted-foreground]">{part.category}</span>
-                  </td>
-                  <td className="py-3 px-4 text-right text-[--muted-foreground]">R$ {part.cost.toFixed(2).replace(".", ",")}</td>
-                  <td className="py-3 px-4 text-right font-semibold text-[--foreground]">R$ {part.price.toFixed(2).replace(".", ",")}</td>
-                  <td className="py-3 px-4 text-center"><StockBadge stock={part.stock} min={part.min} /></td>
-                  <td className="py-3 px-4 text-xs text-[--muted-foreground] hidden lg:table-cell">{part.supplier}</td>
-                  <td className="py-3 px-4 text-right">
-                    <button className="text-[--muted-foreground] hover:text-[--foreground] transition-colors">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </button>
-                  </td>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-20 text-[--muted-foreground]">
+            <Loader2 className="h-6 w-6 animate-spin" /><p className="text-sm">Carregando estoque...</p>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[--destructive]/10"><AlertCircle className="h-7 w-7 text-[--destructive]" /></div>
+            <p className="text-sm text-[--destructive]">{error}</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[--muted]"><Package className="h-7 w-7 text-[--muted-foreground]" /></div>
+            <div>
+              <p className="font-semibold text-[--foreground]">{search || cat !== "Todos" ? "Nenhuma peça encontrada" : "Catálogo de peças vazio"}</p>
+              <p className="mt-1 text-sm text-[--muted-foreground]">{search || cat !== "Todos" ? "Ajuste a busca ou o filtro." : "Cadastre as peças que você usa nos reparos."}</p>
+            </div>
+            {!search && cat === "Todos" && <Button asChild><a href="/estoque/nova">Cadastrar peça</a></Button>}
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-xl border border-[--border]">
+            <table className="w-full text-sm">
+              <thead className="border-b border-[--border] bg-[--muted]/50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[--muted-foreground]">Peça</th>
+                  <th className="hidden px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[--muted-foreground] sm:table-cell">SKU</th>
+                  <th className="hidden px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[--muted-foreground] md:table-cell">Categoria</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[--muted-foreground]">Venda</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-[--muted-foreground]">Estoque</th>
+                  <th className="hidden px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[--muted-foreground] lg:table-cell">Fornecedor</th>
+                  <th className="w-20 px-4 py-3" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-[--border]">
+                {filtered.map((part) => (
+                  <tr key={part.id} className="transition-colors hover:bg-[--muted]/30">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[--muted]"><Package className="h-3.5 w-3.5 text-[--muted-foreground]" /></div>
+                        <span className="font-medium text-[--foreground]">{part.name}</span>
+                      </div>
+                    </td>
+                    <td className="hidden px-4 py-3 font-mono text-xs text-[--muted-foreground] sm:table-cell">{part.sku || "—"}</td>
+                    <td className="hidden px-4 py-3 md:table-cell"><span className="rounded-md bg-[--muted] px-2 py-0.5 text-xs text-[--muted-foreground]">{part.category || "—"}</span></td>
+                    <td className="px-4 py-3 text-right font-semibold text-[--foreground]">{brl(part.price)}</td>
+                    <td className="px-4 py-3 text-center"><StockBadge stock={part.stock} min={part.minStock} /></td>
+                    <td className="hidden px-4 py-3 text-xs text-[--muted-foreground] lg:table-cell">{part.supplier || "—"}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-1">
+                        <button onClick={() => setEditing(part)} aria-label={`Editar ${part.name}`} className="flex h-7 w-7 items-center justify-center rounded-md text-[--muted-foreground] transition-colors hover:bg-[--muted] hover:text-[--primary]"><Pencil className="h-3.5 w-3.5" /></button>
+                        <button onClick={() => setConfirmDel(part)} aria-label={`Remover ${part.name}`} className="flex h-7 w-7 items-center justify-center rounded-md text-[--muted-foreground] transition-colors hover:bg-[--destructive]/10 hover:text-[--destructive]"><Trash2 className="h-3.5 w-3.5" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
+
+      <PartEditDialog part={editing} open={editing !== null} onClose={() => setEditing(null)} />
+      <ConfirmDialog
+        open={confirmDel !== null}
+        title="Remover peça?"
+        description={confirmDel ? `${confirmDel.name} será removida do catálogo.` : ""}
+        confirmLabel="Remover"
+        danger
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmDel(null)}
+      />
     </div>
   )
 }
