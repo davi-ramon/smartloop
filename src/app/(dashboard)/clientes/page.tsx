@@ -5,12 +5,12 @@ import { Header } from "@/components/layout/header"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import {
-  Search, Phone, Mail, MessageCircle, MoreHorizontal, UserPlus,
-  Loader2, AlertCircle, Trash2,
+  Search, Phone, Mail, MessageCircle, UserPlus,
+  Loader2, AlertCircle, Trash2, Pencil,
 } from "lucide-react"
 import { useAuth } from "@/lib/firebase/auth-context"
 import { watchCustomers, deleteCustomer, type Customer } from "@/lib/data/customers"
-import { logger } from "@/lib/logger"
+import { ClientEditDialog } from "@/components/clientes/client-edit-dialog"
 
 function getInitials(name: string) {
   return name.trim().split(" ").slice(0, 2).map((n) => n[0]).join("").toUpperCase()
@@ -32,6 +32,7 @@ export default function ClientesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState("")
+  const [editing, setEditing] = useState<Customer | null>(null)
 
   useEffect(() => {
     if (!tenantId) return
@@ -170,13 +171,22 @@ export default function ClientesPage() {
                       </span>
                     </td>
                     <td className="py-3 px-4 text-right">
-                      <button
-                        onClick={() => handleDelete(client)}
-                        aria-label={`Remover ${client.name}`}
-                        className="text-[--muted-foreground] hover:text-[--destructive] transition-colors"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => setEditing(client)}
+                          aria-label={`Editar ${client.name}`}
+                          className="flex h-7 w-7 items-center justify-center rounded-md text-[--muted-foreground] transition-colors hover:bg-[--muted] hover:text-[--primary]"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(client)}
+                          aria-label={`Remover ${client.name}`}
+                          className="flex h-7 w-7 items-center justify-center rounded-md text-[--muted-foreground] transition-colors hover:bg-[--destructive]/10 hover:text-[--destructive]"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -185,6 +195,12 @@ export default function ClientesPage() {
           </div>
         )}
       </div>
+
+      <ClientEditDialog
+        customer={editing}
+        open={editing !== null}
+        onClose={() => setEditing(null)}
+      />
     </div>
   )
 }
