@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useAuth } from "@/lib/firebase/auth-context"
+import { authErrorMessage } from "@/lib/firebase/auth-errors"
 import { logger } from "@/lib/logger"
 
 const loginSchema = z.object({
@@ -34,6 +36,7 @@ type SubmitState =
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login, loginWithGoogle } = useAuth()
   const [submitState, setSubmitState] = useState<SubmitState>({ status: "idle" })
 
   const {
@@ -50,18 +53,12 @@ export default function LoginPage() {
     setSubmitState({ status: "loading" })
 
     try {
-      // TODO(Semana 4): integrar Firebase Auth real. Hoje é modo demonstração.
-      await new Promise((r) => setTimeout(r, 600))
-
-      logger.success("auth", "login (modo demo) — redirecionando para /os", { email: data.email })
+      await login(data.email, data.password)
       setSubmitState({ status: "success", message: "Entrando..." })
       router.push("/os")
     } catch (err) {
       logger.error("auth", "falha no login", err)
-      setSubmitState({
-        status: "error",
-        message: "Não foi possível entrar. Tente novamente.",
-      })
+      setSubmitState({ status: "error", message: authErrorMessage(err) })
     }
   }
 
@@ -72,11 +69,15 @@ export default function LoginPage() {
   }
 
   async function handleGoogle() {
-    logger.info("auth", "login com Google (modo demo)")
     setSubmitState({ status: "loading" })
-    await new Promise((r) => setTimeout(r, 500))
-    logger.success("auth", "google (modo demo) — redirecionando para /os")
-    router.push("/os")
+    try {
+      await loginWithGoogle()
+      setSubmitState({ status: "success", message: "Entrando..." })
+      router.push("/os")
+    } catch (err) {
+      logger.error("auth", "falha no login com Google", err)
+      setSubmitState({ status: "error", message: authErrorMessage(err) })
+    }
   }
 
   const isLoading = submitState.status === "loading" || submitState.status === "success"

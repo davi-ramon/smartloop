@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "motion/react"
 import {
   LayoutDashboard,
@@ -20,9 +20,12 @@ import {
   Wrench,
   Pin,
   ChevronRight,
+  LogOut,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useSidebarStore } from "@/store/sidebar"
+import { useAuth } from "@/lib/firebase/auth-context"
+import { logger } from "@/lib/logger"
 
 const NAV_GROUPS = [
   {
@@ -107,10 +110,21 @@ function NavItem({ label, href, icon: Icon, isActive, isExpanded }: NavItemProps
 
 export function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const { logout } = useAuth()
   const { isPinned, togglePin } = useSidebarStore()
   const [isHovered, setIsHovered] = useState(false)
 
   const isExpanded = isPinned || isHovered
+
+  async function handleLogout() {
+    try {
+      await logout()
+      router.replace("/login")
+    } catch (err) {
+      logger.error("auth", "falha ao sair", err)
+    }
+  }
 
   function isActive(href: string, exact?: boolean) {
     if (exact) return pathname === href
@@ -160,7 +174,7 @@ export function Sidebar() {
                   transition={{ duration: 0.15 }}
                   className="text-[15px] font-bold tracking-tight whitespace-nowrap text-[--foreground]"
                 >
-                  Fix<span className="text-[--primary]">OS</span>
+                  Smart<span className="text-[--primary]">Loop</span>
                 </motion.span>
               )}
             </AnimatePresence>
@@ -221,8 +235,8 @@ export function Sidebar() {
           ))}
         </nav>
 
-        {/* Bottom — Settings */}
-        <div className="shrink-0 border-t border-[--sidebar-border] p-2">
+        {/* Bottom — Settings + Logout */}
+        <div className="shrink-0 border-t border-[--sidebar-border] p-2 space-y-0.5">
           <NavItem
             label="Configurações"
             href="/configuracoes"
@@ -230,6 +244,28 @@ export function Sidebar() {
             isActive={isActive("/configuracoes")}
             isExpanded={isExpanded}
           />
+          <button
+            type="button"
+            onClick={handleLogout}
+            aria-label="Sair da conta"
+            title="Sair"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[--sidebar-foreground] transition-colors duration-150 hover:bg-[--sidebar-hover] hover:text-[--destructive]"
+          >
+            <LogOut className="h-[18px] w-[18px] shrink-0 text-[--sidebar-icon]" />
+            <AnimatePresence>
+              {isExpanded && (
+                <motion.span
+                  initial={{ opacity: 0, x: -4 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -4 }}
+                  transition={{ duration: 0.12, ease: "easeOut" }}
+                  className="overflow-hidden whitespace-nowrap"
+                >
+                  Sair
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
         </div>
       </motion.aside>
     </>
