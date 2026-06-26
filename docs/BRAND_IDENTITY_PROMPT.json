@@ -1,0 +1,46 @@
+{
+  "brand": "SmartLoop",
+  "tagline": "A OS que resolve. O sistema que escala.",
+  "industry": "B2B SaaS for cellphone and electronics repair shops (Brazil)",
+  "personality": ["modern", "professional", "minimal", "trustworthy", "tech-forward", "efficient"],
+  "concept": "Evolve the current basic wrench icon into a distinctive, professional mark. Fuse the idea of a continuous LOOP (the recurring service cycle, subscription, returning customer) with a subtle repair/tech cue. Avoid clichEs; create a memorable, scalable symbol that reads clearly at 16px and on a billboard.",
+  "logo_symbol": {
+    "idea": "A clean geometric loop / infinite-cycle made from a single rounded ribbon, optionally hinting in negative space at a wrench head, a gear tooth, or a stylized 'S'. One continuous stroke, optically balanced, contained in a soft squircle.",
+    "style": "flat, geometric, consistent stroke weight, no skeuomorphism, no inner gradients except in the master color version",
+    "must": ["recognizable at 16px", "works in a single solid color", "centered optical balance"]
+  },
+  "deliverables": {
+    "app_icon": "Master app/system icon: rounded square (squircle, ~22% corner radius), brand gradient background, white symbol. 1024x1024.",
+    "favicon": "Simplified symbol only, optimized for 16/32/48px, high contrast, no fine detail.",
+    "logo_horizontal": "Symbol + 'SmartLoop' wordmark to the right, for headers/navbars. Provide light-bg and dark-bg versions.",
+    "logo_vertical": "Symbol centered above the wordmark, for splash screens and print.",
+    "logo_social": "Square avatar (symbol on gradient) for Instagram/WhatsApp, safe-area aware.",
+    "monochrome_flat": "Single-color flat-icon version (pure black and pure white) for stamps, watermarks, invoices, embroidery."
+  },
+  "wordmark": {
+    "font_style": "geometric sans-serif, medium/semibold, tight tracking",
+    "case": "'SmartLoop' as one word with capital S and L",
+    "color_split": "'Smart' in dark neutral, 'Loop' in brand blue; full white when on gradient"
+  },
+  "color_palette": {
+    "primary_blue": "#2563EB",
+    "deep_blue": "#1D4ED8",
+    "purple": "#7C3AED",
+    "accent_orange": "#F97316",
+    "success_green": "#10B981",
+    "ink": "#0F172A",
+    "slate": "#64748B",
+    "bg_light": "#FFFFFF",
+    "bg_muted": "#F3F4F6",
+    "primary_gradient": "135deg from #2563EB to #7C3AED"
+  },
+  "usage": {
+    "default_background": "white (light theme); dark theme uses #0F172A",
+    "clear_space": "minimum 50% of symbol height on all sides",
+    "dont": ["no drop shadow on the glyph", "no stretching", "max 2 colors in the flat version", "no emoji style"]
+  },
+  "output": {
+    "formats": ["SVG vector master", "PNG transparent @1x/2x/3x", "ICO favicon", "1024 app icon"],
+    "backgrounds": ["transparent", "light", "dark", "gradient"]
+  }
+}
