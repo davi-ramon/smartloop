@@ -14,6 +14,39 @@ import { updateTenant, uploadLogo } from "@/lib/data/tenant"
 import { logger } from "@/lib/logger"
 
 const PAYMENT_METHODS = ["Dinheiro", "Cartão de Débito", "Cartão de Crédito", "PIX"]
+const LOGO_MIN = 256
+const LOGO_MAX = 2048
+
+/* ── Validadores ── */
+const onlyDigits = (s: string) => s.replace(/\D/g, "")
+const isValidEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim())
+const isValidPhone = (s: string) => {
+  const d = onlyDigits(s)
+  return d.length === 10 || d.length === 11
+}
+function isValidCNPJ(value: string): boolean {
+  const c = onlyDigits(value)
+  if (c.length !== 14 || /^(\d)\1{13}$/.test(c)) return false
+  const calc = (len: number) => {
+    let sum = 0, pos = len - 7
+    for (let i = len; i >= 1; i--) {
+      sum += parseInt(c[len - i]) * pos--
+      if (pos < 2) pos = 9
+    }
+    const r = sum % 11
+    return r < 2 ? 0 : 11 - r
+  }
+  return calc(12) === parseInt(c[12]) && calc(13) === parseInt(c[13])
+}
+function readImageDims(file: File): Promise<{ w: number; h: number }> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => { URL.revokeObjectURL(url); resolve({ w: img.naturalWidth, h: img.naturalHeight }) }
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("imagem inválida")) }
+    img.src = url
+  })
+}
 
 type FieldKey = "name" | "fantasyName" | "cnpj" | "whatsapp" | "city" | "email"
 type StepType = "intro" | "text" | "logo" | "payments" | "finish"
@@ -24,20 +57,19 @@ interface Step {
   question: string
   hint?: string
   placeholder?: string
-  required?: boolean
   inputType?: string
 }
 
 const STEPS: Step[] = [
   { type: "intro", question: "Bem-vindo ao SmartLoop", hint: "Vamos configurar sua assistência em menos de 1 minuto. Esses dados aparecem nas OS, orçamentos e documentos." },
-  { type: "text", key: "name", question: "Qual o nome da sua empresa?", hint: "Razão social ou nome principal da assistência.", placeholder: "Assistência Connect", required: true },
+  { type: "text", key: "name", question: "Qual o nome da sua empresa?", hint: "Razão social ou nome principal. Obrigatório.", placeholder: "Assistência Connect" },
   { type: "text", key: "fantasyName", question: "Tem um nome fantasia?", hint: "Como os clientes conhecem a loja (opcional).", placeholder: "Connect Cell" },
-  { type: "text", key: "cnpj", question: "Qual o CNPJ?", hint: "Opcional — aparece nos documentos fiscais.", placeholder: "00.000.000/0001-00" },
-  { type: "text", key: "whatsapp", question: "Seu WhatsApp principal", hint: "Usado para falar com os clientes.", placeholder: "(00) 00000-0000" },
-  { type: "text", key: "city", question: "Em qual cidade você atende?", hint: "Cidade e estado.", placeholder: "Araguaína, TO" },
-  { type: "text", key: "email", question: "E-mail da loja", hint: "Já preenchemos com o e-mail da sua conta.", placeholder: "contato@loja.com.br", inputType: "email" },
-  { type: "logo", question: "Adicione a logo da sua loja", hint: "PNG ou JPG, até 5MB. Você pode pular e adicionar depois." },
-  { type: "payments", question: "Quais formas de pagamento você aceita?", hint: "Selecione todas que se aplicam." },
+  { type: "text", key: "cnpj", question: "Qual o CNPJ?", hint: "Obrigatório — aparece nos documentos fiscais.", placeholder: "00.000.000/0001-00" },
+  { type: "text", key: "whatsapp", question: "Seu WhatsApp principal", hint: "Obrigatório — DDD + número.", placeholder: "(00) 00000-0000" },
+  { type: "text", key: "city", question: "Em qual cidade você atende?", hint: "Obrigatório — cidade e estado.", placeholder: "Araguaína, TO" },
+  { type: "text", key: "email", question: "E-mail da loja", hint: "Obrigatório. Já preenchemos com o e-mail da sua conta.", placeholder: "contato@loja.com.br", inputType: "email" },
+  { type: "logo", question: "Adicione a logo da sua loja", hint: `Obrigatória. PNG, JPG ou WEBP, quadrada de preferência, de ${LOGO_MIN}px a ${LOGO_MAX}px, até 5MB.` },
+  { type: "payments", question: "Quais formas de pagamento você aceita?", hint: "Selecione ao menos uma." },
   { type: "finish", question: "Tudo pronto!", hint: "Você está no teste grátis de 14 dias do plano Pro — sem cartão agora." },
 ]
 
@@ -61,7 +93,6 @@ export default function OnboardingPage() {
   const step = STEPS[stepIndex]
   const progress = Math.round((stepIndex / (STEPS.length - 1)) * 100)
 
-  // Guard de acesso.
   useEffect(() => {
     if (loading) return
     if (!user) {
@@ -73,7 +104,6 @@ export default function OnboardingPage() {
     }
   }, [loading, user, tenant?.onboardingDone, router])
 
-  // Pré-preenche uma vez.
   useEffect(() => {
     if (prefilled.current || !tenant) return
     prefilled.current = true
@@ -96,33 +126,68 @@ export default function OnboardingPage() {
     setMethods((prev) => prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m])
   }
 
+  /** Retorna a mensagem de erro da etapa, ou null se válida. */
+  function stepError(idx: number): string | null {
+    const s = STEPS[idx]
+    if (s.type === "text") {
+      const v = form[s.key!].trim()
+      switch (s.key) {
+        case "name": return !v ? "Informe o nome da empresa." : v.length < 2 ? "Nome muito curto." : null
+        case "fantasyName": return null
+        case "cnpj": return !v ? "O CNPJ é obrigatório." : !isValidCNPJ(v) ? "CNPJ inválido. Confira os números." : null
+        case "whatsapp": return !v ? "O WhatsApp é obrigatório." : !isValidPhone(v) ? "Telefone inválido. Use DDD + número." : null
+        case "city": return !v ? "Informe a cidade e o estado." : null
+        case "email": return !v ? "O e-mail da loja é obrigatório." : !isValidEmail(v) ? "E-mail inválido." : null
+      }
+    }
+    if (s.type === "logo") return logoUrl ? null : "Envie a logo da loja para continuar."
+    if (s.type === "payments") return methods.length === 0 ? "Selecione ao menos uma forma de pagamento." : null
+    return null
+  }
+
   function goNext() {
-    setError(null)
-    if (step.type === "text" && step.required && !form[step.key!].trim()) {
-      setError("Esse campo é obrigatório para continuar.")
+    const err = stepError(stepIndex)
+    if (err) {
+      logger.warn("onboarding", "validação bloqueou avanço", { etapa: stepIndex, motivo: err })
+      setError(err)
       return
     }
-    if (stepIndex < STEPS.length - 1) {
-      setDir(1)
-      setStepIndex((i) => i + 1)
-    }
+    setError(null)
+    if (stepIndex < STEPS.length - 1) { setDir(1); setStepIndex((i) => i + 1) }
   }
   function goBack() {
     setError(null)
-    if (stepIndex > 0) {
-      setDir(-1)
-      setStepIndex((i) => i - 1)
-    }
+    if (stepIndex > 0) { setDir(-1); setStepIndex((i) => i - 1) }
   }
 
   async function handleLogo(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !profile?.tenantId) return
-    setUploadingLogo(true); setError(null)
+    setError(null)
+    if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
+      setError("Formato inválido. Use PNG, JPG ou WEBP."); return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("A logo deve ter até 5MB."); return
+    }
+    let dims: { w: number; h: number }
+    try {
+      dims = await readImageDims(file)
+    } catch {
+      setError("Não foi possível ler a imagem. Tente outro arquivo."); return
+    }
+    if (dims.w < LOGO_MIN || dims.h < LOGO_MIN) {
+      setError(`A logo deve ter no mínimo ${LOGO_MIN}x${LOGO_MIN} pixels.`); return
+    }
+    if (dims.w > LOGO_MAX || dims.h > LOGO_MAX) {
+      setError(`A logo deve ter no máximo ${LOGO_MAX}x${LOGO_MAX} pixels.`); return
+    }
+    setUploadingLogo(true)
     try {
       setLogoUrl(await uploadLogo(profile.tenantId, file))
+      logger.success("onboarding", "logo validada e enviada", { dims })
     } catch {
-      setError("Não foi possível enviar a logo. Você pode adicionar depois nas Configurações.")
+      setError("Não foi possível enviar a logo. Tente novamente.")
     } finally {
       setUploadingLogo(false)
     }
@@ -130,10 +195,16 @@ export default function OnboardingPage() {
 
   async function handleFinish() {
     if (!profile?.tenantId) return
-    if (!form.name.trim()) {
-      setError("Informe ao menos o nome da empresa.")
-      setDir(-1); setStepIndex(1)
-      return
+    // Revalida tudo; se algo falhar, leva para a etapa do erro.
+    for (let i = 0; i < STEPS.length; i++) {
+      const err = stepError(i)
+      if (err) {
+        logger.warn("onboarding", "conclusão bloqueada por validação", { etapa: i, motivo: err })
+        setDir(i < stepIndex ? -1 : 1)
+        setStepIndex(i)
+        setError(err)
+        return
+      }
     }
     setSaving(true); setError(null)
     logger.info("onboarding", "salvando dados e concluindo", { tenantId: profile.tenantId })
@@ -145,7 +216,7 @@ export default function OnboardingPage() {
         whatsapp: form.whatsapp,
         city: form.city,
         email: form.email || user?.email || "",
-        logoUrl: logoUrl || "",
+        logoUrl,
         paymentMethods: methods,
         onboardingDone: true,
       })
@@ -174,7 +245,6 @@ export default function OnboardingPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[--background]">
-      {/* Topo: marca + progresso */}
       <div className="shrink-0 px-5 pt-5">
         <div className="mx-auto flex max-w-lg items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[--primary] to-[#7c3aed]">
@@ -188,7 +258,6 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      {/* Conteúdo da etapa */}
       <div className="flex flex-1 items-center justify-center px-5 py-8">
         <div className="w-full max-w-lg">
           <AnimatePresence mode="wait" custom={dir}>
@@ -201,7 +270,6 @@ export default function OnboardingPage() {
               exit="exit"
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             >
-              {/* Pergunta */}
               <div className="mb-6">
                 {step.type === "intro" && (
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[--primary] to-[#7c3aed]">
@@ -212,7 +280,6 @@ export default function OnboardingPage() {
                 {step.hint && <p className="mt-2 text-sm text-[--muted-foreground]">{step.hint}</p>}
               </div>
 
-              {/* Campo conforme o tipo */}
               {step.type === "text" && (
                 <Input
                   autoFocus
@@ -236,11 +303,11 @@ export default function OnboardingPage() {
                       : <Upload className="h-6 w-6 text-[--muted-foreground]" />}
                   </div>
                   <div>
-                    <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}>
+                    <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} loading={uploadingLogo}>
                       {logoUrl ? "Trocar logo" : "Enviar logo"}
                     </Button>
-                    <p className="mt-2 text-xs text-[--muted-foreground]">Opcional</p>
-                    <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleLogo} />
+                    {logoUrl && <p className="mt-2 flex items-center gap-1 text-xs font-medium text-[#10b981]"><Check className="h-3.5 w-3.5" />Logo enviada</p>}
+                    <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleLogo} />
                   </div>
                 </div>
               )}
@@ -275,7 +342,6 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      {/* Rodapé: navegação */}
       <div className="shrink-0 border-t border-[--border] px-5 py-4">
         <div className="mx-auto flex max-w-lg items-center justify-between">
           <Button variant="ghost" onClick={goBack} disabled={stepIndex === 0}>
