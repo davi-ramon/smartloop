@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Header } from "@/components/layout/header"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -8,9 +8,11 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import {
   Building2, Users, ClipboardCheck, CreditCard, Package,
-  Shield, Printer, Zap, Upload, Plus, Trash2,
+  Shield, Upload, Plus, Trash2, Loader2, CheckCircle2, AlertCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/lib/firebase/auth-context"
+import { updateTenant, uploadLogo } from "@/lib/data/tenant"
 
 const TABS = [
   { id: "empresa",     label: "Empresa",          icon: Building2     },
@@ -24,30 +26,87 @@ const TABS = [
 const PAYMENT_METHODS = ["Dinheiro", "Cartão de Débito", "Cartão de Crédito", "PIX", "Transferência", "Cheque"]
 
 function TabEmpresa() {
+  const { profile, tenant } = useAuth()
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [name, setName] = useState("")
+  const [fantasyName, setFantasyName] = useState("")
+  const [cnpj, setCnpj] = useState("")
+  const [whatsapp, setWhatsapp] = useState("")
+  const [email, setEmail] = useState("")
+  const [city, setCity] = useState("")
+  const [logoUrl, setLogoUrl] = useState("")
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!tenant) return
+    setName(tenant.name ?? "")
+    setFantasyName(tenant.fantasyName ?? "")
+    setCnpj(tenant.cnpj ?? "")
+    setWhatsapp(tenant.whatsapp ?? "")
+    setEmail(tenant.email ?? "")
+    setCity(tenant.city ?? "")
+    setLogoUrl(tenant.logoUrl ?? "")
+  }, [tenant])
+
+  async function handleLogo(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !profile?.tenantId) return
+    setUploadingLogo(true); setError(null)
+    try { setLogoUrl(await uploadLogo(profile.tenantId, file)) }
+    catch { setError("Não foi possível enviar a logo.") }
+    finally { setUploadingLogo(false) }
+  }
+
+  async function handleSave() {
+    if (!profile?.tenantId) return
+    setSaving(true); setError(null); setSaved(false)
+    try {
+      await updateTenant(profile.tenantId, { name, fantasyName, cnpj, whatsapp, email, city, logoUrl })
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } catch {
+      setError("Não foi possível salvar as alterações.")
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <div className="space-y-6 max-w-2xl">
       <Card className="border-[--border] shadow-none">
         <CardHeader><CardTitle className="text-sm">Dados da empresa</CardTitle></CardHeader>
         <CardContent className="space-y-4">
+          {error && (
+            <div role="alert" className="flex items-center gap-2 rounded-lg border border-[--destructive]/30 bg-[--destructive]/10 px-3 py-2.5 text-sm text-[--destructive]">
+              <AlertCircle className="h-4 w-4 shrink-0" />{error}
+            </div>
+          )}
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border-2 border-dashed border-[--border] bg-[--muted] cursor-pointer hover:border-[--primary] transition-colors">
-              <Upload className="h-5 w-5 text-[--muted-foreground]" />
+            <div onClick={() => fileRef.current?.click()} className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-[--border] bg-[--muted] cursor-pointer hover:border-[--primary] transition-colors">
+              {uploadingLogo ? <Loader2 className="h-5 w-5 animate-spin text-[--muted-foreground]" /> : logoUrl ? <img src={logoUrl} alt="Logo" className="h-full w-full object-cover" /> : <Upload className="h-5 w-5 text-[--muted-foreground]" />}
             </div>
             <div>
               <p className="text-sm font-medium text-[--foreground]">Logo da loja</p>
-              <p className="text-xs text-[--muted-foreground]">PNG ou JPG, máx. 2MB</p>
-              <Button variant="outline" size="sm" className="mt-2 h-7 text-xs">Fazer upload</Button>
+              <p className="text-xs text-[--muted-foreground]">PNG ou JPG, até 5MB</p>
+              <Button variant="outline" size="sm" className="mt-2 h-7 text-xs" onClick={() => fileRef.current?.click()}>{logoUrl ? "Trocar logo" : "Fazer upload"}</Button>
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleLogo} />
             </div>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5"><Label className="text-xs">Razão social</Label><Input placeholder="Assistência Connect" /></div>
-            <div className="space-y-1.5"><Label className="text-xs">Nome fantasia</Label><Input placeholder="Connect Cell" /></div>
-            <div className="space-y-1.5"><Label className="text-xs">CNPJ</Label><Input placeholder="48.257.434/0001-06" /></div>
-            <div className="space-y-1.5"><Label className="text-xs">WhatsApp</Label><Input placeholder="(63) 99999-9999" /></div>
-            <div className="space-y-1.5"><Label className="text-xs">E-mail</Label><Input type="email" placeholder="contato@loja.com.br" /></div>
-            <div className="space-y-1.5"><Label className="text-xs">Cidade / UF</Label><Input placeholder="Araguaína, TO" /></div>
+            <div className="space-y-1.5"><Label className="text-xs">Razão social</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Assistência Connect" /></div>
+            <div className="space-y-1.5"><Label className="text-xs">Nome fantasia</Label><Input value={fantasyName} onChange={(e) => setFantasyName(e.target.value)} placeholder="Connect Cell" /></div>
+            <div className="space-y-1.5"><Label className="text-xs">CNPJ</Label><Input value={cnpj} onChange={(e) => setCnpj(e.target.value)} placeholder="48.257.434/0001-06" /></div>
+            <div className="space-y-1.5"><Label className="text-xs">WhatsApp</Label><Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="(63) 99999-9999" /></div>
+            <div className="space-y-1.5"><Label className="text-xs">E-mail</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="contato@loja.com.br" /></div>
+            <div className="space-y-1.5"><Label className="text-xs">Cidade / UF</Label><Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Araguaína, TO" /></div>
           </div>
-          <div className="flex justify-end"><Button>Salvar alterações</Button></div>
+          <div className="flex items-center justify-end gap-3">
+            {saved && <span className="flex items-center gap-1.5 text-xs font-medium text-[#10b981]"><CheckCircle2 className="h-3.5 w-3.5" />Salvo!</span>}
+            <Button onClick={handleSave} loading={saving} disabled={saving}>Salvar alterações</Button>
+          </div>
         </CardContent>
       </Card>
     </div>

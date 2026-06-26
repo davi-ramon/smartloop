@@ -14,11 +14,13 @@ import {
 } from "firebase/auth"
 import { auth } from "./config"
 import { ensureUserProfile, setPendingStoreName, type UserProfile } from "./firestore"
+import { watchTenant, type Tenant } from "@/lib/data/tenant"
 import { logger } from "@/lib/logger"
 
 interface AuthContextValue {
   user: User | null
   profile: UserProfile | null
+  tenant: Tenant | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   loginWithGoogle: () => Promise<void>
@@ -32,6 +34,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [tenant, setTenant] = useState<Tenant | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -44,15 +47,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           try {
             const p = await ensureUserProfile(u)
             setProfile(p)
+            // o loading só termina após o tenant carregar (effect abaixo)
           } catch (err) {
             logger.error("auth", "falha ao carregar/criar perfil", err)
             setProfile(null)
+            setLoading(false)
           }
         } else {
           logger.info("auth", "sem sessão")
           setProfile(null)
+          setTenant(null)
+          setLoading(false)
         }
-        setLoading(false)
       },
       (err) => {
         logger.error("auth", "erro no observer de autenticação", err)
@@ -61,6 +67,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     )
     return () => unsub()
   }, [])
+
+  // Carrega o tenant (loja) em tempo real assim que o perfil estiver pronto.
+  useEffect(() => {
+    if (!profile?.tenantId) return
+    const unsub = watchTenant(
+      profile.tenantId,
+      (t) => { setTenant(t); setLoading(false) },
+      () => { setLoading(false) }
+    )
+    return () => unsub()
+  }, [profile?.tenantId])
 
   async function login(email: string, password: string) {
     logger.info("auth", "login e-mail/senha iniciado", { email })
@@ -104,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, profile, loading, login, loginWithGoogle, signup, logout, resetPassword }}
+      value={{ user, profile, tenant, loading, login, loginWithGoogle, signup, logout, resetPassword }}
     >
       {children}
     </AuthContext.Provider>
