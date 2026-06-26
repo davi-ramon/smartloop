@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import {
   Zap, Smartphone, Search, Plus, Minus, Trash2,
   FileText, CheckCircle2, Loader2, AlertCircle, Wrench,
+  MessageCircle, Link2, Check,
 } from "lucide-react"
 import { useAuth } from "@/lib/firebase/auth-context"
 import { watchCustomers, type Customer } from "@/lib/data/customers"
@@ -46,6 +47,7 @@ export default function OrcamentoRapidoPage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!tenantId) return
@@ -117,6 +119,31 @@ export default function OrcamentoRapidoPage() {
   async function handleDeleteQuote(id: string) {
     if (!tenantId) return
     try { await deleteQuote(tenantId, id) } catch { /* logado na camada */ }
+  }
+
+  function quoteLink(q: Quote) {
+    const origin = typeof window !== "undefined" ? window.location.origin : ""
+    return `${origin}/orcamento?token=${q.approvalToken}`
+  }
+
+  function sendWhatsApp(q: Quote) {
+    const cust = customers.find((c) => c.id === q.customerId)
+    const digits = (cust?.whatsapp || "").replace(/\D/g, "")
+    const phone = digits ? (digits.length <= 11 ? "55" + digits : digits) : ""
+    const msg = encodeURIComponent(`Olá! Segue o orçamento do seu aparelho. Você pode aprovar ou recusar pelo link: ${quoteLink(q)}`)
+    const url = phone ? `https://wa.me/${phone}?text=${msg}` : `https://wa.me/?text=${msg}`
+    logger.info("orcamento", "abrindo WhatsApp", { quoteId: q.id })
+    window.open(url, "_blank")
+  }
+
+  async function copyLink(q: Quote) {
+    try {
+      await navigator.clipboard.writeText(quoteLink(q))
+      setCopiedId(q.id)
+      setTimeout(() => setCopiedId(null), 2000)
+    } catch {
+      logger.warn("orcamento", "não foi possível copiar o link")
+    }
   }
 
   return (
@@ -269,9 +296,17 @@ export default function OrcamentoRapidoPage() {
                       </div>
                       <span className="text-sm font-bold text-[--primary]">{brl(q.total)}</span>
                       <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${st.cls}`}>{st.label}</span>
-                      <button onClick={() => handleDeleteQuote(q.id)} aria-label="Remover orçamento" className="text-[--muted-foreground] transition-colors hover:text-[--destructive]">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => sendWhatsApp(q)} aria-label="Enviar por WhatsApp" title="Enviar por WhatsApp" className="flex h-7 w-7 items-center justify-center rounded-md text-[--muted-foreground] transition-colors hover:bg-[#10b981]/10 hover:text-[#10b981]">
+                          <MessageCircle className="h-4 w-4" />
+                        </button>
+                        <button onClick={() => copyLink(q)} aria-label="Copiar link" title="Copiar link de aprovação" className="flex h-7 w-7 items-center justify-center rounded-md text-[--muted-foreground] transition-colors hover:bg-[--muted] hover:text-[--primary]">
+                          {copiedId === q.id ? <Check className="h-4 w-4 text-[#10b981]" /> : <Link2 className="h-4 w-4" />}
+                        </button>
+                        <button onClick={() => handleDeleteQuote(q.id)} aria-label="Remover orçamento" className="flex h-7 w-7 items-center justify-center rounded-md text-[--muted-foreground] transition-colors hover:text-[--destructive]">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                   )
                 })}

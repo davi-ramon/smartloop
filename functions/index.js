@@ -175,3 +175,64 @@ exports.confirmPasswordResetCode = onCall(
     }
   }
 )
+
+/* ─────────────────────────────────────────────────────────────
+   Aprovação pública de orçamento (sem login, via token)
+   - getPublicQuote: lê o orçamento por token (Admin SDK, sem expor Firestore)
+   - respondPublicQuote: cliente aprova/recusa
+───────────────────────────────────────────────────────────── */
+
+async function findQuoteByToken(token) {
+  const snap = await db.collectionGroup("quotes").where("approvalToken", "==", token).limit(1).get()
+  return snap.empty ? null : snap.docs[0]
+}
+
+exports.getPublicQuote = onCall({ region: REGION }, async (request) => {
+  const token = String(request.data?.token || "").trim()
+  logger.info("[SmartLoop][orcamento] leitura pública", { hasToken: !!token })
+  if (!token) throw new HttpsError("invalid-argument", "Link inválido.")
+
+  const docSnap = await findQuoteByToken(token)
+  if (!docSnap) throw new HttpsError("not-found", "Orçamento não encontrado ou expirado.")
+
+  const q = docSnap.data()
+  const tenantId = docSnap.ref.parent.parent.id
+  let store = { name: "Assistência", logoUrl: "", whatsapp: "" }
+  try {
+    const t = (await db.collection("tenants").doc(tenantId).get()).data() || {}
+    store = { name: t.fantasyName || t.name || "Assistência", logoUrl: t.logoUrl || "", whatsapp: t.whatsapp || "" }
+  } catch (e) {
+    logger.warn("[SmartLoop][orcamento] tenant não lido", { tenantId, message: e.message })
+  }
+
+  return {
+    customerName: q.customerName || "",
+    deviceLabel: q.deviceLabel || "",
+    items: q.items || [],
+    totalParts: q.totalParts || 0,
+    totalLabor: q.totalLabor || 0,
+    total: q.total || 0,
+    status: q.status || "pending",
+    store,
+  }
+})
+
+exports.respondPublicQuote = onCall({ region: REGION }, async (request) => {
+  const token = String(request.data?.token || "").trim()
+  const decision = String(request.data?.decision || "")
+  logger.info("[SmartLoop][orcamento] resposta pública", { decision })
+  if (!["approved", "rejected"].includes(decision)) {
+    throw new HttpsError("invalid-argument", "Resposta inválida.")
+  }
+  const docSnap = await findQuoteByToken(token)
+  if (!docSnap) throw new HttpsError("not-found", "Orçamento não encontrado.")
+  if ((docSnap.data().status || "pending") !== "pending") {
+    throw new HttpsError("failed-precondition", "Este orçamento já foi respondido.")
+  }
+  await docSnap.ref.update({
+    status: decision,
+    respondedAt: admin.firestore.FieldValue.serverTimestamp(),
+  })
+  logger.info("[SmartLoop][orcamento] orçamento respondido", { decision })
+  return { ok: true }
+})
