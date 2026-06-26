@@ -7,7 +7,7 @@
 
 **Nome do app:** **FixOS**  
 **Tagline:** "A OS que resolve. O sistema que escala."  
-**Domínio sugerido:** fixos.app  
+**Domínio sugerido:** smartloop.app
 **Tipo:** Micro SaaS — B2B — Assinatura mensal recorrente  
 **Mercado-alvo:** Assistências técnicas de celulares e eletrônicos no Brasil  
 

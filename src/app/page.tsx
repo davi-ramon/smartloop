@@ -91,7 +91,7 @@ function Navbar() {
             Entrar
           </Link>
           <Link
-            href="/login"
+            href="/cadastro"
             className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-5 py-2 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
           >
             Começar grátis
@@ -114,7 +114,7 @@ function Navbar() {
           {["Funcionalidades", "Preços", "Sobre"].map(item => (
             <Link key={item} href="#" className="block text-sm text-slate-300 py-2">{item}</Link>
           ))}
-          <Link href="/login" className="block rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-5 py-2.5 text-center text-sm font-semibold text-white">
+          <Link href="/cadastro" className="block rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-5 py-2.5 text-center text-sm font-semibold text-white">
             Começar grátis
           </Link>
         </motion.div>
@@ -198,7 +198,7 @@ function Hero() {
           className="mt-10 flex flex-wrap items-center justify-center gap-4"
         >
           <Link
-            href="/login"
+            href="/cadastro"
             className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-7 py-3.5 text-sm font-bold text-white shadow-[0_0_32px_rgba(124,58,237,0.4)] hover:shadow-[0_0_48px_rgba(124,58,237,0.6)] hover:scale-105 transition-all duration-300"
           >
             Começar grátis por 14 dias
@@ -593,7 +593,7 @@ function FeaturesSection() {
                 </li>
               ))}
             </ul>
-            <Link href="/login" className="mt-8 inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+            <Link href="/cadastro" className="mt-8 inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
               Ver na prática
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -789,7 +789,7 @@ function PricingSection() {
               </ul>
 
               <Link
-                href="/login"
+                href="/cadastro"
                 className={`mt-8 flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold transition-all duration-200 ${
                   plan.highlight
                     ? "bg-gradient-to-r from-[#2563eb] to-[#7c3aed] text-white hover:opacity-90 hover:scale-[1.02] shadow-[0_0_24px_rgba(124,58,237,0.4)]"
@@ -874,7 +874,7 @@ function CTASection() {
         </p>
         <div className="mt-10 flex flex-wrap justify-center gap-4">
           <Link
-            href="/login"
+            href="/cadastro"
             className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-8 py-4 text-base font-bold text-white shadow-[0_0_40px_rgba(124,58,237,0.5)] hover:shadow-[0_0_60px_rgba(124,58,237,0.7)] hover:scale-105 transition-all duration-300"
           >
             Começar grátis agora

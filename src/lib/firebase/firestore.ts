@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore"
+import { doc, getDoc, setDoc, serverTimestamp, Timestamp } from "firebase/firestore"
 import type { User } from "firebase/auth"
 import { db } from "./config"
 import { logger } from "@/lib/logger"
@@ -48,6 +48,8 @@ export async function ensureUserProfile(
     name: storeName || name || "Minha Loja",
     ownerId: user.uid,
     plan: "pro",
+    status: "trial",
+    trialEndsAt: Timestamp.fromMillis(Date.now() + 14 * 24 * 60 * 60 * 1000),
     createdAt: serverTimestamp(),
   })
 

@@ -1,0 +1,177 @@
+/**
+ * Cloud Functions do SmartLoop — recuperação de senha por código temporário.
+ *
+ * Fluxo:
+ *  1. requestPasswordResetCode(email)  -> gera código de 6 dígitos (expira em 5min),
+ *     guarda o HASH no Firestore e envia o código por e-mail (Gmail SMTP).
+ *  2. confirmPasswordResetCode(email, code, newPassword) -> valida o código e troca a senha.
+ *
+ * Segredos necessários (firebase functions:secrets:set ...):
+ *  - GMAIL_EMAIL     (e-mail remetente, ex.: suaconta@gmail.com)
+ *  - GMAIL_PASSWORD  (senha de app de 16 dígitos do Google)
+ */
+
+const crypto = require("crypto")
+const { onCall, HttpsError } = require("firebase-functions/v2/https")
+const { defineSecret } = require("firebase-functions/params")
+const logger = require("firebase-functions/logger")
+const admin = require("firebase-admin")
+const nodemailer = require("nodemailer")
+
+admin.initializeApp()
+const db = admin.firestore()
+
+const GMAIL_EMAIL = defineSecret("GMAIL_EMAIL")
+const GMAIL_PASSWORD = defineSecret("GMAIL_PASSWORD")
+
+const REGION = "southamerica-east1"
+const CODE_TTL_MS = 5 * 60 * 1000 // 5 minutos
+const MAX_ATTEMPTS = 5
+
+function hashCode(code, email) {
+  return crypto.createHash("sha256").update(`${code}:${email.toLowerCase()}`).digest("hex")
+}
+
+function buildEmailHtml(code) {
+  return `
+  <div style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:32px 0;">
+      <tr><td align="center">
+        <table role="presentation" width="100%" style="max-width:480px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(2,6,23,0.08);">
+          <tr>
+            <td style="background:linear-gradient(135deg,#2563eb,#7c3aed);padding:28px 32px;text-align:center;">
+              <span style="color:#ffffff;font-size:20px;font-weight:800;letter-spacing:-0.5px;">SmartLoop</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px;">
+              <h1 style="margin:0 0 8px;font-size:18px;color:#111827;">Seu código de recuperação</h1>
+              <p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#6b7280;">
+                Use o código abaixo para criar uma nova senha na sua conta SmartLoop.
+              </p>
+              <div style="text-align:center;margin:0 0 24px;">
+                <div style="display:inline-block;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px 28px;">
+                  <span style="font-size:34px;font-weight:800;letter-spacing:10px;color:#1d4ed8;">${code}</span>
+                </div>
+              </div>
+              <p style="margin:0 0 8px;font-size:13px;color:#f59e0b;font-weight:600;">
+                Este código expira em 5 minutos.
+              </p>
+              <p style="margin:0;font-size:13px;line-height:1.6;color:#9ca3af;">
+                Se você não solicitou a recuperação de senha, ignore este e-mail — sua conta continua segura.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:16px 32px;border-top:1px solid #f3f4f6;text-align:center;">
+              <span style="font-size:11px;color:#9ca3af;">SmartLoop — gestão para assistências técnicas</span>
+            </td>
+          </tr>
+        </table>
+      </td></tr>
+    </table>
+  </div>`
+}
+
+exports.requestPasswordResetCode = onCall(
+  { region: REGION, secrets: [GMAIL_EMAIL, GMAIL_PASSWORD] },
+  async (request) => {
+    const email = String(request.data?.email || "").trim().toLowerCase()
+    logger.info("[SmartLoop][auth] solicitação de código de recuperação", { email })
+
+    if (!email || !email.includes("@")) {
+      throw new HttpsError("invalid-argument", "Informe um e-mail válido.")
+    }
+
+    // Confirma que a conta existe.
+    try {
+      await admin.auth().getUserByEmail(email)
+    } catch (err) {
+      logger.warn("[SmartLoop][auth] e-mail sem conta", { email, code: err.code })
+      throw new HttpsError("not-found", "Não encontramos uma conta com este e-mail.")
+    }
+
+    const code = String(crypto.randomInt(100000, 1000000))
+    const expiresAt = admin.firestore.Timestamp.fromMillis(Date.now() + CODE_TTL_MS)
+
+    try {
+      await db.collection("passwordResetCodes").doc(email).set({
+        codeHash: hashCode(code, email),
+        expiresAt,
+        attempts: 0,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      })
+
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: { user: GMAIL_EMAIL.value(), pass: GMAIL_PASSWORD.value() },
+      })
+
+      await transporter.sendMail({
+        from: `"SmartLoop" <${GMAIL_EMAIL.value()}>`,
+        to: email,
+        subject: `${code} é o seu código de recuperação SmartLoop`,
+        html: buildEmailHtml(code),
+      })
+
+      logger.info("[SmartLoop][auth] código gerado e e-mail enviado", { email })
+      return { ok: true }
+    } catch (err) {
+      logger.error("[SmartLoop][auth] falha ao gerar/enviar código", { email, message: err.message })
+      throw new HttpsError("internal", "Não foi possível enviar o e-mail. Tente novamente.")
+    }
+  }
+)
+
+exports.confirmPasswordResetCode = onCall(
+  { region: REGION },
+  async (request) => {
+    const email = String(request.data?.email || "").trim().toLowerCase()
+    const code = String(request.data?.code || "").trim()
+    const newPassword = String(request.data?.newPassword || "")
+    logger.info("[SmartLoop][auth] confirmação de código", { email })
+
+    if (!email || !code) {
+      throw new HttpsError("invalid-argument", "Informe o e-mail e o código.")
+    }
+    if (newPassword.length < 6) {
+      throw new HttpsError("invalid-argument", "A nova senha deve ter ao menos 6 caracteres.")
+    }
+
+    const ref = db.collection("passwordResetCodes").doc(email)
+    const snap = await ref.get()
+
+    if (!snap.exists) {
+      throw new HttpsError("not-found", "Código não encontrado. Solicite um novo.")
+    }
+
+    const data = snap.data()
+
+    if (data.expiresAt.toMillis() < Date.now()) {
+      await ref.delete()
+      logger.warn("[SmartLoop][auth] código expirado", { email })
+      throw new HttpsError("deadline-exceeded", "Código expirado. Solicite um novo.")
+    }
+    if ((data.attempts || 0) >= MAX_ATTEMPTS) {
+      await ref.delete()
+      logger.warn("[SmartLoop][auth] tentativas excedidas", { email })
+      throw new HttpsError("resource-exhausted", "Muitas tentativas. Solicite um novo código.")
+    }
+    if (data.codeHash !== hashCode(code, email)) {
+      await ref.update({ attempts: admin.firestore.FieldValue.increment(1) })
+      logger.warn("[SmartLoop][auth] código inválido", { email })
+      throw new HttpsError("invalid-argument", "Código inválido.")
+    }
+
+    try {
+      const user = await admin.auth().getUserByEmail(email)
+      await admin.auth().updateUser(user.uid, { password: newPassword })
+      await ref.delete()
+      logger.info("[SmartLoop][auth] senha redefinida com sucesso", { email })
+      return { ok: true }
+    } catch (err) {
+      logger.error("[SmartLoop][auth] falha ao redefinir senha", { email, message: err.message })
+      throw new HttpsError("internal", "Não foi possível redefinir a senha. Tente novamente.")
+    }
+  }
+)
