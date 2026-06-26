@@ -13,7 +13,7 @@ import {
   type User,
 } from "firebase/auth"
 import { auth } from "./config"
-import { ensureUserProfile, type UserProfile } from "./firestore"
+import { ensureUserProfile, setPendingStoreName, type UserProfile } from "./firestore"
 import { logger } from "@/lib/logger"
 
 interface AuthContextValue {
@@ -77,11 +77,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function signup(name: string, email: string, password: string, storeName?: string) {
     logger.info("auth", "cadastro iniciado", { email })
+    // Registra o nome da loja antes de criar o usuário — assim, mesmo que o
+    // observer de auth dispare a criação do perfil primeiro, o nome é aplicado.
+    setPendingStoreName(storeName)
     const cred = await createUserWithEmailAndPassword(auth, email, password)
     if (name) {
       await updateProfile(cred.user, { displayName: name })
     }
-    // Cria a loja (tenant) e o perfil do dono já no cadastro.
+    // Cria/carrega a loja e o perfil (deduplicado — sem corrida com o observer).
     const p = await ensureUserProfile(cred.user, storeName)
     setProfile(p)
     logger.success("auth", "cadastro concluído", { uid: cred.user.uid, tenantId: p.tenantId })

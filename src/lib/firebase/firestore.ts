@@ -13,12 +13,35 @@ export interface UserProfile {
   role: UserRole
 }
 
+// Deduplicação: garante que apenas UMA criação de perfil rode por uid,
+// mesmo que signup() e o observer de auth chamem ao mesmo tempo (evita race
+// que causava permission-denied ao atualizar o tenant antes do users existir).
+const inFlightProfiles = new Map<string, Promise<UserProfile>>()
+let pendingStoreName: string | undefined
+
+/** signup() registra o nome da loja antes de criar o usuário. */
+export function setPendingStoreName(name?: string) {
+  pendingStoreName = name
+}
+
 /**
  * Garante que o usuário autenticado tenha um perfil e um tenant (loja).
- * Idempotente: usa tenantId = uid do dono (1 dono = 1 loja no MVP), então
- * múltiplas chamadas (signup + observer de auth) não criam duplicatas.
+ * Idempotente e à prova de concorrência: usa tenantId = uid do dono
+ * (1 dono = 1 loja no MVP) e compartilha a mesma promise entre chamadas.
  */
-export async function ensureUserProfile(
+export function ensureUserProfile(user: User, storeName?: string): Promise<UserProfile> {
+  const existing = inFlightProfiles.get(user.uid)
+  if (existing) return existing
+  const promise = createOrLoadProfile(user, storeName ?? pendingStoreName)
+    .finally(() => {
+      inFlightProfiles.delete(user.uid)
+      pendingStoreName = undefined
+    })
+  inFlightProfiles.set(user.uid, promise)
+  return promise
+}
+
+async function createOrLoadProfile(
   user: User,
   storeName?: string
 ): Promise<UserProfile> {
