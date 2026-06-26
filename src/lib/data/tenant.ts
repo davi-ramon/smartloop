@@ -13,6 +13,7 @@ export interface Tenant {
   city?: string
   logoUrl?: string
   paymentMethods?: string[]
+  productCategories?: string[]
   plan?: string
   status?: string
   onboardingDone?: boolean

@@ -1,22 +1,26 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Header } from "@/components/layout/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, QrCode,
   User, Package, Pencil, Loader2, CheckCircle2, X, PencilRuler,
+  Upload, Download, FileText,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/firebase/auth-context"
-import { watchProducts, deleteProduct, type Product } from "@/lib/data/products"
+import { watchProducts, deleteProduct, bulkCreateProducts, type Product } from "@/lib/data/products"
 import { watchCustomers, type Customer } from "@/lib/data/customers"
 import { createSale } from "@/lib/data/sales"
+import {
+  parseProductsFile, exportProductsCSV, downloadTemplate,
+} from "@/lib/data/product-io"
+import { logger } from "@/lib/logger"
 import { ProductDrawer } from "@/components/pdv/product-drawer"
 import { ConfirmDialog } from "@/components/shared/confirm-dialog"
 import { SideDrawer } from "@/components/shared/side-drawer"
-import { logger } from "@/lib/logger"
 
 interface CartItem { id: string; name: string; price: number; qty: number }
 
@@ -48,6 +52,9 @@ export default function PDVPage() {
   const [payment, setPayment] = useState<string | null>(null)
   const [finalizing, setFinalizing] = useState(false)
   const [done, setDone] = useState(false)
+  const [importing, setImporting] = useState(false)
+  const [importMsg, setImportMsg] = useState<string | null>(null)
+  const importRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!tenantId) return
@@ -108,6 +115,28 @@ export default function PDVPage() {
     finally { setDeleting(false) }
   }
 
+  async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (e.target) e.target.value = ""
+    if (!file || !tenantId) return
+    setImporting(true); setImportMsg(null)
+    try {
+      const { products: parsed, ignored } = await parseProductsFile(file)
+      if (parsed.length === 0) {
+        setImportMsg("Nenhum produto válido encontrado. Confira o modelo (nome e valor são obrigatórios).")
+        return
+      }
+      const created = await bulkCreateProducts(tenantId, parsed)
+      setImportMsg(`${created} produto(s) importado(s)${ignored ? ` · ${ignored} ignorado(s)` : ""}.`)
+      setTimeout(() => setImportMsg(null), 6000)
+    } catch (err) {
+      logger.error("pdv", "falha na importação", err)
+      setImportMsg(err instanceof Error ? err.message : "Falha ao importar o arquivo.")
+    } finally {
+      setImporting(false)
+    }
+  }
+
   async function finalizeSale() {
     if (!tenantId || cart.length === 0 || !payment) return
     setFinalizing(true)
@@ -138,11 +167,27 @@ export default function PDVPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Painel de produtos */}
         <div className="flex flex-1 flex-col overflow-hidden border-r border-[--border]">
-          <div className="flex items-center gap-3 border-b border-[--border] p-4">
-            <div className="relative flex-1">
+          <div className="flex flex-wrap items-center gap-2 border-b border-[--border] p-4">
+            <div className="relative min-w-[180px] flex-1">
               <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[--muted-foreground]" />
               <Input placeholder="Buscar por nome, categoria, valor ou código..." className="border-transparent bg-[--muted] pl-8" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
+
+            {editMode && (
+              <>
+                <input ref={importRef} type="file" accept=".csv,.json,application/json,text/csv" className="hidden" onChange={handleImport} />
+                <button onClick={() => importRef.current?.click()} disabled={importing} className="flex h-9 items-center gap-1.5 rounded-lg border border-[--border] px-3 text-xs font-medium text-[--muted-foreground] transition-colors hover:bg-[--muted] hover:text-[--foreground] disabled:opacity-50">
+                  {importing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}Importar
+                </button>
+                <button onClick={() => exportProductsCSV(products)} disabled={products.length === 0} className="flex h-9 items-center gap-1.5 rounded-lg border border-[--border] px-3 text-xs font-medium text-[--muted-foreground] transition-colors hover:bg-[--muted] hover:text-[--foreground] disabled:opacity-40" title={products.length === 0 ? "Cadastre ou importe produtos primeiro" : "Exportar CSV"}>
+                  <Download className="h-3.5 w-3.5" />Exportar
+                </button>
+                <button onClick={() => downloadTemplate()} className="flex h-9 items-center gap-1.5 rounded-lg border border-[--border] px-3 text-xs font-medium text-[--muted-foreground] transition-colors hover:bg-[--muted] hover:text-[--foreground]" title="Baixar modelo de CSV">
+                  <FileText className="h-3.5 w-3.5" />Modelo
+                </button>
+              </>
+            )}
+
             <button
               onClick={() => setEditMode((v) => !v)}
               className={cn("flex h-9 items-center gap-1.5 rounded-lg px-3 text-xs font-medium transition-colors", editMode ? "bg-[--primary] text-white" : "border border-[--border] text-[--muted-foreground] hover:bg-[--muted] hover:text-[--foreground]")}
@@ -151,6 +196,12 @@ export default function PDVPage() {
               {editMode ? "Concluir edição" : "Gerenciar produtos"}
             </button>
           </div>
+
+          {importMsg && (
+            <div className="mx-4 mt-3 flex items-center gap-2 rounded-lg border border-[--primary]/30 bg-[--primary]/8 px-3 py-2.5 text-sm text-[--foreground]">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-[--primary]" />{importMsg}
+            </div>
+          )}
 
           <div className="flex-1 overflow-y-auto p-4">
             {loading ? (

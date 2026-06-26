@@ -44,7 +44,8 @@ export function ConfirmDialog({
             transition={{ duration: 0.18, ease: "easeOut" }}
             role="alertdialog"
             aria-modal="true"
-            className="relative w-full max-w-sm rounded-xl border border-[--border] bg-[--popover] p-6 shadow-2xl"
+            className="relative w-full max-w-sm rounded-xl border border-[--border] p-6 shadow-2xl"
+            style={{ backgroundColor: "var(--popover)" }}
           >
             <div className="flex items-start gap-3">
               {danger && (

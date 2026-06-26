@@ -30,7 +30,8 @@ export function SideDrawer({ open, onClose, title, description, children, footer
             onClick={onClose}
           />
           <motion.aside
-            className="fixed inset-y-0 right-0 z-[105] flex w-full max-w-md flex-col border-l border-[--border] bg-[--background] shadow-2xl"
+            className="fixed inset-y-0 right-0 z-[105] flex w-full max-w-md flex-col border-l border-[--border] shadow-2xl"
+            style={{ backgroundColor: "var(--background)" }}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}

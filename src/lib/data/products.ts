@@ -1,13 +1,14 @@
 import {
   collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot,
-  query, orderBy, serverTimestamp, type Timestamp,
+  query, orderBy, serverTimestamp, writeBatch, arrayUnion, type Timestamp,
 } from "firebase/firestore"
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import { db, storage } from "@/lib/firebase/config"
 import { logger } from "@/lib/logger"
 
 export const PRODUCT_CATEGORIES = [
-  "Películas", "Capas", "Carregadores", "Cabos", "Fones", "Serviços", "Acessórios", "Outros",
+  "Películas", "Capas", "Carregadores", "Cabos", "Fones", "Aparelhos",
+  "Áudio / Gravação", "Serviços", "Acessórios", "Outros",
 ] as const
 
 export interface Product {
@@ -16,6 +17,10 @@ export interface Product {
   description?: string
   price: number
   category?: string
+  sku?: string
+  brand?: string
+  cost?: number
+  stock?: number
   imageUrl?: string
   createdAt?: Timestamp | null
 }
@@ -71,6 +76,39 @@ export async function deleteProduct(tenantId: string, id: string) {
     logger.success("pdv", "produto removido", { id })
   } catch (err) {
     logger.error("pdv", "falha ao remover produto", err); throw err
+  }
+}
+
+/** Cria vários produtos de uma vez (importação). Lotes de 450. */
+export async function bulkCreateProducts(tenantId: string, inputs: ProductInput[]) {
+  logger.info("pdv", "importação em massa", { total: inputs.length })
+  try {
+    let created = 0
+    for (let i = 0; i < inputs.length; i += 450) {
+      const batch = writeBatch(db)
+      for (const input of inputs.slice(i, i + 450)) {
+        batch.set(doc(productsCol(tenantId)), { ...input, createdAt: serverTimestamp() })
+        created++
+      }
+      await batch.commit()
+    }
+    logger.success("pdv", "produtos importados", { created })
+    return created
+  } catch (err) {
+    logger.error("pdv", "falha na importação em massa", err); throw err
+  }
+}
+
+/** Adiciona uma categoria personalizada ao tenant. */
+export async function addProductCategory(tenantId: string, name: string) {
+  const clean = name.trim()
+  if (!clean) return
+  logger.info("pdv", "adicionando categoria", { name: clean })
+  try {
+    await updateDoc(doc(db, "tenants", tenantId), { productCategories: arrayUnion(clean) })
+    logger.success("pdv", "categoria adicionada", { name: clean })
+  } catch (err) {
+    logger.error("pdv", "falha ao adicionar categoria", err); throw err
   }
 }
 
