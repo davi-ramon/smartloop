@@ -1,19 +1,16 @@
 rules_version = '2';
 
-// Arquivos do SmartLoop (logos, fotos de OS, comprovantes) isolados por tenant.
+// Arquivos do SmartLoop (logos, imagens de produto, fotos de OS) isolados por tenant.
+// No MVP, tenantId == uid do dono, então validamos direto pelo uid — sem
+// consulta cruzada ao Firestore (mais robusto, evita 403 intermitente).
 service firebase.storage {
   match /b/{bucket}/o {
-
-    function myTenant() {
-      return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.tenantId;
-    }
-
     match /tenants/{tenantId}/{allPaths=**} {
-      // Leitura pública: logos aparecem em orçamentos/links públicos.
+      // Leitura pública: logos/imagens aparecem em orçamentos e links públicos.
       allow read: if true;
-      // Escrita: apenas o dono do tenant, imagens até 5MB.
+      // Escrita: apenas o dono do tenant (uid == tenantId), imagens até 5MB.
       allow write: if request.auth != null
-                   && myTenant() == tenantId
+                   && request.auth.uid == tenantId
                    && request.resource.size < 5 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
     }
