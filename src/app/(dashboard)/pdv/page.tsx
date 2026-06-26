@@ -1,177 +1,319 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Header } from "@/components/layout/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
-  Search, Plus, Minus, Trash2, ShoppingCart, CreditCard,
-  Banknote, QrCode, User, Package,
+  Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, QrCode,
+  User, Package, Pencil, Loader2, CheckCircle2, X, PencilRuler,
 } from "lucide-react"
-import { AnimatedCard } from "@/components/shared/animated-card"
+import { cn } from "@/lib/utils"
+import { useAuth } from "@/lib/firebase/auth-context"
+import { watchProducts, deleteProduct, type Product } from "@/lib/data/products"
+import { watchCustomers, type Customer } from "@/lib/data/customers"
+import { createSale } from "@/lib/data/sales"
+import { ProductDrawer } from "@/components/pdv/product-drawer"
+import { ConfirmDialog } from "@/components/shared/confirm-dialog"
+import { SideDrawer } from "@/components/shared/side-drawer"
+import { logger } from "@/lib/logger"
 
-const PRODUCTS = [
-  { id: "1", name: "Película iPhone 14",       price: 35,  category: "Películas" },
-  { id: "2", name: "Capa iPhone 14 Silicone",  price: 25,  category: "Capas"     },
-  { id: "3", name: "Carregador USB-C 20W",     price: 59,  category: "Outros"    },
-  { id: "4", name: "Película Samsung S23",      price: 40,  category: "Películas" },
-  { id: "5", name: "Cabo USB-C 1m",            price: 19,  category: "Outros"    },
-  { id: "6", name: "Mão de obra — tela",       price: 50,  category: "Serviços"  },
-  { id: "7", name: "Mão de obra — bateria",    price: 30,  category: "Serviços"  },
-  { id: "8", name: "Película câmera iPhone",   price: 20,  category: "Películas" },
+interface CartItem { id: string; name: string; price: number; qty: number }
+
+const fmt = (n: number) => `R$ ${(n ?? 0).toFixed(2).replace(".", ",")}`
+
+const PAYMENTS = [
+  { id: "Dinheiro", icon: Banknote },
+  { id: "Cartão", icon: CreditCard },
+  { id: "PIX", icon: QrCode },
 ]
 
-interface CartItem {
-  id: string
-  name: string
-  price: number
-  qty: number
-}
-
 export default function PDVPage() {
-  const [cart, setCart] = useState<CartItem[]>([])
+  const { profile, tenant } = useAuth()
+  const tenantId = profile?.tenantId
+
+  const [products, setProducts] = useState<Product[]>([])
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
+  const [cart, setCart] = useState<CartItem[]>([])
+  const [editMode, setEditMode] = useState(false)
+  const [editing, setEditing] = useState<Product | null>(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [confirmDel, setConfirmDel] = useState<Product | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [pickerSearch, setPickerSearch] = useState("")
+  const [customer, setCustomer] = useState<Customer | null>(null)
+  const [payment, setPayment] = useState<string | null>(null)
+  const [finalizing, setFinalizing] = useState(false)
+  const [done, setDone] = useState(false)
 
-  const filtered = PRODUCTS.filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
+  useEffect(() => {
+    if (!tenantId) return
+    setLoading(true)
+    const u1 = watchProducts(tenantId, (list) => { setProducts(list); setLoading(false) }, () => setLoading(false))
+    const u2 = watchCustomers(tenantId, setCustomers, () => setCustomers([]))
+    return () => { u1(); u2() }
+  }, [tenantId])
 
-  function addToCart(product: typeof PRODUCTS[0]) {
-    setCart(prev => {
-      const existing = prev.find(i => i.id === product.id)
-      if (existing) return prev.map(i => i.id === product.id ? { ...i, qty: i.qty + 1 } : i)
-      return [...prev, { id: product.id, name: product.name, price: product.price, qty: 1 }]
+  // Métodos de pagamento aceitos (das configurações), com fallback para todos.
+  const acceptedPayments = useMemo(() => {
+    const accepted = tenant?.paymentMethods
+    if (!accepted?.length) return PAYMENTS
+    const matched = PAYMENTS.filter((p) =>
+      accepted.some((a) => a.toLowerCase().includes(p.id.toLowerCase()))
+    )
+    return matched.length ? matched : PAYMENTS
+  }, [tenant?.paymentMethods])
+
+  // Busca global: nome, descrição, categoria, valor, id.
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase().trim()
+    if (!q) return products
+    return products.filter((p) =>
+      p.name.toLowerCase().includes(q) ||
+      (p.description ?? "").toLowerCase().includes(q) ||
+      (p.category ?? "").toLowerCase().includes(q) ||
+      String(p.price).includes(q) ||
+      p.id.toLowerCase().includes(q)
+    )
+  }, [products, search])
+
+  const filteredCustomers = customers.filter((c) =>
+    c.name.toLowerCase().includes(pickerSearch.toLowerCase()) ||
+    (c.whatsapp ?? "").includes(pickerSearch)
+  )
+
+  function onProductClick(p: Product) {
+    if (editMode) { setEditing(p); setDrawerOpen(true); return }
+    setCart((prev) => {
+      const ex = prev.find((i) => i.id === p.id)
+      if (ex) return prev.map((i) => i.id === p.id ? { ...i, qty: i.qty + 1 } : i)
+      return [...prev, { id: p.id, name: p.name, price: p.price, qty: 1 }]
     })
   }
-
-  function changeQty(id: string, delta: number) {
-    setCart(prev => prev.map(i => i.id === id ? { ...i, qty: Math.max(1, i.qty + delta) } : i))
+  function changeQty(id: string, d: number) {
+    setCart((prev) => prev.map((i) => i.id === id ? { ...i, qty: Math.max(1, i.qty + d) } : i))
   }
-
-  function removeItem(id: string) {
-    setCart(prev => prev.filter(i => i.id !== id))
-  }
+  function removeItem(id: string) { setCart((prev) => prev.filter((i) => i.id !== id)) }
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0)
-  const fmt = (n: number) => `R$ ${n.toFixed(2).replace(".", ",")}`
+
+  async function confirmDelete() {
+    if (!tenantId || !confirmDel) return
+    setDeleting(true)
+    try { await deleteProduct(tenantId, confirmDel.id); setConfirmDel(null) }
+    catch { /* logado */ }
+    finally { setDeleting(false) }
+  }
+
+  async function finalizeSale() {
+    if (!tenantId || cart.length === 0 || !payment) return
+    setFinalizing(true)
+    try {
+      await createSale(tenantId, {
+        items: cart.map((i) => ({ productId: i.id, name: i.name, price: i.price, quantity: i.qty })),
+        total: subtotal,
+        paymentMethod: payment,
+        customerId: customer?.id,
+        customerName: customer?.name,
+      })
+      setCart([]); setCustomer(null); setPayment(null); setDone(true)
+      setTimeout(() => setDone(false), 3500)
+    } catch {
+      logger.error("pdv", "falha ao finalizar venda")
+    } finally {
+      setFinalizing(false)
+    }
+  }
 
   return (
-    <div className="flex flex-col flex-1">
-      <Header title="PDV — Ponto de Venda" />
-      <div className="flex flex-1 gap-0 overflow-hidden">
-        {/* Products panel */}
-        <div className="flex flex-1 flex-col border-r border-[--border] overflow-hidden">
-          <div className="border-b border-[--border] p-4">
-            <div className="relative">
+    <div className="flex flex-1 flex-col">
+      <Header
+        title="PDV — Ponto de Venda"
+        action={editMode ? { label: "Novo produto", onClick: () => { setEditing(null); setDrawerOpen(true) } } : undefined}
+      />
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Painel de produtos */}
+        <div className="flex flex-1 flex-col overflow-hidden border-r border-[--border]">
+          <div className="flex items-center gap-3 border-b border-[--border] p-4">
+            <div className="relative flex-1">
               <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[--muted-foreground]" />
-              <Input placeholder="Buscar produto ou serviço..." className="pl-8 bg-[--muted] border-transparent" value={search} onChange={e => setSearch(e.target.value)} />
+              <Input placeholder="Buscar por nome, categoria, valor ou código..." className="border-transparent bg-[--muted] pl-8" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
+            <button
+              onClick={() => setEditMode((v) => !v)}
+              className={cn("flex h-9 items-center gap-1.5 rounded-lg px-3 text-xs font-medium transition-colors", editMode ? "bg-[--primary] text-white" : "border border-[--border] text-[--muted-foreground] hover:bg-[--muted] hover:text-[--foreground]")}
+            >
+              <PencilRuler className="h-3.5 w-3.5" />
+              {editMode ? "Concluir edição" : "Gerenciar produtos"}
+            </button>
           </div>
+
           <div className="flex-1 overflow-y-auto p-4">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {filtered.map(product => (
-                <AnimatedCard key={product.id} scale={1.06}>
-                  <button
-                    onClick={() => addToCart(product)}
-                    aria-label={`Adicionar ${product.name} ao carrinho`}
-                    className="group relative flex w-full flex-col items-start rounded-xl border border-[--border] bg-[--card] p-4 text-left transition-all hover:border-[--primary] hover:bg-[--primary]/5"
-                  >
-                    <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-[--primary] text-white shadow-sm transition-transform group-hover:scale-110">
-                      <Plus className="h-3.5 w-3.5" />
-                    </span>
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[--muted] transition-colors group-hover:bg-[--primary]/10">
-                      <Package className="h-4 w-4 text-[--muted-foreground] group-hover:text-[--primary]" />
-                    </div>
-                    <p className="mt-3 line-clamp-2 text-sm font-medium leading-tight text-[--foreground]">{product.name}</p>
-                    <p className="mt-1 text-sm font-bold text-[--primary]">{fmt(product.price)}</p>
-                    <span className="mt-1 text-[10px] text-[--muted-foreground]">{product.category}</span>
-                  </button>
-                </AnimatedCard>
-              ))}
-            </div>
+            {loading ? (
+              <div className="flex flex-col items-center justify-center gap-3 py-20 text-[--muted-foreground]">
+                <Loader2 className="h-6 w-6 animate-spin" /><p className="text-sm">Carregando produtos...</p>
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[--muted]"><Package className="h-7 w-7 text-[--muted-foreground]" /></div>
+                <div>
+                  <p className="font-semibold text-[--foreground]">{search ? "Nenhum produto encontrado" : "Nenhum produto cadastrado"}</p>
+                  <p className="mt-1 text-sm text-[--muted-foreground]">{search ? "Tente outro termo." : "Cadastre os produtos vendidos no balcão."}</p>
+                </div>
+                {!search && <Button onClick={() => { setEditMode(true); setEditing(null); setDrawerOpen(true) }}><Plus className="h-4 w-4" />Cadastrar produto</Button>}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                {filtered.map((p) => (
+                  <div key={p.id} className="group relative">
+                    <button
+                      onClick={() => onProductClick(p)}
+                      className="flex w-full flex-col items-start overflow-hidden rounded-xl border border-[--border] bg-[--card] p-4 text-left transition-all hover:border-[--primary] hover:bg-[--primary]/5"
+                    >
+                      {!editMode && (
+                        <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-[--primary] text-white shadow-sm transition-transform group-hover:scale-110">
+                          <Plus className="h-3.5 w-3.5" />
+                        </span>
+                      )}
+                      <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-[--muted]">
+                        {p.imageUrl ? <img src={p.imageUrl} alt="" className="h-full w-full object-cover" /> : <Package className="h-4 w-4 text-[--muted-foreground]" />}
+                      </div>
+                      <p className="mt-3 line-clamp-2 text-sm font-medium leading-tight text-[--foreground]">{p.name}</p>
+                      {p.description && <p className="mt-0.5 line-clamp-1 text-[11px] text-[--muted-foreground]">{p.description}</p>}
+                      <p className="mt-1 text-sm font-bold text-[--primary]">{fmt(p.price)}</p>
+                      <span className="mt-1 text-[10px] text-[--muted-foreground]">{p.category}</span>
+                    </button>
+
+                    {editMode && (
+                      <div className="absolute right-2 top-2 flex gap-1">
+                        <button onClick={() => { setEditing(p); setDrawerOpen(true) }} aria-label="Editar" className="flex h-7 w-7 items-center justify-center rounded-md bg-[--background] text-[--muted-foreground] shadow hover:text-[--primary]"><Pencil className="h-3.5 w-3.5" /></button>
+                        <button onClick={() => setConfirmDel(p)} aria-label="Excluir" className="flex h-7 w-7 items-center justify-center rounded-md bg-[--background] text-[--muted-foreground] shadow hover:text-[--destructive]"><Trash2 className="h-3.5 w-3.5" /></button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Cart panel */}
+        {/* Carrinho */}
         <div className="flex w-80 shrink-0 flex-col bg-[--card]">
           <div className="flex items-center gap-2 border-b border-[--border] px-4 py-4">
             <ShoppingCart className="h-4 w-4 text-[--primary]" />
-            <h2 className="font-semibold text-sm text-[--foreground]">Carrinho</h2>
-            {cart.length > 0 && (
-              <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-[--primary] text-[10px] font-bold text-white">
-                {cart.reduce((s, i) => s + i.qty, 0)}
-              </span>
-            )}
+            <h2 className="text-sm font-semibold text-[--foreground]">Carrinho</h2>
+            {cart.length > 0 && <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-[--primary] text-[10px] font-bold text-white">{cart.reduce((s, i) => s + i.qty, 0)}</span>}
           </div>
 
-          {/* Cart items */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-2">
+          <div className="flex-1 space-y-2 overflow-y-auto p-3">
+            {done && (
+              <div className="flex items-center gap-2 rounded-lg bg-[#10b981]/10 px-3 py-2.5 text-xs font-medium text-[#10b981]">
+                <CheckCircle2 className="h-4 w-4 shrink-0" />Venda registrada com sucesso!
+              </div>
+            )}
             {cart.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
                 <ShoppingCart className="h-10 w-10 text-[--muted-foreground]/40" />
                 <p className="text-sm text-[--muted-foreground]">Nenhum item no carrinho</p>
               </div>
-            ) : (
-              cart.map(item => (
-                <div key={item.id} className="flex items-center gap-2 rounded-lg border border-[--border] p-2.5">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-[--foreground] truncate">{item.name}</p>
-                    <p className="text-xs text-[--primary] font-semibold">{fmt(item.price)}</p>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => changeQty(item.id, -1)} className="flex h-6 w-6 items-center justify-center rounded-md border border-[--border] text-[--muted-foreground] hover:text-[--foreground] hover:border-[--foreground]">
-                      <Minus className="h-3 w-3" />
-                    </button>
-                    <span className="w-5 text-center text-xs font-bold">{item.qty}</span>
-                    <button onClick={() => changeQty(item.id, 1)} className="flex h-6 w-6 items-center justify-center rounded-md border border-[--border] text-[--muted-foreground] hover:text-[--foreground] hover:border-[--foreground]">
-                      <Plus className="h-3 w-3" />
-                    </button>
-                  </div>
-                  <button onClick={() => removeItem(item.id)} className="text-[--muted-foreground] hover:text-[#ef4444] transition-colors">
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+            ) : cart.map((item) => (
+              <div key={item.id} className="flex items-center gap-2 rounded-lg border border-[--border] p-2.5">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-xs font-medium text-[--foreground]">{item.name}</p>
+                  <p className="text-xs font-semibold text-[--primary]">{fmt(item.price)}</p>
                 </div>
-              ))
-            )}
+                <div className="flex shrink-0 items-center gap-1">
+                  <button onClick={() => changeQty(item.id, -1)} className="flex h-6 w-6 items-center justify-center rounded-md border border-[--border] text-[--muted-foreground] hover:text-[--foreground]"><Minus className="h-3 w-3" /></button>
+                  <span className="w-5 text-center text-xs font-bold">{item.qty}</span>
+                  <button onClick={() => changeQty(item.id, 1)} className="flex h-6 w-6 items-center justify-center rounded-md border border-[--border] text-[--muted-foreground] hover:text-[--foreground]"><Plus className="h-3 w-3" /></button>
+                </div>
+                <button onClick={() => removeItem(item.id)} className="text-[--muted-foreground] hover:text-[#ef4444]"><Trash2 className="h-3.5 w-3.5" /></button>
+              </div>
+            ))}
           </div>
 
-          {/* Customer & Total */}
           <div className="shrink-0 space-y-3 border-t border-[--border] p-4">
-            <button className="flex w-full items-center gap-2 rounded-lg border border-dashed border-[--border] px-3 py-2.5 text-sm text-[--muted-foreground] hover:border-[--primary] hover:text-[--primary] transition-colors">
-              <User className="h-4 w-4" />
-              Vincular cliente (opcional)
-            </button>
+            {/* Cliente */}
+            {customer ? (
+              <div className="flex items-center gap-2 rounded-lg border border-[--primary]/30 bg-[--primary]/5 px-3 py-2.5">
+                <User className="h-4 w-4 text-[--primary]" />
+                <span className="flex-1 truncate text-sm text-[--foreground]">{customer.name}</span>
+                <button onClick={() => setCustomer(null)} className="text-[--muted-foreground] hover:text-[--foreground]"><X className="h-3.5 w-3.5" /></button>
+              </div>
+            ) : (
+              <button onClick={() => setPickerOpen(true)} className="flex w-full items-center gap-2 rounded-lg border border-dashed border-[--border] px-3 py-2.5 text-sm text-[--muted-foreground] transition-colors hover:border-[--primary] hover:text-[--primary]">
+                <User className="h-4 w-4" />Vincular cliente (opcional)
+              </button>
+            )}
 
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-sm text-[--muted-foreground]">
-                <span>Subtotal</span><span>{fmt(subtotal)}</span>
-              </div>
-              <div className="flex justify-between text-sm text-[--muted-foreground]">
-                <span>Desconto</span><span>— R$ 0,00</span>
-              </div>
-              <div className="flex justify-between text-base font-bold text-[--foreground] border-t border-[--border] pt-2">
-                <span>Total</span><span className="text-[--primary]">{fmt(subtotal)}</span>
-              </div>
+            <div className="flex items-center justify-between text-base font-bold text-[--foreground]">
+              <span>Total</span><span className="text-[--primary]">{fmt(subtotal)}</span>
             </div>
 
+            {/* Pagamento */}
             <div className="grid grid-cols-3 gap-2">
-              {[
-                { icon: Banknote, label: "Dinheiro" },
-                { icon: CreditCard, label: "Cartão" },
-                { icon: QrCode, label: "PIX" },
-              ].map(({ icon: Icon, label }) => (
-                <button key={label} disabled={cart.length === 0} className="flex flex-col items-center gap-1 rounded-lg border border-[--border] py-3 text-xs text-[--muted-foreground] hover:border-[--primary] hover:text-[--primary] hover:bg-[--primary]/5 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
-                  <Icon className="h-4 w-4" />
-                  {label}
+              {acceptedPayments.map(({ id, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => setPayment(id)}
+                  disabled={cart.length === 0}
+                  className={cn(
+                    "flex flex-col items-center gap-1 rounded-lg border py-3 text-xs transition-all disabled:opacity-40",
+                    payment === id ? "border-[--primary] bg-[--primary]/10 text-[--primary]" : "border-[--border] text-[--muted-foreground] hover:border-[--primary] hover:text-[--primary]"
+                  )}
+                >
+                  <Icon className="h-4 w-4" />{id}
                 </button>
               ))}
             </div>
 
-            <Button className="w-full" disabled={cart.length === 0}>
-              Finalizar venda
+            <Button className="w-full" loading={finalizing} disabled={cart.length === 0 || !payment || finalizing} onClick={finalizeSale}>
+              {payment ? `Finalizar venda · ${fmt(subtotal)}` : "Selecione o pagamento"}
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Drawer de produto */}
+      <ProductDrawer product={editing} open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+
+      {/* Confirmação de exclusão */}
+      <ConfirmDialog
+        open={confirmDel !== null}
+        title="Excluir produto?"
+        description={confirmDel ? `${confirmDel.name} será removido do PDV.` : ""}
+        confirmLabel="Excluir"
+        danger
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmDel(null)}
+      />
+
+      {/* Seletor de cliente */}
+      <SideDrawer open={pickerOpen} onClose={() => setPickerOpen(false)} title="Vincular cliente">
+        <div className="relative mb-3">
+          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[--muted-foreground]" />
+          <Input placeholder="Buscar cliente..." className="border-transparent bg-[--muted] pl-8" value={pickerSearch} onChange={(e) => setPickerSearch(e.target.value)} />
+        </div>
+        <div className="space-y-1.5">
+          {filteredCustomers.map((c) => (
+            <button key={c.id} onClick={() => { setCustomer(c); setPickerOpen(false) }} className="flex w-full items-center gap-3 rounded-lg border border-[--border] px-3 py-2.5 text-left transition-colors hover:border-[--primary] hover:bg-[--muted]">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[--primary] to-[#1d4ed8] text-xs font-bold text-white">{c.name.slice(0, 2).toUpperCase()}</div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-[--foreground]">{c.name}</p>
+                {c.whatsapp && <p className="text-xs text-[--muted-foreground]">{c.whatsapp}</p>}
+              </div>
+            </button>
+          ))}
+          {filteredCustomers.length === 0 && (
+            <p className="py-6 text-center text-xs text-[--muted-foreground]">{customers.length === 0 ? "Nenhum cliente cadastrado." : "Nenhum cliente encontrado."}</p>
+          )}
+        </div>
+      </SideDrawer>
     </div>
   )
 }
