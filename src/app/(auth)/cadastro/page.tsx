@@ -37,8 +37,10 @@ export default function CadastroPage() {
     try {
       // Cria a conta + a loja (tenant) no Firestore.
       await signup(data.name, data.email, data.password, data.store)
+      logger.info("auth", "conta criada — enviando para o onboarding")
       setState({ status: "success" })
-      router.push("/os")
+      // Conta nova sempre passa pelo onboarding antes do dashboard.
+      router.replace("/onboarding")
     } catch (err) {
       logger.error("auth", "falha no cadastro", err)
       setState({ status: "error", message: authErrorMessage(err) })
