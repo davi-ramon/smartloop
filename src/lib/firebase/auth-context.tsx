@@ -79,9 +79,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsub()
   }, [profile?.tenantId])
 
+  // Timeout de sessão: encerra após o limite (padrão 3h; 0 = indefinido).
+  useEffect(() => {
+    if (!user || !tenant) return
+    const hours = tenant.sessionTimeoutHours ?? 3
+    if (!hours || hours <= 0) return // indefinido
+
+    let loginAt = Number((() => { try { return localStorage.getItem("smartloop_login_at") } catch { return null } })() || 0)
+    if (!loginAt) {
+      loginAt = Date.now()
+      try { localStorage.setItem("smartloop_login_at", String(loginAt)) } catch { /* ignora */ }
+    }
+    const expiry = loginAt + hours * 3600_000
+
+    function check() {
+      if (Date.now() >= expiry) {
+        logger.info("auth", "sessão expirada pelo limite de tempo — encerrando", { hours })
+        try { localStorage.removeItem("smartloop_login_at") } catch { /* ignora */ }
+        signOut(auth)
+      }
+    }
+    check()
+    const id = setInterval(check, 60_000)
+    return () => clearInterval(id)
+  }, [user, tenant])
+
+  function markLoginTime() {
+    try { localStorage.setItem("smartloop_login_at", String(Date.now())) } catch { /* ignora */ }
+  }
+
   async function login(email: string, password: string) {
     logger.info("auth", "login e-mail/senha iniciado", { email })
     await signInWithEmailAndPassword(auth, email, password)
+    markLoginTime()
     logger.success("auth", "login e-mail/senha ok", { email })
   }
 
@@ -89,6 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logger.info("auth", "login com Google iniciado")
     const provider = new GoogleAuthProvider()
     await signInWithPopup(auth, provider)
+    markLoginTime()
     logger.success("auth", "login com Google ok")
   }
 
@@ -104,11 +135,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Cria/carrega a loja e o perfil (deduplicado — sem corrida com o observer).
     const p = await ensureUserProfile(cred.user, storeName)
     setProfile(p)
+    markLoginTime()
     logger.success("auth", "cadastro concluído", { uid: cred.user.uid, tenantId: p.tenantId })
   }
 
   async function logout() {
     logger.info("auth", "logout iniciado")
+    try { localStorage.removeItem("smartloop_login_at") } catch { /* ignora */ }
     await signOut(auth)
     logger.success("auth", "logout concluído")
   }

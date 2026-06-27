@@ -14,6 +14,10 @@ export interface Tenant {
   logoUrl?: string
   paymentMethods?: string[]
   productCategories?: string[]
+  /** Tempo máximo de sessão em horas (0 = indefinido). Padrão 3. */
+  sessionTimeoutHours?: number
+  /** Dias de garantia padrão dos reparos. Padrão 90. */
+  warrantyDays?: number
   plan?: string
   status?: string
   onboardingDone?: boolean

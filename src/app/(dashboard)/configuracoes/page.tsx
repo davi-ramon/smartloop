@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import {
   Building2, Users, ClipboardCheck, CreditCard, Package,
-  Shield, Upload, Plus, Trash2, Loader2, CheckCircle2, AlertCircle,
+  Shield, Upload, Plus, Trash2, Loader2, CheckCircle2, AlertCircle, Lock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/firebase/auth-context"
@@ -20,8 +20,57 @@ const TABS = [
   { id: "os",          label: "Ordens de Serviço", icon: ClipboardCheck },
   { id: "pagamentos",  label: "Pagamentos",        icon: CreditCard    },
   { id: "catalogo",    label: "Catálogo",          icon: Package       },
+  { id: "seguranca",   label: "Segurança",         icon: Lock          },
   { id: "assinatura",  label: "Assinatura",        icon: Shield        },
 ]
+
+const SESSION_OPTIONS = [
+  { value: 3, label: "3 horas (recomendado)" },
+  { value: 6, label: "6 horas" },
+  { value: 0, label: "Indefinido (não recomendado)" },
+]
+
+function TabSeguranca() {
+  const { profile, tenant } = useAuth()
+  const [hours, setHours] = useState<number>(3)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    setHours(tenant?.sessionTimeoutHours ?? 3)
+  }, [tenant?.sessionTimeoutHours])
+
+  async function save(value: number) {
+    if (!profile?.tenantId) return
+    setHours(value); setSaving(true); setSaved(false)
+    try {
+      await updateTenant(profile.tenantId, { sessionTimeoutHours: value })
+      setSaved(true); setTimeout(() => setSaved(false), 2500)
+    } finally { setSaving(false) }
+  }
+
+  return (
+    <div className="max-w-2xl">
+      <Card className="border-[--border] shadow-none">
+        <CardHeader>
+          <CardTitle className="text-sm">Tempo de sessão</CardTitle>
+          <CardDescription className="text-xs">Por segurança, a sessão é encerrada após esse tempo. Você precisará entrar de novo.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {SESSION_OPTIONS.map((opt) => (
+              <label key={opt.value} className="flex cursor-pointer items-center gap-3 rounded-lg border border-[--border] p-3 transition-colors hover:bg-[--muted] has-[:checked]:border-[--primary] has-[:checked]:bg-[--primary]/5">
+                <input type="radio" name="session" checked={hours === opt.value} onChange={() => save(opt.value)} disabled={saving} className="h-4 w-4 accent-[--primary]" />
+                <span className="text-sm text-[--foreground]">{opt.label}</span>
+              </label>
+            ))}
+          </div>
+          {saved && <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-[#10b981]"><CheckCircle2 className="h-3.5 w-3.5" />Preferência salva</p>}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
 
 const PAYMENT_METHODS = ["Dinheiro", "Cartão de Débito", "Cartão de Crédito", "PIX", "Transferência", "Cheque"]
 
@@ -239,6 +288,7 @@ export default function ConfiguracoesPage() {
       case "empresa":    return <TabEmpresa />
       case "usuarios":   return <TabUsuarios />
       case "pagamentos": return <TabPagamentos />
+      case "seguranca":  return <TabSeguranca />
       case "assinatura": return <TabAssinatura />
       default:
         return (
