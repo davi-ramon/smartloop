@@ -11,6 +11,7 @@ import {
   FileText, CheckCircle2, Loader2, AlertCircle, Wrench,
   MessageCircle, Link2, Check,
 } from "lucide-react"
+import { downloadQuotePDF } from "@/lib/data/quote-pdf"
 import { useAuth } from "@/lib/firebase/auth-context"
 import { watchCustomers, type Customer } from "@/lib/data/customers"
 import { watchParts, type Part } from "@/lib/data/parts"
@@ -30,7 +31,7 @@ const QUOTE_STATUS = {
 }
 
 export default function OrcamentoRapidoPage() {
-  const { profile } = useAuth()
+  const { profile, tenant } = useAuth()
   const tenantId = profile?.tenantId
 
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -144,6 +145,18 @@ export default function OrcamentoRapidoPage() {
     } catch {
       logger.warn("orcamento", "não foi possível copiar o link")
     }
+  }
+
+  function handlePdf(q: Quote) {
+    downloadQuotePDF({
+      store: { name: tenant?.fantasyName || tenant?.name || "Assistência", whatsapp: tenant?.whatsapp },
+      customerName: q.customerName,
+      deviceLabel: q.deviceLabel,
+      items: q.items,
+      totalParts: q.totalParts,
+      totalLabor: q.totalLabor,
+      total: q.total,
+    })
   }
 
   return (
@@ -297,6 +310,9 @@ export default function OrcamentoRapidoPage() {
                       <span className="text-sm font-bold text-[--primary]">{brl(q.total)}</span>
                       <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${st.cls}`}>{st.label}</span>
                       <div className="flex items-center gap-1">
+                        <button onClick={() => handlePdf(q)} aria-label="Baixar PDF" title="Baixar PDF" className="flex h-7 w-7 items-center justify-center rounded-md text-[--muted-foreground] transition-colors hover:bg-[--muted] hover:text-[--foreground]">
+                          <FileText className="h-4 w-4" />
+                        </button>
                         <button onClick={() => sendWhatsApp(q)} aria-label="Enviar por WhatsApp" title="Enviar por WhatsApp" className="flex h-7 w-7 items-center justify-center rounded-md text-[--muted-foreground] transition-colors hover:bg-[#10b981]/10 hover:text-[#10b981]">
                           <MessageCircle className="h-4 w-4" />
                         </button>

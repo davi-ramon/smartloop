@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { fetchPublicQuote, respondPublicQuote, type PublicQuote } from "@/lib/firebase/public-quote"
 import { callableErrorMessage } from "@/lib/firebase/password-reset"
+import { downloadQuotePDF } from "@/lib/data/quote-pdf"
 import { logger } from "@/lib/logger"
 
 const brl = (n: number) => `R$ ${(n ?? 0).toFixed(2).replace(".", ",")}`
@@ -118,9 +119,14 @@ function QuoteView() {
           )}
         </div>
 
-        <p className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs text-[--muted-foreground]">
-          <FileText className="h-3 w-3" />Orçamento gerado pelo SmartLoop
-        </p>
+        <button
+          onClick={() => downloadQuotePDF({ store: { name: quote.store.name, whatsapp: quote.store.whatsapp }, customerName: quote.customerName, deviceLabel: quote.deviceLabel, items: quote.items, totalParts: quote.totalParts, totalLabor: quote.totalLabor, total: quote.total })}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-[--border] py-3 text-sm font-medium text-[--foreground] transition-colors hover:bg-[--muted]"
+        >
+          <FileText className="h-4 w-4" />Baixar PDF
+        </button>
+
+        <p className="mt-6 text-center text-xs text-[--muted-foreground]">Orçamento gerado pelo SmartLoop</p>
       </div>
     </div>
   )
