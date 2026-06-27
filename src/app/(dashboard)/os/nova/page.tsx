@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
 import { useAuth } from "@/lib/firebase/auth-context"
 import { watchCustomers, type Customer } from "@/lib/data/customers"
+import { watchTechnicians, type Technician } from "@/lib/data/technicians"
 import { createServiceOrder } from "@/lib/data/service-orders"
 
 const STEPS = [
@@ -34,6 +35,7 @@ export default function NovaOSPage() {
   const [step, setStep] = useState(1)
   const [search, setSearch] = useState("")
   const [customers, setCustomers] = useState<Customer[]>([])
+  const [technicians, setTechnicians] = useState<Technician[]>([])
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [brand, setBrand] = useState("")
   const [model, setModel] = useState("")
@@ -47,8 +49,9 @@ export default function NovaOSPage() {
 
   useEffect(() => {
     if (!tenantId) return
-    const unsub = watchCustomers(tenantId, setCustomers, () => setCustomers([]))
-    return () => unsub()
+    const u1 = watchCustomers(tenantId, setCustomers, () => setCustomers([]))
+    const u2 = watchTechnicians(tenantId, (list) => setTechnicians(list.filter((t) => t.active)), () => setTechnicians([]))
+    return () => { u1(); u2() }
   }, [tenantId])
 
   const filteredCustomers = customers.filter(
@@ -335,7 +338,14 @@ export default function NovaOSPage() {
 
                 <div className="space-y-1.5">
                   <Label className="text-xs">Técnico responsável (opcional)</Label>
-                  <Input placeholder="Nome do técnico" value={technician} onChange={e => setTechnician(e.target.value)} />
+                  {technicians.length > 0 ? (
+                    <select value={technician} onChange={e => setTechnician(e.target.value)} className="flex h-10 w-full rounded-md border border-[--input] bg-[--background] px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[--ring]">
+                      <option value="">Selecionar técnico...</option>
+                      {technicians.map((t) => <option key={t.id} value={t.name}>{t.name} — {t.role}</option>)}
+                    </select>
+                  ) : (
+                    <Input placeholder="Nome do técnico (cadastre em Técnicos)" value={technician} onChange={e => setTechnician(e.target.value)} />
+                  )}
                 </div>
 
                 <div className="space-y-1.5">
