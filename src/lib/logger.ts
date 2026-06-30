@@ -45,7 +45,6 @@ function emit(level: LogLevel, mod: string, message: string, data?: unknown) {
     }
   }
 
-  // eslint-disable-next-line no-console
   console[method](...args)
 }
 
