@@ -91,6 +91,18 @@ exports.requestPasswordResetCode = onCall(
       throw new HttpsError("not-found", "Não encontramos uma conta com este e-mail.")
     }
 
+    // [SmartLoop][Security] Cooldown anti-spam: 1 código por minuto por e-mail.
+    const codeRef = db.collection("passwordResetCodes").doc(email)
+    const existing = await codeRef.get()
+    if (existing.exists) {
+      const createdAt = existing.data().createdAt
+      const createdMs = createdAt?.toMillis ? createdAt.toMillis() : 0
+      if (createdMs && Date.now() - createdMs < 60 * 1000) {
+        logger.warn("[SmartLoop][Security] reset solicitado dentro do cooldown", { email })
+        throw new HttpsError("resource-exhausted", "Aguarde um minuto antes de pedir um novo código.")
+      }
+    }
+
     const code = String(crypto.randomInt(100000, 1000000))
     const expiresAt = admin.firestore.Timestamp.fromMillis(Date.now() + CODE_TTL_MS)
 
