@@ -33,7 +33,7 @@ const MAX_ATTEMPTS = 5
 const APP_URL = "https://smartloop-94a06.web.app"
 // Planos do SmartLoop (valores em centavos, BRL).
 const PLANS = {
-  basic: { name: "SmartLoop Básico", amount: 6990 },
+  basic: { name: "SmartLoop Básico", amount: 4990 },
   pro: { name: "SmartLoop Pro", amount: 8990 },
   premium: { name: "SmartLoop Premium", amount: 14990 },
 }
@@ -273,7 +273,7 @@ exports.createCheckoutSession = onCall(
     if (!uid) throw new HttpsError("unauthenticated", "Faça login para assinar.")
     const planKey = PLANS[request.data?.plan] ? request.data.plan : "pro"
     const plan = PLANS[planKey]
-    logger.info("[SmartLoop][Backend] checkout de assinatura", { uid, plan: planKey })
+    logger.info("[SmartLoop][Backend] checkout de assinatura", { uid, plan: planKey, amount: plan.amount })
 
     const stripe = require("stripe")(STRIPE_SECRET_KEY.value())
     const tenantRef = db.collection("tenants").doc(uid)
@@ -301,6 +301,7 @@ exports.createCheckoutSession = onCall(
         mode: "subscription",
         customer: customerId,
         payment_method_collection: "always",
+        allow_promotion_codes: true, // habilita o campo "Adicionar cupom" no Checkout
         line_items: [{
           quantity: 1,
           price_data: {
@@ -395,5 +396,53 @@ exports.stripeWebhook = onRequest(
       logger.error("[SmartLoop][Backend] erro ao processar webhook", { type: event.type, message: err.message })
       res.status(500).send("error")
     }
+  }
+)
+
+/* ─────────────────────────────────────────────────────────────
+   Cupons de desconto (setup único, idempotente)
+   Cria coupons + promotion codes que aparecem no campo do Checkout.
+   Códigos que o usuário digita: SMART50 (50%), SMART75 (75%), SMART100 (100%).
+   Desconto aplicado só na 1ª cobrança (duration: once) — o de 100% = 1 mês grátis.
+───────────────────────────────────────────────────────────── */
+
+const COUPONS = [
+  { code: "SMART50", percent_off: 50, name: "50% de desconto" },
+  { code: "SMART75", percent_off: 75, name: "75% de desconto" },
+  { code: "SMART100", percent_off: 100, name: "1 mês grátis (100%)" },
+]
+
+async function ensureCoupon(stripe, def) {
+  // Reaproveita coupon com o mesmo id fixo (o código); se não existir, cria.
+  try {
+    return await stripe.coupons.retrieve(def.code)
+  } catch {
+    return await stripe.coupons.create({
+      id: def.code,
+      percent_off: def.percent_off,
+      duration: "once", // aplica só na primeira fatura
+      name: def.name,
+    })
+  }
+}
+
+async function ensurePromotionCode(stripe, code, couponId) {
+  const found = await stripe.promotionCodes.list({ code, limit: 1 })
+  if (found.data.length) return found.data[0]
+  return await stripe.promotionCodes.create({ coupon: couponId, code })
+}
+
+exports.setupCoupons = onCall(
+  { region: REGION, secrets: [STRIPE_SECRET_KEY] },
+  async () => {
+    const stripe = require("stripe")(STRIPE_SECRET_KEY.value())
+    const result = []
+    for (const def of COUPONS) {
+      const coupon = await ensureCoupon(stripe, def)
+      const promo = await ensurePromotionCode(stripe, def.code, coupon.id)
+      result.push({ code: def.code, active: promo.active })
+    }
+    logger.info("[SmartLoop][Backend] cupons configurados", { codes: result.map((r) => r.code) })
+    return { ok: true, coupons: result }
   }
 )

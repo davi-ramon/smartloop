@@ -8,7 +8,7 @@ const functions = getFunctions(app, "southamerica-east1")
 export type PlanKey = "basic" | "pro" | "premium"
 
 export const PLANS: { key: PlanKey; name: string; price: string; features: string[]; highlight?: boolean }[] = [
-  { key: "basic", name: "Básico", price: "69,90", features: ["Até 100 OS/mês", "2 usuários", "Clientes, OS e estoque"] },
+  { key: "basic", name: "Básico", price: "49,90", features: ["Até 100 OS/mês", "2 usuários", "Clientes, OS e estoque"] },
   { key: "pro", name: "Pro", price: "89,90", highlight: true, features: ["OS ilimitadas", "PDV + financeiro", "Relatórios", "Orçamento por link + WhatsApp"] },
   { key: "premium", name: "Premium", price: "149,90", features: ["Tudo do Pro", "Usuários ilimitados", "Multi-filial", "Suporte prioritário"] },
 ]
