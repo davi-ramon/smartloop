@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/firebase/auth-context"
 import { updateTenant, uploadLogo } from "@/lib/data/tenant"
+import { accessState, startCheckout, openPortal, PLANS, type PlanKey } from "@/lib/firebase/billing"
 
 const TABS = [
   { id: "empresa",     label: "Empresa",          icon: Building2     },
@@ -233,49 +234,84 @@ function TabPagamentos() {
   )
 }
 
+const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
+  trialing: { label: "Em teste grátis", cls: "bg-[--primary]/10 text-[--primary]" },
+  active: { label: "Ativo", cls: "bg-[#10b981]/10 text-[#10b981]" },
+  past_due: { label: "Cobrança pendente", cls: "bg-[#f59e0b]/10 text-[#f59e0b]" },
+  unpaid: { label: "Não pago", cls: "bg-[#ef4444]/10 text-[#ef4444]" },
+  canceled: { label: "Cancelado", cls: "bg-[--muted] text-[--muted-foreground]" },
+}
+
 function TabAssinatura() {
+  const { tenant } = useAuth()
+  const { state, trialDaysLeft } = accessState(tenant)
+  const [loadingPlan, setLoadingPlan] = useState<PlanKey | null>(null)
+  const [portalLoading, setPortalLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const hasSub = !!tenant?.subscriptionId
+  const st = tenant?.subscriptionStatus ? STATUS_LABEL[tenant.subscriptionStatus] : null
+
+  async function assinar(plan: PlanKey) {
+    setLoadingPlan(plan); setError(null)
+    try { await startCheckout(plan) }
+    catch { setError("Não foi possível iniciar a assinatura."); setLoadingPlan(null) }
+  }
+  async function gerenciar() {
+    setPortalLoading(true); setError(null)
+    try { await openPortal() }
+    catch { setError("Não foi possível abrir o portal."); setPortalLoading(false) }
+  }
+
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-3xl space-y-6">
+      {error && (
+        <div role="alert" className="flex items-center gap-2 rounded-lg border border-[--destructive]/30 bg-[--destructive]/10 px-3 py-2.5 text-sm text-[--destructive]">
+          <AlertCircle className="h-4 w-4 shrink-0" />{error}
+        </div>
+      )}
+
+      {/* Status atual */}
       <Card className="border-[--border] shadow-none">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl font-bold text-[--foreground]">Plano Pro</span>
-                <span className="rounded-full bg-[--primary]/10 px-2.5 py-0.5 text-xs font-semibold text-[--primary]">Ativo</span>
-              </div>
-              <p className="text-sm text-[--muted-foreground] mt-1">Próxima cobrança: 26/06/2026</p>
+        <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-bold text-[--foreground]">Sua assinatura</span>
+              {st && <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${st.cls}`}>{st.label}</span>}
+              {!st && state === "trial" && <span className="rounded-full bg-[--primary]/10 px-2.5 py-0.5 text-xs font-semibold text-[--primary]">Teste grátis</span>}
             </div>
-            <div className="text-right">
-              <p className="text-3xl font-bold text-[--foreground]">R$ 89,90</p>
-              <p className="text-xs text-[--muted-foreground]">por mês</p>
-            </div>
+            <p className="mt-1 text-sm text-[--muted-foreground]">
+              {state === "trial" ? `${trialDaysLeft} ${trialDaysLeft === 1 ? "dia restante" : "dias restantes"} de teste grátis.`
+                : tenant?.subscriptionStatus === "active" ? "Assinatura ativa. Obrigado!"
+                : tenant?.subscriptionStatus === "past_due" ? "A última cobrança falhou. Atualize o pagamento."
+                : "Escolha um plano para continuar após o teste."}
+            </p>
           </div>
-
-          <div className="space-y-3">
-            {[
-              { label: "OS este mês", current: 18, limit: "Ilimitadas", pct: 0 },
-              { label: "Usuários", current: 4, limit: "5 usuários", pct: 80 },
-              { label: "Armazenamento", current: "12MB", limit: "5GB", pct: 2 },
-            ].map((item) => (
-              <div key={item.label} className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-[--muted-foreground]">{item.label}</span>
-                  <span className="font-medium text-[--foreground]">{item.current} / {item.limit}</span>
-                </div>
-                <div className="h-1.5 w-full rounded-full bg-[--muted] overflow-hidden">
-                  <div className="h-full rounded-full bg-[--primary]" style={{ width: `${item.pct}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-6 flex gap-3">
-            <Button variant="outline" className="flex-1">Mudar plano</Button>
-            <Button className="flex-1">Gerenciar cobrança</Button>
-          </div>
+          {hasSub && (
+            <Button variant="outline" onClick={gerenciar} loading={portalLoading} disabled={portalLoading}>
+              Gerenciar assinatura
+            </Button>
+          )}
         </CardContent>
       </Card>
+
+      {/* Planos */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {PLANS.map((p) => (
+          <div key={p.key} className={`relative flex flex-col rounded-2xl border bg-[--card] p-5 ${p.highlight ? "border-[--primary] ring-1 ring-[--primary]/30" : "border-[--border]"}`}>
+            {p.highlight && <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[--primary] to-[#7c3aed] px-2.5 py-0.5 text-[10px] font-bold text-white">Mais escolhido</span>}
+            <p className="text-sm font-semibold text-[--primary]">{p.name}</p>
+            <div className="mt-1 flex items-end gap-1"><span className="text-2xl font-black text-[--foreground]">R$ {p.price}</span><span className="mb-1 text-xs text-[--muted-foreground]">/mês</span></div>
+            <ul className="mt-3 flex-1 space-y-1.5">
+              {p.features.map((f) => <li key={f} className="flex items-center gap-1.5 text-xs text-[--foreground]"><CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[#10b981]" />{f}</li>)}
+            </ul>
+            <Button className="mt-4 w-full" size="sm" variant={p.highlight ? "default" : "outline"} loading={loadingPlan === p.key} disabled={loadingPlan !== null} onClick={() => assinar(p.key)}>
+              {tenant?.subscriptionStatus === "active" ? "Trocar para este" : "Assinar"}
+            </Button>
+          </div>
+        ))}
+      </div>
+      <p className="text-center text-xs text-[--muted-foreground]">Pagamento seguro via Stripe · Cartão exigido · Cancele quando quiser</p>
     </div>
   )
 }

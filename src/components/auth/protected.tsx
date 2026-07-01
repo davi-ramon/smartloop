@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Wrench } from "lucide-react"
 import { useAuth } from "@/lib/firebase/auth-context"
+import { accessState } from "@/lib/firebase/billing"
+import { SubscriptionBlocked } from "@/components/billing/subscription-blocked"
 import { logger } from "@/lib/logger"
 
 function Splash() {
@@ -65,6 +67,11 @@ export function Protected({ children }: { children: React.ReactNode }) {
   // Enquanto carrega, sem usuário, OU onboarding pendente → não renderiza o conteúdo interno.
   if (loading || !user || needsOnboarding) {
     return <Splash />
+  }
+
+  // Bloqueio por assinatura: trial vencido sem plano ativo, ou pagamento não concluído.
+  if (accessState(tenant).state === "blocked") {
+    return <SubscriptionBlocked />
   }
 
   return <>{children}</>

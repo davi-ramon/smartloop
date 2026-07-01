@@ -22,6 +22,11 @@ export interface Tenant {
   status?: string
   onboardingDone?: boolean
   trialEndsAt?: Timestamp | null
+  // Billing (Stripe)
+  stripeCustomerId?: string
+  subscriptionId?: string
+  subscriptionStatus?: "trialing" | "active" | "past_due" | "unpaid" | "canceled" | "incomplete"
+  currentPeriodEnd?: Timestamp | null
   createdAt?: Timestamp | null
 }
 

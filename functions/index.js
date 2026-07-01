@@ -12,7 +12,7 @@
  */
 
 const crypto = require("crypto")
-const { onCall, HttpsError } = require("firebase-functions/v2/https")
+const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https")
 const { defineSecret } = require("firebase-functions/params")
 const logger = require("firebase-functions/logger")
 const admin = require("firebase-admin")
@@ -23,10 +23,20 @@ const db = admin.firestore()
 
 const GMAIL_EMAIL = defineSecret("GMAIL_EMAIL")
 const GMAIL_PASSWORD = defineSecret("GMAIL_PASSWORD")
+const STRIPE_SECRET_KEY = defineSecret("STRIPE_SECRET_KEY")
+const STRIPE_WEBHOOK_SECRET = defineSecret("STRIPE_WEBHOOK_SECRET")
 
 const REGION = "southamerica-east1"
 const CODE_TTL_MS = 5 * 60 * 1000 // 5 minutos
 const MAX_ATTEMPTS = 5
+
+const APP_URL = "https://smartloop-94a06.web.app"
+// Planos do SmartLoop (valores em centavos, BRL).
+const PLANS = {
+  basic: { name: "SmartLoop Básico", amount: 6990 },
+  pro: { name: "SmartLoop Pro", amount: 8990 },
+  premium: { name: "SmartLoop Premium", amount: 14990 },
+}
 
 function hashCode(code, email) {
   return crypto.createHash("sha256").update(`${code}:${email.toLowerCase()}`).digest("hex")
@@ -248,3 +258,142 @@ exports.respondPublicQuote = onCall({ region: REGION }, async (request) => {
   logger.info("[SmartLoop][orcamento] orçamento respondido", { decision })
   return { ok: true }
 })
+
+/* ─────────────────────────────────────────────────────────────
+   Billing (Stripe) — assinatura por loja (tenantId == uid do dono)
+   - createCheckoutSession: checkout de assinatura (trial + cartão)
+   - createPortalSession: portal de gestão da assinatura
+   - stripeWebhook: sincroniza o status da assinatura no tenant
+───────────────────────────────────────────────────────────── */
+
+exports.createCheckoutSession = onCall(
+  { region: REGION, secrets: [STRIPE_SECRET_KEY] },
+  async (request) => {
+    const uid = request.auth?.uid
+    if (!uid) throw new HttpsError("unauthenticated", "Faça login para assinar.")
+    const planKey = PLANS[request.data?.plan] ? request.data.plan : "pro"
+    const plan = PLANS[planKey]
+    logger.info("[SmartLoop][Backend] checkout de assinatura", { uid, plan: planKey })
+
+    const stripe = require("stripe")(STRIPE_SECRET_KEY.value())
+    const tenantRef = db.collection("tenants").doc(uid)
+    const tenant = (await tenantRef.get()).data() || {}
+
+    // Garante o cliente Stripe do tenant.
+    let customerId = tenant.stripeCustomerId
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: request.auth.token?.email || undefined,
+        name: tenant.name || undefined,
+        metadata: { tenantId: uid },
+      })
+      customerId = customer.id
+      await tenantRef.set({ stripeCustomerId: customerId }, { merge: true })
+    }
+
+    // Alinha o trial do Stripe ao trial do app (não cobra antes do fim dos 14 dias).
+    const now = Math.floor(Date.now() / 1000)
+    let trialEnd = tenant.trialEndsAt?.seconds || tenant.trialEndsAt?._seconds || 0
+    if (!trialEnd || trialEnd <= now + 60) trialEnd = undefined
+
+    try {
+      const session = await stripe.checkout.sessions.create({
+        mode: "subscription",
+        customer: customerId,
+        payment_method_collection: "always",
+        line_items: [{
+          quantity: 1,
+          price_data: {
+            currency: "brl",
+            product_data: { name: plan.name },
+            unit_amount: plan.amount,
+            recurring: { interval: "month" },
+          },
+        }],
+        subscription_data: {
+          ...(trialEnd ? { trial_end: trialEnd } : {}),
+          metadata: { tenantId: uid, plan: planKey },
+        },
+        metadata: { tenantId: uid, plan: planKey },
+        success_url: `${APP_URL}/configuracoes?assinatura=sucesso`,
+        cancel_url: `${APP_URL}/configuracoes?assinatura=cancelado`,
+      })
+      return { url: session.url }
+    } catch (err) {
+      logger.error("[SmartLoop][Backend] falha no checkout", { message: err.message })
+      throw new HttpsError("internal", "Não foi possível iniciar a assinatura.")
+    }
+  }
+)
+
+exports.createPortalSession = onCall(
+  { region: REGION, secrets: [STRIPE_SECRET_KEY] },
+  async (request) => {
+    const uid = request.auth?.uid
+    if (!uid) throw new HttpsError("unauthenticated", "Faça login.")
+    const stripe = require("stripe")(STRIPE_SECRET_KEY.value())
+    const tenant = (await db.collection("tenants").doc(uid).get()).data() || {}
+    if (!tenant.stripeCustomerId) {
+      throw new HttpsError("failed-precondition", "Nenhuma assinatura encontrada.")
+    }
+    try {
+      const portal = await stripe.billingPortal.sessions.create({
+        customer: tenant.stripeCustomerId,
+        return_url: `${APP_URL}/configuracoes`,
+      })
+      return { url: portal.url }
+    } catch (err) {
+      logger.error("[SmartLoop][Backend] falha no portal", { message: err.message })
+      throw new HttpsError("internal", "Não foi possível abrir o portal.")
+    }
+  }
+)
+
+async function updateTenantSubscription(sub) {
+  let tenantId = sub.metadata?.tenantId
+  if (!tenantId && sub.customer) {
+    const q = await db.collection("tenants").where("stripeCustomerId", "==", sub.customer).limit(1).get()
+    if (!q.empty) tenantId = q.docs[0].id
+  }
+  if (!tenantId) {
+    logger.warn("[SmartLoop][Backend] webhook sem tenant", { sub: sub.id })
+    return
+  }
+  await db.collection("tenants").doc(tenantId).set({
+    subscriptionId: sub.id,
+    subscriptionStatus: sub.status, // trialing | active | past_due | unpaid | canceled | incomplete
+    plan: sub.metadata?.plan || null,
+    currentPeriodEnd: sub.current_period_end
+      ? admin.firestore.Timestamp.fromMillis(sub.current_period_end * 1000)
+      : null,
+  }, { merge: true })
+  logger.info("[SmartLoop][Backend] assinatura sincronizada", { tenantId, status: sub.status })
+}
+
+exports.stripeWebhook = onRequest(
+  { region: REGION, secrets: [STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET] },
+  async (req, res) => {
+    const stripe = require("stripe")(STRIPE_SECRET_KEY.value())
+    let event
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.rawBody,
+        req.headers["stripe-signature"],
+        STRIPE_WEBHOOK_SECRET.value()
+      )
+    } catch (err) {
+      logger.error("[SmartLoop][Security] webhook Stripe com assinatura inválida", { message: err.message })
+      return res.status(400).send("invalid signature")
+    }
+
+    try {
+      if (event.type.startsWith("customer.subscription.")) {
+        await updateTenantSubscription(event.data.object)
+      }
+      res.status(200).send("ok")
+    } catch (err) {
+      logger.error("[SmartLoop][Backend] erro ao processar webhook", { type: event.type, message: err.message })
+      res.status(500).send("error")
+    }
+  }
+)
