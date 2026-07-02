@@ -30,9 +30,9 @@ const NOTIFY_SECRET = defineSecret("NOTIFY_SECRET")
 
 // Grupo do Telegram + destinatários de e-mail das notificações de release.
 // (chat_id de grupo não é sigiloso — fica no código; preenchido após criar o bot.)
-const TELEGRAM_CHAT_ID = "" // ex.: "-1001234567890"
+const TELEGRAM_CHAT_ID = "-5405925760" // grupo "SmartLoop - Atualizações"
 const TELEGRAM_THREAD_ID = "" // opcional: id do tópico, se o grupo usar tópicos
-const RELEASE_EMAILS = ["ads.deyvid@gmail.com"] // + e-mail do Pedro quando informado
+const RELEASE_EMAILS = ["ads.deyvid@gmail.com", "pvrgeral@gmail.com"] // Deyvid + Pedro
 
 const REGION = "southamerica-east1"
 const CODE_TTL_MS = 5 * 60 * 1000 // 5 minutos
