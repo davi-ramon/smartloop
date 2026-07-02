@@ -13,6 +13,8 @@
 
 const crypto = require("crypto")
 const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https")
+const { onSchedule } = require("firebase-functions/v2/scheduler")
+const { setGlobalOptions } = require("firebase-functions/v2")
 const { defineSecret } = require("firebase-functions/params")
 const logger = require("firebase-functions/logger")
 const admin = require("firebase-admin")
@@ -20,6 +22,10 @@ const nodemailer = require("nodemailer")
 
 admin.initializeApp()
 const db = admin.firestore()
+
+// [SmartLoop][Security] Teto de instâncias: limita o custo/impacto de um pico de
+// abuso ou DoS nas Cloud Functions (escala suficiente para o MVP; ajustável).
+setGlobalOptions({ maxInstances: 10 })
 
 const GMAIL_EMAIL = defineSecret("GMAIL_EMAIL")
 const GMAIL_PASSWORD = defineSecret("GMAIL_PASSWORD")
@@ -577,4 +583,143 @@ exports.getTelegramChatId = onRequest(
       res.status(500).json({ ok: false })
     }
   }
+)
+
+/* ─────────────────────────────────────────────────────────────
+   Digest diário de OS por loja — e-mail branded para o dono do tenant
+   avisando OS atrasadas, prontas para entrega, aguardando peça e do dia.
+   - dailyOsDigest: agendado (9h, America/Sao_Paulo)
+   - runOsDigestNow: gatilho manual (protegido) para teste
+───────────────────────────────────────────────────────────── */
+
+const OS_STATUS_LABEL = {
+  received: "Recebido", analyzing: "Em análise", waiting_part: "Aguardando peça",
+  ready: "Pronto", delivered: "Entregue", cancelled: "Cancelado",
+}
+
+function osDigestEmailHtml(shop, data) {
+  const overdueRows = data.overdue.slice(0, 10).map((o) => `
+    <tr>
+      <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px;color:#111827;">#${o.number} · ${o.customerName || "—"}</td>
+      <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px;color:#6b7280;text-align:right;">${o.days} dias</td>
+    </tr>`).join("")
+
+  const stat = (label, value, color) => `
+    <td align="center" style="padding:12px 8px;">
+      <div style="font-size:26px;font-weight:800;color:${color};line-height:1;">${value}</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:4px;">${label}</div>
+    </td>`
+
+  return `
+  <div style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:32px 0;">
+      <tr><td align="center">
+        <table role="presentation" width="100%" style="max-width:540px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(2,6,23,0.08);">
+          <tr><td style="background:linear-gradient(135deg,#2563eb,#7c3aed);padding:24px 32px;">
+            <span style="color:#fff;font-size:20px;font-weight:800;letter-spacing:-0.5px;">${shop.name}</span>
+            <span style="color:#c7d2fe;font-size:12px;display:block;margin-top:2px;">Resumo diário das suas ordens de serviço</span>
+          </td></tr>
+          <tr><td style="padding:24px 32px 8px;">
+            <table role="presentation" width="100%" style="background:#f9fafb;border-radius:12px;"><tr>
+              ${stat("Abertas", data.openCount, "#2563eb")}
+              ${stat("Atrasadas", data.overdue.length, "#ef4444")}
+              ${stat("Prontas", data.ready, "#10b981")}
+              ${stat("Aguard. peça", data.waitingPart, "#f59e0b")}
+            </tr></table>
+          </td></tr>
+          ${data.overdue.length ? `
+          <tr><td style="padding:12px 32px 8px;">
+            <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#ef4444;">⚠️ OS atrasadas (${data.overdueDays}+ dias sem entrega)</p>
+            <table role="presentation" width="100%">${overdueRows}</table>
+          </td></tr>` : ""}
+          <tr><td style="padding:16px 32px 24px;">
+            <a href="https://smartloop-94a06.web.app/os" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:10px 20px;border-radius:10px;">Abrir minhas OS</a>
+          </td></tr>
+          <tr><td style="padding:16px 32px;border-top:1px solid #f3f4f6;text-align:center;">
+            <span style="font-size:11px;color:#9ca3af;">Enviado pelo SmartLoop · gestão para assistências técnicas</span>
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </div>`
+}
+
+async function runOsDigest() {
+  const now = Date.now()
+  const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0)
+  const tenantsSnap = await db.collection("tenants").get()
+  let processed = 0
+  let sent = 0
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail", auth: { user: GMAIL_EMAIL.value(), pass: GMAIL_PASSWORD.value() },
+  })
+
+  for (const tDoc of tenantsSnap.docs) {
+    processed++
+    const t = tDoc.data() || {}
+    if (t.onboardingDone !== true) continue
+
+    // Destinatário: e-mail cadastrado da loja ou o e-mail da conta do dono.
+    let email = t.email
+    if (!email) {
+      try { email = (await admin.auth().getUser(tDoc.id)).email } catch { email = null }
+    }
+    if (!email) continue
+
+    const osSnap = await db.collection("tenants").doc(tDoc.id).collection("serviceOrders").get()
+    const orders = osSnap.docs.map((d) => d.data())
+    const open = orders.filter((o) => o.status !== "delivered" && o.status !== "cancelled")
+    if (open.length === 0) continue
+
+    const overdueDays = t.overdueDays ?? 3
+    const overdue = open
+      .filter((o) => {
+        const ms = o.createdAt?.toDate ? o.createdAt.toDate().getTime() : 0
+        return ms && (now - ms) > overdueDays * 86_400_000
+      })
+      .map((o) => ({
+        number: o.number, customerName: o.customerName,
+        days: Math.floor((now - (o.createdAt?.toDate ? o.createdAt.toDate().getTime() : now)) / 86_400_000),
+      }))
+      .sort((a, b) => b.days - a.days)
+    const ready = open.filter((o) => o.status === "ready").length
+    const waitingPart = open.filter((o) => o.status === "waiting_part").length
+
+    // Só envia se houver algo acionável (atrasadas ou prontas para entregar).
+    if (overdue.length === 0 && ready === 0) continue
+
+    const shop = { name: t.fantasyName || t.name || "Sua assistência" }
+    const data = { openCount: open.length, overdue, overdueDays, ready, waitingPart }
+
+    try {
+      await transporter.sendMail({
+        from: `"${shop.name} · SmartLoop" <${GMAIL_EMAIL.value()}>`,
+        to: email,
+        subject: `📋 ${overdue.length} OS atrasada(s) · ${ready} pronta(s) para entrega`,
+        html: osDigestEmailHtml(shop, data),
+      })
+      sent++
+      logger.info("[SmartLoop][digest] e-mail enviado", { tenantId: tDoc.id, overdue: overdue.length, ready })
+    } catch (err) {
+      logger.error("[SmartLoop][digest] falha ao enviar", { tenantId: tDoc.id, message: err.message })
+    }
+  }
+
+  logger.info("[SmartLoop][digest] concluído", { processed, sent })
+  return { ok: true, processed, sent }
+}
+
+exports.dailyOsDigest = onSchedule(
+  { schedule: "0 9 * * *", timeZone: "America/Sao_Paulo", region: REGION, secrets: [GMAIL_EMAIL, GMAIL_PASSWORD] },
+  async () => { await runOsDigest() },
+)
+
+exports.runOsDigestNow = onRequest(
+  { region: REGION, secrets: [GMAIL_EMAIL, GMAIL_PASSWORD, NOTIFY_SECRET] },
+  async (req, res) => {
+    if (!checkNotifySecret(req)) return res.status(401).send("unauthorized")
+    const result = await runOsDigest()
+    res.status(200).json(result)
+  },
 )
