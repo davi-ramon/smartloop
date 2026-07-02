@@ -25,6 +25,14 @@ const GMAIL_EMAIL = defineSecret("GMAIL_EMAIL")
 const GMAIL_PASSWORD = defineSecret("GMAIL_PASSWORD")
 const STRIPE_SECRET_KEY = defineSecret("STRIPE_SECRET_KEY")
 const STRIPE_WEBHOOK_SECRET = defineSecret("STRIPE_WEBHOOK_SECRET")
+const TELEGRAM_BOT_TOKEN = defineSecret("TELEGRAM_BOT_TOKEN")
+const NOTIFY_SECRET = defineSecret("NOTIFY_SECRET")
+
+// Grupo do Telegram + destinatários de e-mail das notificações de release.
+// (chat_id de grupo não é sigiloso — fica no código; preenchido após criar o bot.)
+const TELEGRAM_CHAT_ID = "" // ex.: "-1001234567890"
+const TELEGRAM_THREAD_ID = "" // opcional: id do tópico, se o grupo usar tópicos
+const RELEASE_EMAILS = ["ads.deyvid@gmail.com"] // + e-mail do Pedro quando informado
 
 const REGION = "southamerica-east1"
 const CODE_TTL_MS = 5 * 60 * 1000 // 5 minutos
@@ -444,5 +452,129 @@ exports.setupCoupons = onCall(
     }
     logger.info("[SmartLoop][Backend] cupons configurados", { codes: result.map((r) => r.code) })
     return { ok: true, coupons: result }
+  }
+)
+
+/* ─────────────────────────────────────────────────────────────
+   Notificações de release — Telegram (principal) + e-mail
+   - notifyRelease: recebe { title, type, items[] } e avisa o grupo + e-mails
+   - getTelegramChatId: helper para descobrir o chat_id do grupo sem expor o token
+   Protegidas por NOTIFY_SECRET (header x-notify-secret ou body.secret).
+───────────────────────────────────────────────────────────── */
+
+const TYPE_META = {
+  feature: { emoji: "✨", label: "Nova funcionalidade", color: "#2563eb" },
+  fix: { emoji: "🐛", label: "Correção de bug", color: "#ef4444" },
+  update: { emoji: "🚀", label: "Atualização", color: "#ea580c" },
+}
+
+function checkNotifySecret(req) {
+  const provided = req.headers["x-notify-secret"] || req.body?.secret
+  return provided && provided === NOTIFY_SECRET.value()
+}
+
+function releaseEmailHtml(meta, title, items) {
+  const li = items.map((i) => `<li style="margin:0 0 6px;font-size:14px;line-height:1.5;color:#374151;">${i}</li>`).join("")
+  return `
+  <div style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:32px 0;">
+      <tr><td align="center">
+        <table role="presentation" width="100%" style="max-width:520px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(2,6,23,0.08);">
+          <tr><td style="background:linear-gradient(135deg,#2563eb,#7c3aed);padding:24px 32px;">
+            <span style="color:#fff;font-size:20px;font-weight:800;letter-spacing:-0.5px;">SmartLoop</span>
+            <span style="color:#c7d2fe;font-size:12px;display:block;margin-top:2px;">Notificação de atualização do sistema</span>
+          </td></tr>
+          <tr><td style="padding:28px 32px;">
+            <span style="display:inline-block;background:${meta.color}1a;color:${meta.color};font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;">${meta.emoji} ${meta.label}</span>
+            <h1 style="margin:14px 0 16px;font-size:18px;color:#111827;">${title}</h1>
+            <ul style="margin:0;padding-left:18px;">${li}</ul>
+          </td></tr>
+          <tr><td style="padding:16px 32px;border-top:1px solid #f3f4f6;text-align:center;">
+            <span style="font-size:11px;color:#9ca3af;">SmartLoop — gestão para assistências técnicas · smartloop-94a06.web.app</span>
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </div>`
+}
+
+exports.notifyRelease = onRequest(
+  { region: REGION, secrets: [GMAIL_EMAIL, GMAIL_PASSWORD, TELEGRAM_BOT_TOKEN, NOTIFY_SECRET] },
+  async (req, res) => {
+    if (req.method !== "POST") return res.status(405).send("method not allowed")
+    if (!checkNotifySecret(req)) {
+      logger.warn("[SmartLoop][Security] notifyRelease sem segredo válido")
+      return res.status(401).send("unauthorized")
+    }
+
+    const type = TYPE_META[req.body?.type] ? req.body.type : "update"
+    const meta = TYPE_META[type]
+    const title = String(req.body?.title || "Atualização do SmartLoop").slice(0, 160)
+    const items = Array.isArray(req.body?.items) ? req.body.items.map((i) => String(i).slice(0, 200)).slice(0, 20) : []
+    const result = { telegram: "skipped", email: "skipped" }
+
+    // Telegram (canal principal)
+    if (TELEGRAM_CHAT_ID) {
+      try {
+        const bullets = items.map((i) => `• ${i}`).join("\n")
+        const text = `${meta.emoji} <b>${meta.label} — SmartLoop</b>\n\n<b>${title}</b>\n${bullets ? "\n" + bullets : ""}`
+        const payload = {
+          chat_id: TELEGRAM_CHAT_ID, text, parse_mode: "HTML", disable_web_page_preview: true,
+          ...(TELEGRAM_THREAD_ID ? { message_thread_id: Number(TELEGRAM_THREAD_ID) } : {}),
+        }
+        const r = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN.value()}/sendMessage`, {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+        })
+        const j = await r.json()
+        result.telegram = j.ok ? "ok" : `erro: ${j.description || "desconhecido"}`
+      } catch (err) {
+        logger.error("[SmartLoop][notify] falha no Telegram", { message: err.message })
+        result.telegram = "erro"
+      }
+    } else {
+      result.telegram = "sem chat_id configurado"
+    }
+
+    // E-mail (secundário)
+    if (RELEASE_EMAILS.length) {
+      try {
+        const transporter = nodemailer.createTransport({
+          service: "gmail", auth: { user: GMAIL_EMAIL.value(), pass: GMAIL_PASSWORD.value() },
+        })
+        await transporter.sendMail({
+          from: `"SmartLoop" <${GMAIL_EMAIL.value()}>`,
+          to: RELEASE_EMAILS.join(", "),
+          subject: `${meta.emoji} ${meta.label}: ${title}`,
+          html: releaseEmailHtml(meta, title, items),
+        })
+        result.email = "ok"
+      } catch (err) {
+        logger.error("[SmartLoop][notify] falha no e-mail", { message: err.message })
+        result.email = "erro"
+      }
+    }
+
+    logger.info("[SmartLoop][notify] release notificado", { type, title, result })
+    res.status(200).json({ ok: true, result })
+  }
+)
+
+exports.getTelegramChatId = onRequest(
+  { region: REGION, secrets: [TELEGRAM_BOT_TOKEN, NOTIFY_SECRET] },
+  async (req, res) => {
+    if (!checkNotifySecret(req)) return res.status(401).send("unauthorized")
+    try {
+      const r = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN.value()}/getUpdates`)
+      const j = await r.json()
+      const chats = new Map()
+      for (const u of j.result || []) {
+        const c = u.message?.chat || u.channel_post?.chat || u.my_chat_member?.chat
+        if (c) chats.set(c.id, { id: c.id, title: c.title || c.username || c.first_name, type: c.type })
+      }
+      res.status(200).json({ ok: true, chats: [...chats.values()] })
+    } catch (err) {
+      logger.error("[SmartLoop][notify] falha ao ler chat_id", { message: err.message })
+      res.status(500).json({ ok: false })
+    }
   }
 )
