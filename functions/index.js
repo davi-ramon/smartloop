@@ -45,7 +45,7 @@ const REGION = "southamerica-east1"
 const CODE_TTL_MS = 5 * 60 * 1000 // 5 minutos
 const MAX_ATTEMPTS = 5
 
-const APP_URL = "https://smartloop-94a06.web.app"
+const APP_URL = "https://smartloop.com.br"
 // Planos do SmartLoop (valores em centavos, BRL).
 const PLANS = {
   basic: { name: "SmartLoop Básico", amount: 4990 },
@@ -536,7 +536,7 @@ function releaseEmailHtml(meta, title, items) {
             <ul style="margin:0;padding-left:18px;">${li}</ul>
           </td></tr>
           <tr><td style="padding:16px 32px;border-top:1px solid #f3f4f6;text-align:center;">
-            <span style="font-size:11px;color:#9ca3af;">SmartLoop — gestão para assistências técnicas · smartloop-94a06.web.app</span>
+            <span style="font-size:11px;color:#9ca3af;">SmartLoop — gestão para assistências técnicas · smartloop.com.br</span>
           </td></tr>
         </table>
       </td></tr>
@@ -673,7 +673,7 @@ function osDigestEmailHtml(shop, data) {
             <table role="presentation" width="100%">${overdueRows}</table>
           </td></tr>` : ""}
           <tr><td style="padding:16px 32px 24px;">
-            <a href="https://smartloop-94a06.web.app/os" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:10px 20px;border-radius:10px;">Abrir minhas OS</a>
+            <a href="https://smartloop.com.br/os" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:10px 20px;border-radius:10px;">Abrir minhas OS</a>
           </td></tr>
           <tr><td style="padding:16px 32px;border-top:1px solid #f3f4f6;text-align:center;">
             <span style="font-size:11px;color:#9ca3af;">Enviado pelo SmartLoop · gestão para assistências técnicas</span>
@@ -791,7 +791,7 @@ function bugEmailHtml(d) {
           ${atts ? `<p style="margin:14px 0 0;font-size:12px;color:#6b7280;">Anexos: ${atts}</p>` : ""}
         </td></tr>
         <tr><td style="padding:16px 32px;border-top:1px solid #f3f4f6;text-align:center;">
-          <a href="https://smartloop-94a06.web.app/relatorios-bugs" style="color:#2563eb;font-size:13px;font-weight:600;text-decoration:none;">Abrir repositório de relatos →</a>
+          <a href="https://smartloop.com.br/relatorios-bugs" style="color:#2563eb;font-size:13px;font-weight:600;text-decoration:none;">Abrir repositório de relatos →</a>
         </td></tr>
       </table>
     </td></tr></table>
