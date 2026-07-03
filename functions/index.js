@@ -14,6 +14,7 @@
 const crypto = require("crypto")
 const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https")
 const { onSchedule } = require("firebase-functions/v2/scheduler")
+const { onDocumentCreated } = require("firebase-functions/v2/firestore")
 const { setGlobalOptions } = require("firebase-functions/v2")
 const { defineSecret } = require("firebase-functions/params")
 const logger = require("firebase-functions/logger")
@@ -721,5 +722,80 @@ exports.runOsDigestNow = onRequest(
     if (!checkNotifySecret(req)) return res.status(401).send("unauthorized")
     const result = await runOsDigest()
     res.status(200).json(result)
+  },
+)
+
+/* ─────────────────────────────────────────────────────────────
+   Novo relato de bug/sugestão → avisa admins (Telegram + e-mail)
+   Trigger em bugReports/{id}. É a "rotina" de triagem: cada relato
+   chega na hora para Deyvid e Pedro analisarem.
+───────────────────────────────────────────────────────────── */
+
+function bugEmailHtml(d) {
+  const isBug = d.type === "bug"
+  const color = isBug ? "#ef4444" : "#f59e0b"
+  const atts = (d.attachments || []).map((a) =>
+    `<a href="${a.url}" style="color:#2563eb;font-size:12px;">${a.name}</a>`).join(" · ")
+  return `
+  <div style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:32px 0;"><tr><td align="center">
+      <table role="presentation" width="100%" style="max-width:520px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(2,6,23,0.08);">
+        <tr><td style="background:linear-gradient(135deg,#2563eb,#7c3aed);padding:22px 32px;">
+          <span style="color:#fff;font-size:18px;font-weight:800;">SmartLoop · Beta</span>
+          <span style="color:#c7d2fe;font-size:12px;display:block;">Novo relato recebido</span>
+        </td></tr>
+        <tr><td style="padding:24px 32px;">
+          <span style="display:inline-block;background:${color}1a;color:${color};font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;">${isBug ? "🐛 Bug" : "💡 Sugestão"} · ${d.module || "—"}</span>
+          <p style="margin:14px 0 4px;font-size:13px;color:#6b7280;">De: ${d.userName || "—"} (${d.userEmail || "—"})</p>
+          <p style="margin:0 0 14px;font-size:13px;color:#9ca3af;">Rota: ${d.path || "—"}</p>
+          <div style="background:#f9fafb;border-radius:10px;padding:14px;font-size:14px;line-height:1.6;color:#111827;white-space:pre-wrap;">${(d.description || "").replace(/</g, "&lt;")}</div>
+          ${atts ? `<p style="margin:14px 0 0;font-size:12px;color:#6b7280;">Anexos: ${atts}</p>` : ""}
+        </td></tr>
+        <tr><td style="padding:16px 32px;border-top:1px solid #f3f4f6;text-align:center;">
+          <a href="https://smartloop-94a06.web.app/relatorios-bugs" style="color:#2563eb;font-size:13px;font-weight:600;text-decoration:none;">Abrir repositório de relatos →</a>
+        </td></tr>
+      </table>
+    </td></tr></table>
+  </div>`
+}
+
+exports.onBugReportCreated = onDocumentCreated(
+  { document: "bugReports/{id}", region: REGION, secrets: [GMAIL_EMAIL, GMAIL_PASSWORD, TELEGRAM_BOT_TOKEN] },
+  async (event) => {
+    const d = event.data?.data()
+    if (!d) return
+    const isBug = d.type === "bug"
+    logger.info("[SmartLoop][bugs] novo relato", { type: d.type, module: d.module })
+
+    // Telegram
+    if (TELEGRAM_CHAT_ID) {
+      try {
+        const emoji = isBug ? "🐛" : "💡"
+        const text = `${emoji} <b>Novo ${isBug ? "bug" : "sugestão"} · SmartLoop Beta</b>\n\n<b>Módulo:</b> ${d.module || "—"}\n<b>De:</b> ${d.userName || d.userEmail || "—"}\n\n${(d.description || "").slice(0, 500)}${(d.attachments || []).length ? `\n\n📎 ${d.attachments.length} anexo(s)` : ""}`
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN.value()}/sendMessage`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: "HTML", disable_web_page_preview: true }),
+        })
+      } catch (err) {
+        logger.error("[SmartLoop][bugs] falha no Telegram", { message: err.message })
+      }
+    }
+
+    // E-mail para admins
+    if (RELEASE_EMAILS.length) {
+      try {
+        const transporter = nodemailer.createTransport({
+          service: "gmail", auth: { user: GMAIL_EMAIL.value(), pass: GMAIL_PASSWORD.value() },
+        })
+        await transporter.sendMail({
+          from: `"SmartLoop Beta" <${GMAIL_EMAIL.value()}>`,
+          to: RELEASE_EMAILS.join(", "),
+          subject: `${isBug ? "🐛 Bug" : "💡 Sugestão"} em ${d.module || "SmartLoop"} — ${d.userName || "usuário"}`,
+          html: bugEmailHtml(d),
+        })
+      } catch (err) {
+        logger.error("[SmartLoop][bugs] falha no e-mail", { message: err.message })
+      }
+    }
   },
 )

@@ -3,6 +3,7 @@ import { Protected } from "@/components/auth/protected"
 import { PageTransition } from "@/components/layout/page-transition"
 import { SubscriptionBanner } from "@/components/billing/subscription-banner"
 import { WorkspaceProvider } from "@/lib/firebase/workspace-context"
+import { BugReportWidget } from "@/components/bug-report/bug-report-widget"
 
 export default function DashboardLayout({
   children,
@@ -19,6 +20,7 @@ export default function DashboardLayout({
             <SubscriptionBanner />
             <PageTransition>{children}</PageTransition>
           </div>
+          <BugReportWidget />
         </div>
       </WorkspaceProvider>
     </Protected>

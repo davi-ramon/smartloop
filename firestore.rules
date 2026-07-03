@@ -26,6 +26,19 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Repositório de bugs/sugestões (beta) — coleção restrita.
+    // Qualquer usuário logado cria o próprio relato; só admins/devs leem e triam.
+    function isBugAdmin() {
+      return isSignedIn() && request.auth.token.email in [
+        "ads.deyvid@gmail.com", "deyvid.win7@gmail.com", "pvrgeral@gmail.com"
+      ];
+    }
+    match /bugReports/{id} {
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow read, update: if isBugAdmin();
+      allow delete: if false;
+    }
+
     // Loja (tenant) e todas as subcoleções (customers, serviceOrders, parts,
     // products, sales, transactions, technicians, suppliers, quotes...).
     match /tenants/{tenantId} {

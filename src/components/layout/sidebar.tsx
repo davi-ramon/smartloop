@@ -21,10 +21,12 @@ import {
   Pin,
   ChevronRight,
   LogOut,
+  Bug,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useSidebarStore } from "@/store/sidebar"
 import { useAuth } from "@/lib/firebase/auth-context"
+import { isAdmin } from "@/lib/admins"
 import { logger } from "@/lib/logger"
 
 const NAV_GROUPS = [
@@ -111,7 +113,8 @@ function NavItem({ label, href, icon: Icon, isActive, isExpanded }: NavItemProps
 export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
-  const { logout } = useAuth()
+  const { logout, user } = useAuth()
+  const showAdmin = isAdmin(user?.email)
   const { isPinned, togglePin } = useSidebarStore()
   const [isHovered, setIsHovered] = useState(false)
 
@@ -234,6 +237,25 @@ export function Sidebar() {
               </div>
             </div>
           ))}
+
+          {/* Admin/dev — repositório de relatos (beta) */}
+          {showAdmin && (
+            <div className="mb-4">
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.p
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.12 }}
+                    className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-[--muted-foreground] whitespace-nowrap"
+                  >
+                    Admin
+                  </motion.p>
+                )}
+              </AnimatePresence>
+              <div className="space-y-0.5">
+                <NavItem label="Relatos (beta)" href="/relatorios-bugs" icon={Bug} isActive={isActive("/relatorios-bugs")} isExpanded={isExpanded} />
+              </div>
+            </div>
+          )}
         </nav>
 
         {/* Bottom — Settings + Logout */}
