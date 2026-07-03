@@ -9,8 +9,14 @@ import {
   ChevronDown, Globe, Mail, Phone, Link2, ExternalLink,
   CheckCircle2, AlertTriangle, TrendingUp, TrendingDown, Clock,
   MessageSquare, QrCode, Scan, FileText, CreditCard,
-  Menu, Sparkles, Layers, Frown,
+  Menu, Sparkles, Layers, Frown, Loader2, Headphones,
 } from "lucide-react"
+import { checkoutPlan, type LandingPlanKey } from "@/lib/landing-checkout"
+import { CookieConsent } from "@/components/landing/cookie-consent"
+
+const WHATSAPP_ESPECIALISTA =
+  "https://wa.me/5563991089086?text=" +
+  encodeURIComponent("Olá! Tenho interesse no plano Personalizado do SmartLoop e gostaria de falar com um especialista.")
 
 /* ───────────────────────────────────────────
    Motion helpers
@@ -91,10 +97,10 @@ function Navbar() {
             Entrar
           </Link>
           <Link
-            href="/cadastro"
+            href="#precos"
             className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-5 py-2 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
           >
-            Começar grátis
+            Ver planos
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -114,8 +120,8 @@ function Navbar() {
           {["Funcionalidades", "Preços", "Sobre"].map(item => (
             <Link key={item} href="#" className="block text-sm text-slate-300 py-2">{item}</Link>
           ))}
-          <Link href="/cadastro" className="block rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-5 py-2.5 text-center text-sm font-semibold text-white">
-            Começar grátis
+          <Link href="#precos" className="block rounded-full bg-gradient-to-r from-[#2563eb] to-[#7c3aed] px-5 py-2.5 text-center text-sm font-semibold text-white">
+            Ver planos
           </Link>
         </motion.div>
       )}
@@ -221,7 +227,7 @@ function Hero() {
           className="mt-10 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500"
         >
           <span className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#34d399]" />14 dias grátis</span>
-          <span className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#34d399]" />Sem cartão de crédito</span>
+          <span className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#34d399]" />Cobrança só após o teste</span>
           <span className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#34d399]" />Cancele quando quiser</span>
         </motion.div>
       </div>
@@ -593,8 +599,8 @@ function FeaturesSection() {
                 </li>
               ))}
             </ul>
-            <Link href="/cadastro" className="mt-8 inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
-              Ver na prática
+            <Link href="#precos" className="mt-8 inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors">
+              Ver planos
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -703,56 +709,74 @@ function StatsSection() {
 /* ───────────────────────────────────────────
    Pricing
 ─────────────────────────────────────────── */
-const PLANS = [
+const PLANS: {
+  key: LandingPlanKey; name: string; price: string; desc: string
+  features: string[]; missing: string[]; highlight: boolean
+}[] = [
   {
+    key: "basic",
     name: "Básico",
-    price: "69,90",
+    price: "49,90",
     desc: "Para quem está começando",
     features: ["Até 100 OS/mês", "2 usuários", "Clientes e OS básico", "Estoque básico", "Suporte por e-mail"],
     missing: ["PDV e caixa", "Relatórios avançados", "Multi-filial"],
-    cta: "Começar grátis",
     highlight: false,
   },
   {
+    key: "pro",
     name: "Pro",
     price: "89,90",
     desc: "Para quem quer crescer",
     features: ["OS ilimitadas", "5 usuários", "PDV completo", "Financeiro avançado", "Relatórios e dashboards", "Notificações WhatsApp", "Garantia digital", "Suporte prioritário"],
     missing: ["API pública", "White-label"],
-    cta: "Começar grátis — mais popular",
     highlight: true,
   },
   {
+    key: "premium",
     name: "Premium",
     price: "149,90",
     desc: "Para redes e franquias",
     features: ["Tudo do Pro", "Usuários ilimitados", "Multi-filial", "API pública + webhooks", "White-label", "Integração Mercado Pago", "Onboarding dedicado", "SLA garantido"],
     missing: [],
-    cta: "Falar com especialista",
     highlight: false,
   },
 ]
 
 function PricingSection() {
+  const [loadingPlan, setLoadingPlan] = useState<LandingPlanKey | null>(null)
+  const [error, setError] = useState(false)
+
+  async function escolher(plan: LandingPlanKey) {
+    setLoadingPlan(plan); setError(false)
+    try {
+      await checkoutPlan(plan) // redireciona ao Stripe (cobrança imediata)
+    } catch {
+      setError(true); setLoadingPlan(null)
+    }
+  }
+
   return (
     <section id="precos" className="bg-slate-50 py-28 px-6">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-6xl">
         <Reveal className="text-center mb-16">
           <h2 className="text-3xl font-extrabold text-slate-900 sm:text-4xl">
             Preço justo para o tamanho<br className="hidden sm:block" />
             <span className="text-slate-400"> da sua operação</span>
           </h2>
-          <p className="mt-4 text-slate-500">14 dias grátis em todos os planos. Sem cartão de crédito.</p>
+          <p className="mt-4 text-slate-500">
+            Escolha um plano e comece agora — cobrança imediata. Prefere experimentar?{" "}
+            <Link href="/cadastro" className="font-medium text-[#2563eb] hover:underline">Teste 14 dias grátis</Link> (cartão exigido, cobrado só após o período).
+          </p>
         </Reveal>
 
-        <RevealGroup className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <RevealGroup className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {PLANS.map((plan) => (
             <motion.div
               key={plan.name}
               variants={FU()}
-              className={`relative flex flex-col rounded-2xl p-7 ${
+              className={`relative flex flex-col rounded-2xl p-6 ${
                 plan.highlight
-                  ? "bg-gradient-to-b from-[#1e1b4b] to-[#0f172a] text-white shadow-2xl shadow-[#7c3aed]/20 ring-2 ring-[#7c3aed]/50 scale-[1.02]"
+                  ? "bg-gradient-to-b from-[#1e1b4b] to-[#0f172a] text-white shadow-2xl shadow-[#7c3aed]/20 ring-2 ring-[#7c3aed]/50 lg:scale-[1.03]"
                   : "border border-slate-200 bg-white"
               }`}
             >
@@ -769,7 +793,7 @@ function PricingSection() {
                 <span className={`text-4xl font-black ${plan.highlight ? "text-white" : "text-slate-900"}`}>
                   R$ {plan.price}
                 </span>
-                <span className={`mb-1 text-sm ${plan.highlight ? "text-slate-400" : "text-slate-400"}`}>/mês</span>
+                <span className="mb-1 text-sm text-slate-400">/mês</span>
               </div>
               <p className={`text-sm mb-6 ${plan.highlight ? "text-slate-400" : "text-slate-500"}`}>{plan.desc}</p>
 
@@ -788,26 +812,53 @@ function PricingSection() {
                 ))}
               </ul>
 
-              <Link
-                href="/cadastro"
-                className={`mt-8 flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold transition-all duration-200 ${
+              <button
+                onClick={() => escolher(plan.key)}
+                disabled={loadingPlan !== null}
+                className={`mt-8 flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold transition-all duration-200 disabled:opacity-60 ${
                   plan.highlight
                     ? "bg-gradient-to-r from-[#2563eb] to-[#7c3aed] text-white hover:opacity-90 hover:scale-[1.02] shadow-[0_0_24px_rgba(124,58,237,0.4)]"
                     : "border border-slate-200 text-slate-900 hover:bg-slate-50 hover:border-slate-400"
                 }`}
               >
-                {plan.cta}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+                {loadingPlan === plan.key ? <><Loader2 className="h-4 w-4 animate-spin" /> Abrindo…</> : <>Escolher este plano <ArrowRight className="h-4 w-4" /></>}
+              </button>
             </motion.div>
           ))}
+
+          {/* 4º plano — personalizado */}
+          <motion.div variants={FU()} className="relative flex flex-col rounded-2xl border border-slate-300 border-dashed bg-white p-6">
+            <div className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+              <Headphones className="h-4 w-4" /> Personalizado
+            </div>
+            <div className="mb-1 flex items-end gap-1">
+              <span className="text-3xl font-black text-slate-900">Sob medida</span>
+            </div>
+            <p className="mb-6 text-sm text-slate-500">Para redes, franquias e necessidades específicas</p>
+            <ul className="space-y-2.5 flex-1">
+              {["Volume e usuários sob demanda", "Integrações personalizadas", "Onboarding e treinamento dedicados", "Condições comerciais especiais"].map((f) => (
+                <li key={f} className="flex items-center gap-2.5 text-sm">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-[#10b981]" />
+                  <span className="text-slate-700">{f}</span>
+                </li>
+              ))}
+            </ul>
+            <a
+              href={WHATSAPP_ESPECIALISTA} target="_blank" rel="noreferrer"
+              className="mt-8 flex items-center justify-center gap-2 rounded-xl bg-slate-900 py-3.5 text-sm font-bold text-white transition-colors hover:bg-slate-700"
+            >
+              Falar com um especialista <MessageSquare className="h-4 w-4" />
+            </a>
+          </motion.div>
         </RevealGroup>
 
-        <Reveal className="mt-10 text-center text-sm text-slate-500">
-          Precisa de algo diferente?{" "}
-          <Link href="#" className="text-[#2563eb] font-medium hover:underline">
-            Fale com nossa equipe
-          </Link>
+        {error && (
+          <Reveal className="mt-6 text-center text-sm text-[#ef4444]">
+            Não foi possível abrir o checkout. Tente novamente em instantes.
+          </Reveal>
+        )}
+        <Reveal className="mt-8 text-center text-xs text-slate-400">
+          Pagamento seguro via Stripe · Cancele quando quiser
         </Reveal>
       </div>
     </section>
@@ -869,7 +920,7 @@ function CTASection() {
           </span>
         </h2>
         <p className="mt-6 text-lg text-slate-400 leading-relaxed">
-          Comece hoje. 14 dias grátis, sem cartão, sem burocracia.<br />
+          Comece hoje com 14 dias grátis. O cartão é cadastrado no início e só é cobrado após o período.<br />
           Se não resolver sua vida, cancele sem perguntas.
         </p>
         <div className="mt-10 flex flex-wrap justify-center gap-4">
@@ -882,7 +933,7 @@ function CTASection() {
           </Link>
         </div>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-500">
-          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#34d399]" />Sem cartão</span>
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#34d399]" />Cobrança após 14 dias</span>
           <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#34d399]" />14 dias grátis</span>
           <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-[#34d399]" />Cancele quando quiser</span>
         </div>
@@ -925,28 +976,44 @@ function Footer() {
           {[
             {
               title: "Produto",
-              links: ["Funcionalidades", "Preços", "Changelog", "Roadmap", "Status"],
+              links: [
+                { label: "Funcionalidades", href: "/#funcionalidades" },
+                { label: "Preços", href: "/#precos" },
+                { label: "Entrar", href: "/login" },
+                { label: "Criar conta", href: "/cadastro" },
+              ],
             },
             {
               title: "Empresa",
-              links: ["Sobre nós", "Blog", "Carreiras", "Imprensa", "Parceiros"],
+              links: [
+                { label: "Sobre nós", href: "/#funcionalidades" },
+                { label: "Fale com um especialista", href: WHATSAPP_ESPECIALISTA },
+              ],
             },
             {
               title: "Suporte",
-              links: ["Central de Ajuda", "Documentação", "API", "Fale conosco", "Comunidade"],
+              links: [
+                { label: "suporte@smartloop.com.br", href: "mailto:suporte@smartloop.com.br" },
+                { label: "WhatsApp (63) 99108-9086", href: "https://wa.me/5563991089086" },
+              ],
             },
             {
               title: "Legal",
-              links: ["Termos de Uso", "Privacidade", "Cookies", "LGPD"],
+              links: [
+                { label: "Termos de Uso", href: "/termos" },
+                { label: "Privacidade", href: "/privacidade" },
+                { label: "Cookies", href: "/cookies" },
+                { label: "LGPD", href: "/lgpd" },
+              ],
             },
           ].map((col) => (
             <div key={col.title}>
               <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-4">{col.title}</p>
               <ul className="space-y-2.5">
                 {col.links.map((link) => (
-                  <li key={link}>
-                    <Link href="#" className="text-sm text-slate-500 hover:text-white transition-colors">
-                      {link}
+                  <li key={link.label}>
+                    <Link href={link.href} className="text-sm text-slate-500 hover:text-white transition-colors">
+                      {link.label}
                     </Link>
                   </li>
                 ))}
@@ -965,10 +1032,10 @@ function Footer() {
           </p>
           <div className="flex flex-wrap gap-6">
             {[
-              { icon: Mail,  text: "suporte@smartloop.com.br" },
-              { icon: Phone, text: "(99) 99999-9999" },
-            ].map(({ icon: Icon, text }) => (
-              <a key={text} href="#" className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-white transition-colors">
+              { icon: Mail,  text: "suporte@smartloop.com.br", href: "mailto:suporte@smartloop.com.br" },
+              { icon: Phone, text: "(63) 99108-9086", href: "https://wa.me/5563991089086" },
+            ].map(({ icon: Icon, text, href }) => (
+              <a key={text} href={href} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-white transition-colors">
                 <Icon className="h-3.5 w-3.5" />
                 {text}
               </a>
@@ -999,6 +1066,7 @@ export default function LandingPage() {
         <CTASection />
       </main>
       <Footer />
+      <CookieConsent />
     </>
   )
 }

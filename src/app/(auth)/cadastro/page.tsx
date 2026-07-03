@@ -59,7 +59,7 @@ export default function CadastroPage() {
           <h1 className="mt-3 text-2xl font-bold">
             Smart<span className="text-[--primary]">Loop</span>
           </h1>
-          <p className="mt-1 text-sm text-[--muted-foreground]">14 dias grátis. Sem cartão.</p>
+          <p className="mt-1 text-sm text-[--muted-foreground]">14 dias grátis — cartão exigido, cobrado só após o teste.</p>
         </div>
 
         <Card>

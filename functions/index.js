@@ -342,6 +342,45 @@ exports.createCheckoutSession = onCall(
   }
 )
 
+// Checkout direto da landing (sem login): assinatura com COBRANÇA IMEDIATA.
+// Difere do createCheckoutSession (in-app, com trial de 14 dias + login).
+exports.createDirectCheckout = onRequest(
+  { region: REGION, cors: true, secrets: [STRIPE_SECRET_KEY] },
+  async (req, res) => {
+    if (req.method !== "POST") return res.status(405).json({ error: "method not allowed" })
+    const planKey = PLANS[req.body?.plan] ? req.body.plan : "pro"
+    const plan = PLANS[planKey]
+    logger.info("[SmartLoop][Backend] checkout direto (landing)", { plan: planKey, amount: plan.amount })
+
+    try {
+      const stripe = require("stripe")(STRIPE_SECRET_KEY.value())
+      const session = await stripe.checkout.sessions.create({
+        mode: "subscription",
+        payment_method_collection: "always",
+        allow_promotion_codes: true,
+        line_items: [{
+          quantity: 1,
+          price_data: {
+            currency: "brl",
+            product_data: { name: plan.name },
+            unit_amount: plan.amount,
+            recurring: { interval: "month" },
+          },
+        }],
+        // Sem trial → cobrança imediata.
+        subscription_data: { metadata: { plan: planKey, source: "landing" } },
+        metadata: { plan: planKey, source: "landing" },
+        success_url: `${APP_URL}/cadastro?assinatura=sucesso&plano=${planKey}`,
+        cancel_url: `${APP_URL}/?checkout=cancelado`,
+      })
+      res.status(200).json({ url: session.url })
+    } catch (err) {
+      logger.error("[SmartLoop][Backend] falha no checkout direto", { message: err.message })
+      res.status(500).json({ error: "checkout_failed" })
+    }
+  },
+)
+
 exports.createPortalSession = onCall(
   { region: REGION, secrets: [STRIPE_SECRET_KEY] },
   async (request) => {

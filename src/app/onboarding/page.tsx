@@ -70,7 +70,7 @@ const STEPS: Step[] = [
   { type: "text", key: "email", question: "E-mail da loja", hint: "Obrigatório. Já preenchemos com o e-mail da sua conta.", placeholder: "contato@loja.com.br", inputType: "email" },
   { type: "logo", question: "Adicione a logo da sua loja", hint: `Obrigatória. PNG, JPG ou WEBP, quadrada de preferência, de ${LOGO_MIN}px a ${LOGO_MAX}px, até 5MB.` },
   { type: "payments", question: "Quais formas de pagamento você aceita?", hint: "Selecione ao menos uma." },
-  { type: "finish", question: "Tudo pronto!", hint: "Você está no teste grátis de 14 dias do plano Pro — sem cartão agora." },
+  { type: "finish", question: "Tudo pronto!", hint: "Você está no teste grátis de 14 dias do plano Pro." },
 ]
 
 export default function OnboardingPage() {
@@ -327,7 +327,7 @@ export default function OnboardingPage() {
                 <div className="flex items-center gap-3 rounded-xl border border-[--primary]/20 bg-[--primary]/5 p-4">
                   <CreditCard className="h-5 w-5 shrink-0 text-[--primary]" />
                   <p className="text-sm text-[--foreground]">
-                    Teste grátis de <strong>14 dias</strong> do plano Pro. Sem cartão agora — você configura a assinatura quando quiser.
+                    Teste grátis de <strong>14 dias</strong> do plano Pro. O cartão é cadastrado para ativar o teste e só é cobrado após os 14 dias.
                   </p>
                 </div>
               )}
