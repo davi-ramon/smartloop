@@ -19,6 +19,7 @@ import {
 import { BioProfileForm } from "@/components/bio/editor/bio-profile-form"
 import { BioThemeForm } from "@/components/bio/editor/bio-theme-form"
 import { BioLinksForm } from "@/components/bio/editor/bio-links-form"
+import { BioOgForm } from "@/components/bio/editor/bio-og-form"
 import { BioPreview } from "@/components/bio/editor/bio-preview"
 import { ToastProvider, useToast } from "@/components/bio/editor/use-toast"
 
@@ -148,6 +149,7 @@ function AdminBioPageInner() {
                 <TabsTrigger value="perfil">Perfil</TabsTrigger>
                 <TabsTrigger value="tema">Tema</TabsTrigger>
                 <TabsTrigger value="links">Links</TabsTrigger>
+                <TabsTrigger value="compartilhamento">Compartilhamento</TabsTrigger>
               </TabsList>
 
               <TabsContent value="perfil">
@@ -158,6 +160,9 @@ function AdminBioPageInner() {
               </TabsContent>
               <TabsContent value="links">
                 <BioLinksForm links={links} onChange={setLinksNext} />
+              </TabsContent>
+              <TabsContent value="compartilhamento">
+                <BioOgForm value={profile} onChange={setProfilePatch} />
               </TabsContent>
             </Tabs>
           </div>

@@ -244,12 +244,12 @@ interface FormRowProps {
 function FormRow({ label, htmlFor, hint, error, children }: FormRowProps) {
   return (
     <div>
-      <Label htmlFor={htmlFor} className="mb-1.5 block">{label}</Label>
+      <Label htmlFor={htmlFor} className="mb-1.5 block text-[#111827] dark:text-[#f8fafc]">{label}</Label>
       {children}
       {error ? (
         <p className="mt-1 text-[11px] text-[#ef4444]">{error}</p>
       ) : hint ? (
-        <p className="mt-1 text-[11px] text-[#6b7280]">{hint}</p>
+        <p className="mt-1 text-[11px] text-[#6b7280] dark:text-[#94a3b8]">{hint}</p>
       ) : null}
     </div>
   )
@@ -262,7 +262,7 @@ interface SegmentedProps<T extends string> {
 }
 function Segmented<T extends string>({ value, options, onChange }: SegmentedProps<T>) {
   return (
-    <div className="inline-flex w-full rounded-lg border border-[--border] bg-[#f9fafb] p-1">
+    <div className="inline-flex w-full rounded-lg border border-[#e5e7eb] dark:border-[#334155] bg-[#f9fafb] dark:bg-[#0f172a] p-1">
       {options.map((o) => (
         <button
           key={o.value}
@@ -272,7 +272,7 @@ function Segmented<T extends string>({ value, options, onChange }: SegmentedProp
             "flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
             value === o.value
               ? "text-white shadow-sm"
-              : "text-[#6b7280] hover:text-[#111827]",
+              : "text-[#6b7280] hover:text-[#111827] dark:text-[#94a3b8] dark:hover:text-[#f8fafc]",
           )}
           style={value === o.value ? { backgroundColor: "var(--primary)" } : undefined}
         >
@@ -305,20 +305,20 @@ function IconPicker({ value, onChange }: IconPickerProps) {
         <button
           id="icone-trigger"
           type="button"
-          className="flex w-full items-center justify-between gap-2 rounded-md border border-[--border] bg-[#f9fafb] px-3 py-2 text-sm text-[#111827] hover:border-[#9ca3af] dark:bg-[#1e293b] dark:text-[#f8fafc]"
+          className="flex w-full items-center justify-between gap-2 rounded-md border border-[#e5e7eb] dark:border-[#334155] bg-[#f9fafb] dark:bg-[#1e293b] px-3 py-2 text-sm text-[#111827] dark:text-[#f8fafc] hover:border-[#9ca3af] dark:hover:border-[#475569]"
         >
           <span className="flex items-center gap-2">
             <Current className="h-4 w-4" />
             {value}
           </span>
-          <ChevronDown className="h-3.5 w-3.5 text-[#6b7280]" />
+          <ChevronDown className="h-3.5 w-3.5 text-[#6b7280] dark:text-[#94a3b8]" />
         </button>
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
           align="start"
           sideOffset={4}
-          className="z-[100] w-[var(--radix-popover-trigger-width)] rounded-md border border-[--border] bg-white shadow-xl focus:outline-none dark:bg-[#0f172a]"
+          className="z-[100] w-[var(--radix-popover-trigger-width)] rounded-md border border-[#e5e7eb] dark:border-[#334155] bg-white dark:bg-[#0f172a] shadow-xl focus:outline-none"
           onOpenAutoFocus={(e) => { e.preventDefault(); /* mantém o input focado no form */ }}
         >
           <motion.div
@@ -326,19 +326,19 @@ function IconPicker({ value, onChange }: IconPickerProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.14 }}
           >
-            <div className="flex items-center gap-2 border-b border-[--border] px-3 py-2">
-              <Search className="h-3.5 w-3.5 text-[#6b7280]" />
+            <div className="flex items-center gap-2 border-b border-[#e5e7eb] dark:border-[#334155] px-3 py-2">
+              <Search className="h-3.5 w-3.5 text-[#6b7280] dark:text-[#94a3b8]" />
               <input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Buscar ícone..."
-                className="w-full bg-transparent text-sm text-[#111827] outline-none placeholder:text-[#9ca3af] dark:text-[#f8fafc]"
+                className="w-full bg-transparent text-sm text-[#111827] dark:text-[#f8fafc] outline-none placeholder:text-[#9ca3af] dark:placeholder:text-[#64748b]"
               />
             </div>
             <ul className="max-h-56 overflow-y-auto py-1">
               {filtered.length === 0 ? (
-                <li className="px-3 py-2 text-xs text-[#6b7280]">Nenhum ícone encontrado.</li>
+                <li className="px-3 py-2 text-xs text-[#6b7280] dark:text-[#94a3b8]">Nenhum ícone encontrado.</li>
               ) : filtered.map((name) => {
                 const Ico = ((Icons as unknown) as Record<string, React.ElementType | undefined>)[name] || Icons.Link
                 const active = name === value
@@ -349,7 +349,9 @@ function IconPicker({ value, onChange }: IconPickerProps) {
                       onClick={() => onChange(name)}
                       className={cn(
                         "flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-xs",
-                        active ? "bg-[#eff6ff] text-[#1d4ed8]" : "text-[#111827] hover:bg-[#f3f4f6] dark:text-[#f8fafc] dark:hover:bg-[#1e293b]",
+                        active
+                          ? "bg-[#eff6ff] text-[#1d4ed8] dark:bg-[#1e3a8a] dark:text-[#bfdbfe]"
+                          : "text-[#111827] hover:bg-[#f3f4f6] dark:text-[#f8fafc] dark:hover:bg-[#1e293b]",
                       )}
                     >
                       <span className="flex items-center gap-2">

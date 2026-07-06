@@ -12,6 +12,8 @@
  */
 
 const crypto = require("crypto")
+const fs = require("fs")
+const path = require("path")
 const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https")
 const { onSchedule } = require("firebase-functions/v2/scheduler")
 const { onDocumentCreated } = require("firebase-functions/v2/firestore")
@@ -1139,3 +1141,100 @@ exports.getAdminSubscriptionStats = onCall({ region: REGION }, async (request) =
     newLast7, newLast30, churnLast30,
   }
 })
+
+/* ─────────────────────────────────────────────────────────────
+   Bio: HTML estático para crawlers de redes sociais
+   - /bio → Cloud Function (rewrites no firebase.json).
+   - Detecta User-Agent de crawlers (WhatsApp, Facebook, Twitter, etc)
+     e serve HTML com meta tags Open Graph + Twitter Card.
+   - Visitantes humanos recebem 302 redirect para /bio (SPA estática).
+───────────────────────────────────────────────────────────── */
+
+function escapeHtml(s) {
+  if (s == null) return ""
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+}
+
+const CRAWLER_UA = /facebookexternalhit|whatsapp|twitterbot|linkedinbot|telegrambot|slackbot|discordbot|embedly|quora link preview|skypeuripreview|vkshare|pinterest\/0\.|googlebot|bingbot|duckduckbot|yandexbot|applebot/i
+
+exports.getBioPageHtml = onRequest(
+  { region: REGION, cors: true },
+  async (req, res) => {
+    const ua = String(req.headers["user-agent"] || "")
+    const isCrawler = CRAWLER_UA.test(ua)
+    logger.info("[SmartLoop][bio] request", { isCrawler, ua: ua.slice(0, 80) })
+
+    if (!isCrawler) {
+      // Visitante humano: serve a SPA inline copiada do Next export
+      // (postbuild salva em functions/assets/bio-spa.html). Sem redirect,
+      // evita loop com rewrite /bio → function.
+      try {
+        const spaPath = path.join(__dirname, "assets", "bio-spa.html")
+        const spa = fs.readFileSync(spaPath, "utf8")
+        res.set("Cache-Control", "no-cache")
+        res.set("Content-Type", "text/html; charset=utf-8")
+        res.status(200).send(spa)
+      } catch (err) {
+        logger.error("[SmartLoop][bio] falha ao ler SPA asset", { message: err.message })
+        res.status(200).send("<h1>SmartLoop Bio</h1><p>Carregando...</p>")
+      }
+      return
+    }
+
+    try {
+      const profileSnap = await db.collection("bioPage").doc("main").get()
+      const profile = profileSnap.exists ? profileSnap.data() : BIO_PROFILE_DEFAULTS
+      const ogTitle = escapeHtml(profile.ogTitle || profile.titulo || "SmartLoop")
+      const ogDesc = escapeHtml(profile.ogDescription || profile.descricao || "A OS que resolve. O sistema que escala. Gestão completa para assistências técnicas.")
+      const ogImage = escapeHtml(profile.ogImageUrl || profile.coverUrl || profile.logoUrl || "")
+      const canonical = "https://smartloop.com.br/bio"
+
+      const html = `<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>${ogTitle} · SmartLoop</title>
+<meta name="description" content="${ogDesc}">
+<meta name="theme-color" content="#2563eb">
+<link rel="canonical" href="${canonical}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SmartLoop">
+<meta property="og:title" content="${ogTitle}">
+<meta property="og:description" content="${ogDesc}">
+<meta property="og:url" content="${canonical}">
+<meta property="og:locale" content="pt_BR">
+${ogImage ? `<meta property="og:image" content="${ogImage}">` : ""}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${ogTitle}">
+<meta name="twitter:description" content="${ogDesc}">
+${ogImage ? `<meta name="twitter:image" content="${ogImage}">` : ""}
+<link rel="icon" href="/favicon.ico">
+</head>
+<body>
+<main style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:560px;margin:48px auto;padding:0 24px;color:#111827;">
+<h1 style="font-size:24px;margin:0 0 12px;">${ogTitle}</h1>
+<p style="font-size:16px;line-height:1.5;color:#374151;margin:0 0 24px;">${ogDesc}</p>
+${ogImage ? `<img src="${ogImage}" alt="${ogTitle}" style="max-width:100%;height:auto;border-radius:12px;margin-bottom:24px;">` : ""}
+<p style="font-size:14px;color:#6b7280;">
+<a href="${canonical}" style="color:#2563eb;text-decoration:none;font-weight:600;">Abrir página Bio do SmartLoop →</a>
+</p>
+</main>
+</body>
+</html>`
+
+      res.set("Cache-Control", "public, max-age=60, s-maxage=300")
+      res.set("Content-Type", "text/html; charset=utf-8")
+      res.status(200).send(html)
+      logger.info("[SmartLoop][bio] HTML servido para crawler", { hasImage: !!ogImage })
+    } catch (err) {
+      logger.error("[SmartLoop][bio] falha ao servir HTML", { message: err.message })
+      // Fallback gracioso: 302 para /bio mesmo sendo crawler
+      res.redirect(302, "/bio")
+    }
+  },
+)

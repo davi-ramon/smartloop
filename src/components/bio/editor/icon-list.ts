@@ -1,9 +1,12 @@
+import { BRAND_ICON_NAMES } from "../brand-icons"
+
 /**
- * Subset curado de ícones lucide disponíveis em lucide-react@1.17.
- * Evitamos os sociais (Instagram/Facebook/TikTok/WhatsApp/Twitter/Linkedin/Youtube)
- * que NÃO existem nessa versão — usamos MessageCircle/Globe/Share2/Link no lugar.
+ * Lista de ícones disponíveis para a Bio. Marcas primeiro (renderizam via
+ * BrandIcons), depois ícones genéricos do lucide-react. A busca é case-insensitive.
  */
 export const BIO_ICON_OPTIONS = [
+  ...BRAND_ICON_NAMES,
+  // Genéricos lucide (fallback)
   "Link", "Link2", "ExternalLink", "Globe", "Mail", "Phone", "MessageCircle", "Send",
   "Share2", "Home", "Store", "ShoppingBag", "ShoppingCart", "Briefcase",
   "Calendar", "Clock", "MapPin", "Camera", "Image", "Music", "Video", "Mic",

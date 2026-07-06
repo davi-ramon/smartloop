@@ -38,6 +38,10 @@ export interface BioProfile {
   primary: string
   bgStyle: BioBgStyle
   textStyle: BioTextStyle
+  // Open Graph (preview de compartilhamento em redes sociais / WhatsApp)
+  ogTitle?: string
+  ogDescription?: string
+  ogImageUrl?: string
   updatedAt?: Timestamp | null
   updatedBy?: string | null
 }

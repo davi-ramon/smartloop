@@ -5,6 +5,7 @@ import { motion } from "motion/react"
 import * as Icons from "lucide-react"
 import { ExternalLink, Link as LinkIcon, User } from "lucide-react"
 import type { BioLink, BioTextStyle } from "@/lib/data/bio"
+import { getBrandIcon } from "./brand-icons"
 import { cn } from "@/lib/utils"
 
 /**
@@ -16,6 +17,11 @@ import { cn } from "@/lib/utils"
  *   medio  → botão maior (h-14+) com título + subtítulo
  *   grande → card com imagem (1:1 ou 16:9) + overlay de título
  *
+ * Ícones:
+ *   - BrandIcons (Instagram, TikTok, etc) → renderizados dentro de wrapper
+ *     quadrado com fundo branco para preservar as cores oficiais.
+ *   - Lucide genérico → com `style color: fg` para acompanhar textStyle.
+ *
  * `onClick` é opcional: a página pública passa para abrir nova aba
  * e disparar tracking; o editor não passa (preview estático).
  */
@@ -25,9 +31,13 @@ const TEXT_COLORS: Record<BioTextStyle, string> = {
   dark: "#0f172a",
 }
 
-function pickIcon(name: string): React.ElementType {
-  const lib = Icons as unknown as Record<string, React.ElementType | undefined>
-  return lib[name] || LinkIcon
+/** Resolve o ícone: primeiro BrandIcons, depois lucide. */
+function resolveIcon(name: string | undefined): { kind: "brand" | "lucide"; Comp: React.ElementType } | null {
+  if (!name) return null
+  const brand = getBrandIcon(name)
+  if (brand) return { kind: "brand", Comp: brand as unknown as React.ElementType }
+  const lucide = (Icons as unknown as Record<string, React.ElementType | undefined>)[name] || LinkIcon
+  return { kind: "lucide", Comp: lucide }
 }
 
 export interface BioLinkRendererProps {
@@ -51,7 +61,7 @@ export function BioLinkRenderer({
   className,
 }: BioLinkRendererProps) {
   const fg = TEXT_COLORS[textStyle]
-  const Icon = link.icone ? pickIcon(link.icone) : null
+  const icon = resolveIcon(link.icone)
 
   const motionProps = {
     initial: animate ? { opacity: 0, y: 8 } : false,
@@ -64,20 +74,23 @@ export function BioLinkRenderer({
   if (link.tamanho === "grande" && link.imagemUrl) {
     return renderGrande(link, motionProps, className)
   }
-  return renderBotao(link, index, motionProps, Icon, fg, primary, onClick, className)
+  return renderBotao(link, index, motionProps, icon, fg, primary, onClick, className)
 }
 
 function renderBotao(
   link: BioLink,
   index: number,
   motionProps: React.ComponentProps<typeof motion.a>,
-  Icon: React.ElementType | null,
+  icon: ReturnType<typeof resolveIcon>,
   fg: string,
   bg: string,
   onClick: BioLinkRendererProps["onClick"],
   className: string | undefined,
 ) {
   const isMedium = link.tamanho === "medio"
+  const Icon = icon?.Comp ?? null
+  const isBrand = icon?.kind === "brand"
+
   return (
     <motion.a
       key={`${link.id}-${index}`}
@@ -86,7 +99,10 @@ function renderBotao(
       rel={onClick ? "noopener noreferrer" : undefined}
       onClick={onClick ? (e) => onClick(e, link) : undefined}
       {...motionProps}
-      className={cn("block w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] rounded-2xl", className)}
+      className={cn(
+        "block w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] rounded-2xl",
+        className,
+      )}
     >
       <div
         className={cn(
@@ -96,7 +112,24 @@ function renderBotao(
         style={{ backgroundColor: bg, color: fg, borderColor: "rgba(0,0,0,0.05)" }}
       >
         {Icon ? (
-          <Icon className={cn("shrink-0", isMedium ? "h-5 w-5" : "h-4 w-4")} style={{ color: fg }} />
+          isBrand ? (
+            // Wrapper branco/escuro para preservar contraste da cor oficial da marca
+            <span
+              className={cn(
+                "flex shrink-0 items-center justify-center rounded-md bg-white shadow-sm dark:bg-white",
+                isMedium ? "h-7 w-7" : "h-6 w-6",
+              )}
+              aria-hidden="true"
+            >
+              <Icon className={cn(isMedium ? "h-5 w-5" : "h-4 w-4")} />
+            </span>
+          ) : (
+            // Lucide genérico: herda cor de fg
+            <Icon
+              className={cn("shrink-0", isMedium ? "h-5 w-5" : "h-4 w-4")}
+              style={{ color: fg }}
+            />
+          )
         ) : isMedium ? (
           <User className="h-5 w-5 shrink-0" style={{ color: fg, opacity: 0.7 }} />
         ) : null}
@@ -124,7 +157,10 @@ function renderGrande(
       target="_blank"
       rel="noopener noreferrer"
       {...motionProps}
-      className={cn("block w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] rounded-2xl", className)}
+      className={cn(
+        "block w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] rounded-2xl",
+        className,
+      )}
     >
       <div
         className="relative w-full overflow-hidden rounded-2xl shadow-md"

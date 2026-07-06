@@ -105,7 +105,7 @@ export function BioProfileForm({ value, onChange }: BioProfileFormProps) {
           id="descricao"
           rows={3}
           placeholder="Conte em uma linha o que você oferece."
-          className="w-full resize-none rounded-md border border-[--border] bg-[--input] px-3 py-2 text-sm text-[--foreground] outline-none focus:border-[--primary]"
+          className="w-full resize-none rounded-md border border-[#e5e7eb] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-3 py-2 text-sm text-[#111827] dark:text-[#f8fafc] outline-none focus:border-[#2563eb] placeholder:text-[#9ca3af] dark:placeholder:text-[#64748b]"
           {...register("descricao")}
         />
       </Field>
