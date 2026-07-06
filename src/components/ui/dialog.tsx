@@ -8,11 +8,12 @@ import { cn } from "@/lib/utils"
 
 /**
  * Dialog (Radix wrapper) — usado no ExitPopup e BioLinkDialog.
- * Fornece overlay + content centralizado com fechamento por ESC e clique fora.
  *
- * Visual: fundo SÓLIDO branco (`bg-white dark:bg-[#0f172a]`) — não herda
- * transparência do card. Anima entrada/saída via motion (slide-up + fade).
- * Mobile: drawer inferior (subindo da base).
+ * Visual: fundo SÓLIDO branco (não herda transparência). Anima entrada/saída
+ * via motion (slide-up + fade). Mobile: drawer inferior.
+ *
+ * IMPORTANTE: não usar `forceMount` no Portal/Overlay. O overlay só é
+ * montado enquanto o dialog está aberto (Radix controla via Root.open).
  */
 
 export const Dialog = DialogPrimitive.Root
@@ -21,7 +22,7 @@ export const DialogClose = DialogPrimitive.Close
 
 const DialogPortal = DialogPrimitive.Portal
 
-/* Overlay com fade */
+/* Overlay com fade (motion, dentro do AnimatePresence no DialogContent). */
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
@@ -48,21 +49,41 @@ export interface DialogContentProps extends React.ComponentPropsWithoutRef<typeo
   drawerOnMobile?: boolean
 }
 
+/** Context interno com o estado `open` do Dialog.Root, para a animação
+ *  saber quando animar saída também. */
+const DialogOpenContext = React.createContext<boolean>(false)
+
+function useDialogOpen(): boolean {
+  return React.useContext(DialogOpenContext)
+}
+
 /**
- * DialogContent com animação. Usa `forceMount` + `AnimatePresence` controlado
- * pelo `open` do Radix Root — assim a saída (slide-down) também anima.
+ * Wrapper sobre DialogPrimitive.Root que também provê `open` via Context
+ * para os filhos (DialogContent) poderem usar AnimatePresence.
+ */
+export const DialogRoot: React.FC<React.ComponentProps<typeof Dialog>> = (props) => {
+  const open = !!props.open
+  return (
+    <DialogOpenContext.Provider value={open}>
+      <DialogPrimitive.Root {...props} />
+    </DialogOpenContext.Provider>
+  )
+}
+
+/**
+ * DialogContent com animação motion. Render condicional (só quando open=true),
+ * com AnimatePresence envolvendo pra animar saída.
  */
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
 >(({ className, children, drawerOnMobile, ...props }, ref) => {
-  // Hook que captura o estado `open` do Dialog Root (parent).
   const open = useDialogOpen()
   return (
-    <DialogPortal forceMount>
-      <DialogOverlay />
-      <AnimatePresence>
-        {open && (
+    <AnimatePresence>
+      {open && (
+        <DialogPortal>
+          <DialogOverlay />
           <DialogPrimitive.Content
             ref={ref}
             asChild
@@ -76,8 +97,6 @@ const DialogContent = React.forwardRef<
               transition={{ type: "spring", stiffness: 360, damping: 32, mass: 0.8 }}
               className={cn(
                 "fixed left-1/2 top-1/2 z-[90] w-full max-w-md -translate-x-1/2 -translate-y-1/2 gap-4 rounded-2xl border border-[--border] p-6 shadow-2xl focus:outline-none",
-                // Sólido em ambos os temas — não depende de var(--card) que pode
-                // vir translúcido por herança.
                 "bg-white text-[#111827] dark:bg-[#0f172a] dark:text-[#f8fafc]",
                 drawerOnMobile && "max-sm:left-0 max-sm:right-0 max-sm:top-auto max-sm:bottom-0 max-sm:max-w-full max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-2xl",
                 className,
@@ -92,36 +111,12 @@ const DialogContent = React.forwardRef<
               </DialogPrimitive.Close>
             </motion.div>
           </DialogPrimitive.Content>
-        )}
-      </AnimatePresence>
-    </DialogPortal>
+        </DialogPortal>
+      )}
+    </AnimatePresence>
   )
 })
 DialogContent.displayName = "DialogContent"
-
-/**
- * Hook que retorna o estado `open` do Dialog.Root pai.
- * O Radix não expõe isso diretamente — lemos do contexto injetado via
- * um wrapper Root custom. Implementação: cada `<Dialog>` precisa usar
- * `<DialogRoot open={open} onOpenChange={...}>` — passamos o `open` via
- * prop drilling. Para isso funcionar, criamos um Context interno.
- */
-const DialogOpenContext = React.createContext<boolean | null>(null)
-
-function useDialogOpen(): boolean {
-  const v = React.useContext(DialogOpenContext)
-  // Se não houver provider, renderiza direto (assume open). O Radix Root
-  // decide o que mostrar; se não houver o forceMount, o motion não roda
-  // exit, mas isso é aceitável em fallback.
-  return v ?? true
-}
-
-export const DialogRoot: React.FC<React.ComponentProps<typeof Dialog> & { open: boolean }> =
-  ({ open, ...props }) => (
-    <DialogOpenContext.Provider value={open}>
-      <Dialog open={open} {...props} />
-    </DialogOpenContext.Provider>
-  )
 
 export const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("flex flex-col gap-1 text-left", className)} {...props} />
