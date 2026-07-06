@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { DialogRoot, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { MessageCircle, ArrowRight } from "lucide-react"
 import { logger } from "@/lib/logger"
 
@@ -46,7 +46,7 @@ export function ExitPopup() {
   }
 
   return (
-    <Dialog
+    <DialogRoot
       open={open}
       onOpenChange={(v) => {
         if (!v) dismiss()
@@ -87,6 +87,6 @@ export function ExitPopup() {
           </button>
         </div>
       </DialogContent>
-    </Dialog>
+    </DialogRoot>
   )
 }

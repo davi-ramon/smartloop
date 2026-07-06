@@ -4,11 +4,14 @@ import * as React from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { motion, AnimatePresence } from "motion/react"
 import * as Icons from "lucide-react"
-import { Loader2, Search, Upload, X as XIcon, Check } from "lucide-react"
+import { motion } from "motion/react"
 import {
-  Dialog, DialogContent, DialogTitle, DialogDescription,
+  Loader2, Search, Upload, X as XIcon, Check, ChevronDown,
+} from "lucide-react"
+import * as Popover from "@radix-ui/react-popover"
+import {
+  DialogRoot, DialogContent, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -68,7 +71,6 @@ export function BioLinkDialog({ open, onOpenChange, initial, onSave }: BioLinkDi
   const icone = watch("icone")
   const imagemUrl = watch("imagemUrl")
 
-  // quando muda tamanho para grande e tem imagemUrl → ok; se tamanho muda e perde aspect ratio reset
   React.useEffect(() => {
     if (tamanho !== "grande") setValue("aspectRatio", undefined)
   }, [tamanho, setValue])
@@ -82,7 +84,7 @@ export function BioLinkDialog({ open, onOpenChange, initial, onSave }: BioLinkDi
     setUploadError(null)
     setUploading(true)
     try {
-      const url = await uploadBioAsset(file, "cover") // reusa regras do Storage para kind cover (mesma allowlist)
+      const url = await uploadBioAsset(file, "cover")
       setValue("imagemUrl", url, { shouldDirty: true, shouldValidate: true })
       if (tamanho !== "grande") setValue("tamanho", "grande", { shouldDirty: true, shouldValidate: true })
     } catch (err) {
@@ -95,21 +97,27 @@ export function BioLinkDialog({ open, onOpenChange, initial, onSave }: BioLinkDi
   }
 
   function onSubmit(data: FormData) {
-    onSave({
+    // Constrói payload omitindo campos opcionais não preenchidos — o Firestore
+    // rejeita `undefined` (Unsupported field value: undefined).
+    const payload: Omit<BioLink, "id" | "createdAt" | "updatedAt" | "ordem"> = {
       titulo: data.titulo.trim(),
-      subtitulo: data.subtitulo?.trim() || undefined,
       url: data.url.trim(),
       icone: data.icone,
       tamanho: data.tamanho,
-      aspectRatio: data.tamanho === "grande" ? (data.aspectRatio ?? "1:1") : undefined,
-      imagemUrl: data.tamanho === "grande" ? data.imagemUrl : undefined,
       ativo: initial?.ativo ?? true,
-    } as Omit<BioLink, "id" | "createdAt" | "updatedAt" | "ordem">)
+    }
+    const subt = data.subtitulo?.trim()
+    if (subt) payload.subtitulo = subt
+    if (data.tamanho === "grande") {
+      payload.aspectRatio = data.aspectRatio ?? "1:1"
+      if (data.imagemUrl) payload.imagemUrl = data.imagemUrl
+    }
+    onSave(payload)
     onOpenChange(false)
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <DialogRoot open={open} onOpenChange={onOpenChange}>
       <DialogContent drawerOnMobile className="sm:max-w-lg">
         <DialogTitle>{initial?.id ? "Editar link" : "Novo link"}</DialogTitle>
         <DialogDescription>
@@ -129,11 +137,10 @@ export function BioLinkDialog({ open, onOpenChange, initial, onSave }: BioLinkDi
             <Input id="url" placeholder="https://..." {...register("url")} />
           </FormRow>
 
-          <FormRow label="Ícone" htmlFor="icone-input" error={errors.icone?.message}>
+          <FormRow label="Ícone" htmlFor="icone-trigger" error={errors.icone?.message}>
             <IconPicker
               value={icone}
               onChange={(v) => setValue("icone", v, { shouldDirty: true, shouldValidate: true })}
-              inputId="icone-input"
             />
           </FormRow>
 
@@ -191,12 +198,12 @@ export function BioLinkDialog({ open, onOpenChange, initial, onSave }: BioLinkDi
                   </Button>
                 </div>
                 {imagemUrl && (
-                  <div className="mt-2 flex items-center gap-2 text-xs text-[--muted-foreground]">
+                  <div className="mt-2 flex items-center gap-2 text-xs text-[#6b7280]">
                     <img src={imagemUrl} alt="" className="h-12 w-20 rounded-md border border-[--border] object-cover" />
                     <button
                       type="button"
                       onClick={() => setValue("imagemUrl", "", { shouldDirty: true, shouldValidate: true })}
-                      className="flex items-center gap-1 hover:text-[--foreground]"
+                      className="flex items-center gap-1 hover:text-[#111827]"
                     >
                       <XIcon className="h-3 w-3" /> Remover
                     </button>
@@ -221,7 +228,7 @@ export function BioLinkDialog({ open, onOpenChange, initial, onSave }: BioLinkDi
           </div>
         </form>
       </DialogContent>
-    </Dialog>
+    </DialogRoot>
   )
 }
 
@@ -242,7 +249,7 @@ function FormRow({ label, htmlFor, hint, error, children }: FormRowProps) {
       {error ? (
         <p className="mt-1 text-[11px] text-[#ef4444]">{error}</p>
       ) : hint ? (
-        <p className="mt-1 text-[11px] text-[--muted-foreground]">{hint}</p>
+        <p className="mt-1 text-[11px] text-[#6b7280]">{hint}</p>
       ) : null}
     </div>
   )
@@ -255,7 +262,7 @@ interface SegmentedProps<T extends string> {
 }
 function Segmented<T extends string>({ value, options, onChange }: SegmentedProps<T>) {
   return (
-    <div className="inline-flex w-full rounded-lg border border-[--border] bg-[--card] p-1">
+    <div className="inline-flex w-full rounded-lg border border-[--border] bg-[#f9fafb] p-1">
       {options.map((o) => (
         <button
           key={o.value}
@@ -265,7 +272,7 @@ function Segmented<T extends string>({ value, options, onChange }: SegmentedProp
             "flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
             value === o.value
               ? "text-white shadow-sm"
-              : "text-[--muted-foreground] hover:text-[--foreground]",
+              : "text-[#6b7280] hover:text-[#111827]",
           )}
           style={value === o.value ? { backgroundColor: "var(--primary)" } : undefined}
         >
@@ -276,13 +283,15 @@ function Segmented<T extends string>({ value, options, onChange }: SegmentedProp
   )
 }
 
+/**
+ * IconPicker — usa Radix Popover (Portal) para o dropdown não ser cortado
+ * pelo DialogContent. Animação motion fade+slide na entrada/saída.
+ */
 interface IconPickerProps {
   value: string
   onChange: (v: string) => void
-  inputId?: string
 }
-function IconPicker({ value, onChange, inputId }: IconPickerProps) {
-  const [open, setOpen] = React.useState(false)
+function IconPicker({ value, onChange }: IconPickerProps) {
   const [query, setQuery] = React.useState("")
   const filtered = React.useMemo(
     () => BIO_ICON_OPTIONS.filter((n) => n.toLowerCase().includes(query.toLowerCase())),
@@ -290,45 +299,46 @@ function IconPicker({ value, onChange, inputId }: IconPickerProps) {
   )
   const Current = ((Icons as unknown) as Record<string, React.ElementType | undefined>)[value] || Icons.Link
 
-  // quando o componente desmonta (popover fecha), o estado se perde
-  // automaticamente. Não precisamos de useEffect para resetar query.
-
   return (
-    <div className="relative">
-      <button
-        id={inputId}
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-2 rounded-md border border-[--border] bg-[--input] px-3 py-2 text-sm text-[--foreground] hover:border-[--muted-foreground]"
-      >
-        <span className="flex items-center gap-2">
-          <Current className="h-4 w-4" />
-          {value}
-        </span>
-        <span className="text-[10px] text-[--muted-foreground]">trocar</span>
-      </button>
-      <AnimatePresence>
-        {open && (
+    <Popover.Root onOpenChange={(o) => { if (!o) setQuery("") }}>
+      <Popover.Trigger asChild>
+        <button
+          id="icone-trigger"
+          type="button"
+          className="flex w-full items-center justify-between gap-2 rounded-md border border-[--border] bg-[#f9fafb] px-3 py-2 text-sm text-[#111827] hover:border-[#9ca3af] dark:bg-[#1e293b] dark:text-[#f8fafc]"
+        >
+          <span className="flex items-center gap-2">
+            <Current className="h-4 w-4" />
+            {value}
+          </span>
+          <ChevronDown className="h-3.5 w-3.5 text-[#6b7280]" />
+        </button>
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content
+          align="start"
+          sideOffset={4}
+          className="z-[100] w-[var(--radix-popover-trigger-width)] rounded-md border border-[--border] bg-white shadow-xl focus:outline-none dark:bg-[#0f172a]"
+          onOpenAutoFocus={(e) => { e.preventDefault(); /* mantém o input focado no form */ }}
+        >
           <motion.div
-            initial={{ opacity: 0, y: -4 }}
+            initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.15 }}
-            className="absolute left-0 right-0 z-50 mt-1 max-h-64 overflow-hidden rounded-md border border-[--border] bg-[--card] shadow-xl"
+            transition={{ duration: 0.14 }}
           >
             <div className="flex items-center gap-2 border-b border-[--border] px-3 py-2">
-              <Search className="h-3.5 w-3.5 text-[--muted-foreground]" />
+              <Search className="h-3.5 w-3.5 text-[#6b7280]" />
               <input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Buscar ícone..."
-                className="w-full bg-transparent text-sm text-[--foreground] outline-none placeholder:text-[--muted-foreground]"
+                className="w-full bg-transparent text-sm text-[#111827] outline-none placeholder:text-[#9ca3af] dark:text-[#f8fafc]"
               />
             </div>
-            <ul className="max-h-52 overflow-y-auto py-1">
+            <ul className="max-h-56 overflow-y-auto py-1">
               {filtered.length === 0 ? (
-                <li className="px-3 py-2 text-xs text-[--muted-foreground]">Nenhum ícone encontrado.</li>
+                <li className="px-3 py-2 text-xs text-[#6b7280]">Nenhum ícone encontrado.</li>
               ) : filtered.map((name) => {
                 const Ico = ((Icons as unknown) as Record<string, React.ElementType | undefined>)[name] || Icons.Link
                 const active = name === value
@@ -336,10 +346,10 @@ function IconPicker({ value, onChange, inputId }: IconPickerProps) {
                   <li key={name}>
                     <button
                       type="button"
-                      onClick={() => { onChange(name); setOpen(false) }}
+                      onClick={() => onChange(name)}
                       className={cn(
                         "flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-xs",
-                        active ? "bg-[--primary]/10 text-[--primary]" : "text-[--foreground] hover:bg-[--muted]",
+                        active ? "bg-[#eff6ff] text-[#1d4ed8]" : "text-[#111827] hover:bg-[#f3f4f6] dark:text-[#f8fafc] dark:hover:bg-[#1e293b]",
                       )}
                     >
                       <span className="flex items-center gap-2">
@@ -352,8 +362,8 @@ function IconPicker({ value, onChange, inputId }: IconPickerProps) {
               })}
             </ul>
           </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
   )
 }

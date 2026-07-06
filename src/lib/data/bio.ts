@@ -121,15 +121,29 @@ export function watchBioPage(
 
 export type NewBioLink = Omit<BioLink, "id" | "createdAt" | "updatedAt" | "ordem">
 
+/**
+ * Remove chaves com `undefined` de um objeto. Necessário porque o Firestore
+ * rejeita `undefined` em addDoc/updateDoc ("Unsupported field value: undefined").
+ * Mantém o tipo estrutural via spread.
+ */
+function purgeUndefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
+  const out: Partial<T> = {}
+  for (const k of Object.keys(obj) as Array<keyof T>) {
+    if (obj[k] !== undefined) out[k] = obj[k]
+  }
+  return out
+}
+
 export async function createBioLink(data: NewBioLink): Promise<string> {
   // Ordem: usamos Date.now() como tiebreaker (próximo link sempre maior que
   // os atuais; admin é único, conflitos raríssimos; reorder final no saveBioPage).
   const ordem = Date.now()
-  logger.info("bio", "criando link", { titulo: data.titulo, ordem })
+  const safeData = purgeUndefined({ ...data })
+  logger.info("bio", "criando link", { titulo: safeData.titulo, ordem, fields: Object.keys(safeData) })
   try {
     const ref = await addDoc(collection(db, LINKS_COL), {
-      ...data,
-      ativo: data.ativo ?? true,
+      ...safeData,
+      ativo: safeData.ativo ?? true,
       ordem,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -137,21 +151,22 @@ export async function createBioLink(data: NewBioLink): Promise<string> {
     logger.success("bio", "link criado", { id: ref.id })
     return ref.id
   } catch (err) {
-    logger.error("bio", "falha ao criar link", err)
+    logger.error("bio", "falha ao criar link", { err: serializeError(err), sentFields: Object.keys(safeData) })
     throw err
   }
 }
 
 export async function updateBioLink(id: string, patch: Partial<BioLink>): Promise<void> {
-  logger.info("bio", "atualizando link", { id })
+  const safePatch = purgeUndefined({ ...patch })
+  logger.info("bio", "atualizando link", { id, fields: Object.keys(safePatch) })
   try {
     await updateDoc(doc(db, LINKS_COL, id), {
-      ...patch,
+      ...safePatch,
       updatedAt: serverTimestamp(),
     })
     logger.success("bio", "link atualizado", { id })
   } catch (err) {
-    logger.error("bio", "falha ao atualizar link", err)
+    logger.error("bio", "falha ao atualizar link", { id, err: serializeError(err), sentFields: Object.keys(safePatch) })
     throw err
   }
 }
@@ -186,18 +201,27 @@ export async function reorderBioLinks(orderedIds: string[]): Promise<void> {
 }
 
 export async function updateBioProfile(patch: Partial<BioProfile>, updatedBy?: string): Promise<void> {
-  logger.info("bio", "atualizando perfil", { keys: Object.keys(patch) })
+  const safePatch = purgeUndefined({ ...patch })
+  logger.info("bio", "atualizando perfil", { fields: Object.keys(safePatch) })
   try {
     await setDoc(
       doc(db, PROFILE_DOC),
-      { ...patch, ...(updatedBy ? { updatedBy } : {}), updatedAt: serverTimestamp() },
+      { ...safePatch, ...(updatedBy ? { updatedBy } : {}), updatedAt: serverTimestamp() },
       { merge: true },
     )
     logger.success("bio", "perfil atualizado")
   } catch (err) {
-    logger.error("bio", "falha ao atualizar perfil", err)
+    logger.error("bio", "falha ao atualizar perfil", { err: serializeError(err), sentFields: Object.keys(safePatch) })
     throw err
   }
+}
+
+/** Serializa Error para algo legível em logs (evita [object Object]). */
+function serializeError(err: unknown) {
+  if (err instanceof Error) {
+    return { name: err.name, message: err.message, code: (err as Error & { code?: string }).code ?? null }
+  }
+  return { raw: String(err) }
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -224,10 +248,13 @@ export async function uploadBioAsset(file: File, kind: BioAssetKind): Promise<st
 
 /* ─────────────────────────────────────────────────────────────
    Save atômico — usado pelo editor.
-   Reconcilia links (diff entre `currentLinks` e `nextLinks`):
-   - novos (id temporário) → createBioLink
-   - existentes (id real) → updateBioLink (somente se patch != current)
-   - removidos → deleteBioLink
+   Reconcilia links (diff entre `currentLinks` e `nextLinks`).
+   Ordem das etapas (sequencial, não paralelo):
+     1. Deletar links removidos
+     2. Criar links novos (gera IDs reais; mapeia tmpId → realId)
+     3. Atualizar links existentes que mudaram (somente após todos os creates ok)
+     4. Reordenar SOMENTE com IDs reais (Firestore, não tmp_*)
+   Em caso de falha em qualquer etapa, aborta e devolve erro legível.
 ───────────────────────────────────────────────────────────── */
 
 export async function saveBioPage(
@@ -237,45 +264,80 @@ export async function saveBioPage(
 ): Promise<void> {
   logger.info("bio", "publicando", {
     links: next.links.length,
-    profileKeys: Object.keys(next.profile),
+    currentLinks: current.links.length,
   })
 
-  const tasks: Promise<unknown>[] = []
-
-  // Profile — setDoc merge (campos idênticos são no-op no Firestore, mas barato).
-  tasks.push(updateBioProfile(next.profile, updatedBy))
+  // 1. Profile (independente dos links — pode rodar em paralelo com delete)
+  await updateBioProfile(next.profile, updatedBy)
 
   const currentById = new Map(current.links.map((l) => [l.id, l]))
   const nextById = new Map(next.links.map((l) => [l.id, l]))
 
-  // Removidos
-  for (const id of currentById.keys()) {
-    if (!nextById.has(id)) tasks.push(deleteBioLink(id))
-  }
-
-  // Criados / atualizados
-  for (const link of next.links) {
-    const prev = currentById.get(link.id)
-    if (!prev) {
-      // novo — sem o campo `id`/timestamps/ordem (o createBioLink gera)
-      const { id, createdAt, updatedAt, ordem, ...payload } = link
-      void id; void createdAt; void updatedAt; void ordem
-      tasks.push(createBioLink(payload as NewBioLink))
-    } else if (JSON.stringify(prev) !== JSON.stringify(link)) {
-      const { id, createdAt, updatedAt, ...payload } = link
-      void id; void createdAt; void updatedAt
-      tasks.push(updateBioLink(link.id, payload))
+  // 2. Deletar links removidos
+  const removedIds = [...currentById.keys()].filter((id) => !nextById.has(id))
+  if (removedIds.length > 0) {
+    logger.info("bio", "removendo links", { ids: removedIds })
+    for (const id of removedIds) {
+      try { await deleteBioLink(id) }
+      catch (err) {
+        logger.error("bio", "falha ao deletar link", { id, err: serializeError(err) })
+        throw new Error(`Falha ao remover link ${id}: ${err instanceof Error ? err.message : String(err)}`)
+      }
     }
   }
 
-  // Reordenar — sempre regrava ordem = idx+1, mais simples que diff.
-  tasks.push(reorderBioLinks(next.links.map((l) => l.id)))
-
-  try {
-    await Promise.all(tasks)
-    logger.success("bio", "publicada", { changes: tasks.length })
-  } catch (err) {
-    logger.error("bio", "falha ao publicar", err)
-    throw err
+  // 3. Criar links novos (sequencial pra capturar IDs reais)
+  const idMap = new Map<string, string>() // tmpId → realId
+  for (const link of next.links) {
+    if (currentById.has(link.id)) continue // não é novo
+    const { id: _tmp, createdAt, updatedAt, ordem, ...raw } = link
+    void createdAt; void updatedAt; void ordem
+    const payload = purgeUndefined(raw) as NewBioLink
+    try {
+      const realId = await createBioLink(payload)
+      idMap.set(link.id, realId)
+      logger.info("bio", "novo link criado", { tmpId: link.id, realId })
+    } catch (err) {
+      logger.error("bio", "falha ao criar link — abortando publicação", {
+        tmpId: link.id,
+        titulo: link.titulo,
+        err: serializeError(err),
+        sentFields: Object.keys(payload),
+      })
+      throw new Error(`Falha ao criar link "${link.titulo}": ${err instanceof Error ? err.message : String(err)}`)
+    }
   }
+
+  // 4. Atualizar links existentes (somente após todos os creates ok)
+  for (const link of next.links) {
+    const prev = currentById.get(link.id)
+    if (!prev) continue // novo, já tratado
+    if (JSON.stringify(prev) === JSON.stringify(link)) continue // sem mudança
+    const { id: _id, createdAt, updatedAt, ...raw } = link
+    void createdAt; void updatedAt
+    const patch = purgeUndefined(raw) as Partial<BioLink>
+    try {
+      await updateBioLink(link.id, patch)
+    } catch (err) {
+      logger.error("bio", "falha ao atualizar link", {
+        id: link.id,
+        titulo: link.titulo,
+        err: serializeError(err),
+        sentFields: Object.keys(patch),
+      })
+      throw new Error(`Falha ao atualizar link "${link.titulo}": ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
+  // 5. Reordenar — APENAS IDs reais (Firestore rejeita tmp_*).
+  //    Substitui tmp_ por realId usando o mapa criado acima.
+  const realIds = next.links.map((l) => idMap.get(l.id) ?? l.id)
+  await reorderBioLinks(realIds)
+
+  logger.success("bio", "publicada", {
+    criados: idMap.size,
+    atualizados: next.links.filter((l) => currentById.has(l.id) && JSON.stringify(currentById.get(l.id)) !== JSON.stringify(l)).length,
+    removidos: removedIds.length,
+    reordenados: realIds.length,
+  })
 }
