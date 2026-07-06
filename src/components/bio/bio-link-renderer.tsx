@@ -1,0 +1,155 @@
+"use client"
+
+import * as React from "react"
+import { motion } from "motion/react"
+import * as Icons from "lucide-react"
+import { ExternalLink, Link as LinkIcon, User } from "lucide-react"
+import type { BioLink, BioTextStyle } from "@/lib/data/bio"
+import { cn } from "@/lib/utils"
+
+/**
+ * Renderizador único de link da página /bio. Usado pela página pública
+ * e pelo preview do editor — mesma JSX garante mesma aparência.
+ *
+ * Tamanhos:
+ *   curto  → botão compacto (h-11), ícone opcional + título
+ *   medio  → botão maior (h-14+) com título + subtítulo
+ *   grande → card com imagem (1:1 ou 16:9) + overlay de título
+ *
+ * `onClick` é opcional: a página pública passa para abrir nova aba
+ * e disparar tracking; o editor não passa (preview estático).
+ */
+
+const TEXT_COLORS: Record<BioTextStyle, string> = {
+  light: "#ffffff",
+  dark: "#0f172a",
+}
+
+function pickIcon(name: string): React.ElementType {
+  const lib = Icons as unknown as Record<string, React.ElementType | undefined>
+  return lib[name] || LinkIcon
+}
+
+export interface BioLinkRendererProps {
+  link: BioLink
+  index: number
+  onClick?: (e: React.MouseEvent, link: BioLink) => void
+  primary: string
+  textStyle: BioTextStyle
+  /** Desligar animação de entrada (default: ligada). */
+  animate?: boolean
+  className?: string
+}
+
+export function BioLinkRenderer({
+  link,
+  index,
+  onClick,
+  primary,
+  textStyle,
+  animate = true,
+  className,
+}: BioLinkRendererProps) {
+  const fg = TEXT_COLORS[textStyle]
+  const Icon = link.icone ? pickIcon(link.icone) : null
+
+  const motionProps = {
+    initial: animate ? { opacity: 0, y: 8 } : false,
+    animate: animate ? { opacity: 1, y: 0 } : false,
+    transition: animate ? { delay: index * 0.06, duration: 0.3, ease: "easeOut" as const } : undefined,
+    whileHover: onClick ? { y: -2, scale: 1.02 } : undefined,
+    whileTap: onClick ? { scale: 0.98 } : undefined,
+  } as React.ComponentProps<typeof motion.a>
+
+  if (link.tamanho === "grande" && link.imagemUrl) {
+    return renderGrande(link, motionProps, className)
+  }
+  return renderBotao(link, index, motionProps, Icon, fg, primary, onClick, className)
+}
+
+function renderBotao(
+  link: BioLink,
+  index: number,
+  motionProps: React.ComponentProps<typeof motion.a>,
+  Icon: React.ElementType | null,
+  fg: string,
+  bg: string,
+  onClick: BioLinkRendererProps["onClick"],
+  className: string | undefined,
+) {
+  const isMedium = link.tamanho === "medio"
+  return (
+    <motion.a
+      key={`${link.id}-${index}`}
+      href={link.url}
+      target={onClick ? "_blank" : undefined}
+      rel={onClick ? "noopener noreferrer" : undefined}
+      onClick={onClick ? (e) => onClick(e, link) : undefined}
+      {...motionProps}
+      className={cn("block w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] rounded-2xl", className)}
+    >
+      <div
+        className={cn(
+          "flex w-full items-center gap-3 rounded-2xl border shadow-md transition-shadow hover:shadow-lg",
+          isMedium ? "min-h-[56px] px-4 py-2.5" : "h-11 px-3.5",
+        )}
+        style={{ backgroundColor: bg, color: fg, borderColor: "rgba(0,0,0,0.05)" }}
+      >
+        {Icon ? (
+          <Icon className={cn("shrink-0", isMedium ? "h-5 w-5" : "h-4 w-4")} style={{ color: fg }} />
+        ) : isMedium ? (
+          <User className="h-5 w-5 shrink-0" style={{ color: fg, opacity: 0.7 }} />
+        ) : null}
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-medium">{link.titulo}</div>
+          {isMedium && link.subtitulo && (
+            <div className="truncate text-xs opacity-80">{link.subtitulo}</div>
+          )}
+        </div>
+        {onClick && <ExternalLink className="h-3.5 w-3.5 shrink-0 opacity-70" style={{ color: fg }} />}
+      </div>
+    </motion.a>
+  )
+}
+
+function renderGrande(
+  link: BioLink,
+  motionProps: React.ComponentProps<typeof motion.a>,
+  className: string | undefined,
+) {
+  const aspect = link.aspectRatio === "16:9" ? "16 / 9" : "1 / 1"
+  return (
+    <motion.a
+      href={link.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      {...motionProps}
+      className={cn("block w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[--primary] rounded-2xl", className)}
+    >
+      <div
+        className="relative w-full overflow-hidden rounded-2xl shadow-md"
+        style={{ aspectRatio: aspect, backgroundColor: link.imagemUrl ? "transparent" : "var(--muted)" }}
+      >
+        {link.imagemUrl ? (
+          <img src={link.imagemUrl} alt={link.titulo} className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-xs text-[--muted-foreground]">
+            {link.titulo}
+          </div>
+        )}
+        <div
+          className="absolute inset-x-0 bottom-0 px-4 py-3 text-sm font-semibold"
+          style={{
+            background: "linear-gradient(180deg, transparent, rgba(0,0,0,0.6))",
+            color: "#fff",
+          }}
+        >
+          <span className="line-clamp-2">{link.titulo}</span>
+          {link.subtitulo && (
+            <span className="mt-0.5 block text-xs font-normal opacity-90 line-clamp-1">{link.subtitulo}</span>
+          )}
+        </div>
+      </div>
+    </motion.a>
+  )
+}

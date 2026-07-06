@@ -27,5 +27,17 @@ service firebase.storage {
                         "ads.deyvid@gmail.com", "deyvid.win7@gmail.com", "pvrgeral@gmail.com"
                       ]);
     }
+
+    // Assets do Bio público (logo + cover). Leitura pública, escrita só admin,
+    // imagem até 5MB. Paths: bio/logo/<file>, bio/cover/<file>.
+    match /bio/{kind}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.auth.token.email in [
+                     "ads.deyvid@gmail.com", "deyvid.win7@gmail.com", "pvrgeral@gmail.com",
+                   ]
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
   }
 }

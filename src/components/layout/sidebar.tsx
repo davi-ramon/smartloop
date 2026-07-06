@@ -22,6 +22,8 @@ import {
   ChevronRight,
   LogOut,
   Bug,
+  LayoutGrid,
+  Globe,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useSidebarStore } from "@/store/sidebar"
@@ -252,6 +254,8 @@ export function Sidebar() {
                 )}
               </AnimatePresence>
               <div className="space-y-0.5">
+                <NavItem label="Painel" href="/admin" icon={LayoutGrid} isActive={isActive("/admin", true)} isExpanded={isExpanded} />
+                <NavItem label="Bio" href="/admin/bio" icon={Globe} isActive={isActive("/admin/bio")} isExpanded={isExpanded} />
                 <NavItem label="Relatos (beta)" href="/relatorios-bugs" icon={Bug} isActive={isActive("/relatorios-bugs")} isExpanded={isExpanded} />
               </div>
             </div>

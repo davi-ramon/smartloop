@@ -54,5 +54,24 @@ service cloud.firestore {
         allow read, write: if isOwner(tenantId);
       }
     }
+
+    // Bio público (link-in-bio do SmartLoop).
+    // Config + links: leitura pública (visitantes não autenticados), escrita só admin.
+    match /bioPage/{doc=**} {
+      allow read: if true;
+      allow write: if isBugAdmin();
+    }
+
+    // Eventos da Bio (view/click/redirect). Client writes bloqueados —
+    // apenas a Cloud Function recordBioEvent grava (Admin SDK bypassa rules).
+    match /bioEvents/{eventId} {
+      allow read, write: if false;
+    }
+
+    // Agregados diários da Bio (lidos pelo painel admin).
+    match /bioStats/{doc=**} {
+      allow read: if isBugAdmin();
+      allow write: if false;
+    }
   }
 }

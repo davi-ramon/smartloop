@@ -838,3 +838,304 @@ exports.onBugReportCreated = onDocumentCreated(
     }
   },
 )
+
+/* ─────────────────────────────────────────────────────────────
+   Bio público (link-in-bio do SmartLoop)
+   - getBioPage: leitura pública da config + links (defaults se vazio).
+   - recordBioEvent: grava evento com rate-limit por IP.
+   - onBioEventCreated: trigger que mantém agregado diário (bioStats/daily/{date}).
+   - getBioStats: painel admin lê agregado + conta visitors distintos (cap 5000).
+───────────────────────────────────────────────────────────── */
+
+const BIO_PROFILE_DEFAULTS = {
+  titulo: "SmartLoop",
+  descricao: "",
+  logoUrl: "",
+  coverUrl: "",
+  rodape: "smartloop.com.br",
+  primary: "#2563eb",
+  bgStyle: "gradient",
+  textStyle: "dark",
+}
+
+const BIO_EVENT_TTL_MS = 60 * 1000
+const BIO_EVENT_MAX_PER_IP = 60
+// Rate-limit por IP em memória. Cada instância tem o seu bucket — em pico,
+// o limite vira (cap/instâncias) por IP. Aceitável para MVP.
+const bioRateBucket = new Map()
+
+function bioRateAllow(ip) {
+  const now = Date.now()
+  const arr = bioRateBucket.get(ip) || []
+  const fresh = arr.filter((t) => now - t < BIO_EVENT_TTL_MS)
+  if (fresh.length >= BIO_EVENT_MAX_PER_IP) {
+    bioRateBucket.set(ip, fresh)
+    return false
+  }
+  fresh.push(now)
+  bioRateBucket.set(ip, fresh)
+  return true
+}
+
+function getClientIp(request) {
+  const xff = request.rawRequest?.headers?.["x-forwarded-for"]
+  const ip = request.rawRequest?.ip
+  const raw = ip || (typeof xff === "string" ? xff.split(",")[0].trim() : "unknown")
+  return String(raw).slice(0, 64)
+}
+
+function parseUtms(payload) {
+  if (!payload || typeof payload !== "object") return null
+  const keys = ["source", "medium", "campaign", "content", "term"]
+  const out = {}
+  let any = false
+  for (const k of keys) {
+    const v = payload[k]
+    if (typeof v === "string" && v.length) {
+      out[k] = v.slice(0, 120)
+      any = true
+    }
+  }
+  return any ? out : null
+}
+
+function ymd(date) {
+  const d = new Date(date)
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`
+}
+
+exports.getBioPage = onCall({ region: REGION }, async () => {
+  logger.info("[SmartLoop][bio] leitura pública")
+  try {
+    const profileSnap = await db.collection("bioPage").doc("main").get()
+    const linksSnap = await db
+      .collection("bioPage").doc("main").collection("links")
+      .orderBy("ordem", "asc")
+      .get()
+    const profile = profileSnap.exists
+      ? { id: "main", ...profileSnap.data() }
+      : { id: "main", ...BIO_PROFILE_DEFAULTS }
+    const links = linksSnap.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .filter((l) => l.ativo !== false)
+    return { profile, links }
+  } catch (err) {
+    logger.error("[SmartLoop][bio] falha ao ler página", { message: err.message })
+    throw new HttpsError("internal", "Não foi possível carregar a página.")
+  }
+})
+
+exports.recordBioEvent = onCall({ region: REGION }, async (request) => {
+  const data = request.data || {}
+  const type = String(data.type || "")
+  const allowed = ["view", "click", "redirect", "viewContent"]
+  if (!allowed.includes(type)) {
+    throw new HttpsError("invalid-argument", "Tipo de evento inválido.")
+  }
+  if ((type === "click" || type === "viewContent") && !data.linkId) {
+    throw new HttpsError("invalid-argument", "linkId obrigatório para este tipo.")
+  }
+
+  const ip = getClientIp(request)
+  if (!bioRateAllow(ip)) {
+    logger.warn("[SmartLoop][bio] rate-limit excedido", { ip, type })
+    throw new HttpsError("resource-exhausted", "Limite de eventos atingido.")
+  }
+
+  const headers = request.rawRequest?.headers || {}
+  const referer = String(headers["referer"] || headers["referrer"] || "").slice(0, 1024)
+  const ua = String(headers["user-agent"] || "").slice(0, 256)
+  let referrerHost = ""
+  if (referer) {
+    try { referrerHost = new URL(referer).host } catch { /* ignora */ }
+  }
+  if (!referrerHost) referrerHost = "(direct)"
+
+  const ev = {
+    type,
+    linkId: data.linkId ? String(data.linkId).slice(0, 64) : null,
+    url: data.url ? String(data.url).slice(0, 1024) : null,
+    path: String(data.path || "/bio").slice(0, 256),
+    ts: admin.firestore.FieldValue.serverTimestamp(),
+    ip, ua, referer, referrerHost,
+    utms: parseUtms(data.utms),
+  }
+
+  try {
+    const ref = await db.collection("bioEvents").add(ev)
+    logger.info("[SmartLoop][bio] evento registrado", { id: ref.id, type, ip, linkId: ev.linkId })
+    return { ok: true }
+  } catch (err) {
+    logger.error("[SmartLoop][bio] falha ao registrar evento", { message: err.message })
+    throw new HttpsError("internal", "Falha ao registrar evento.")
+  }
+})
+
+exports.onBioEventCreated = onDocumentCreated(
+  { document: "bioEvents/{id}", region: REGION },
+  async (event) => {
+    const d = event.data?.data()
+    if (!d) return
+    const ms = d.ts?.toMillis ? d.ts.toMillis() : Date.now()
+    const dateKey = ymd(ms)
+    const ref = db.collection("bioStats").doc("daily").collection(dateKey).doc(dateKey)
+    const base = { date: dateKey, updatedAt: admin.firestore.FieldValue.serverTimestamp() }
+    const inc = {
+      views: admin.firestore.FieldValue.increment(d.type === "view" ? 1 : 0),
+      clicks: admin.firestore.FieldValue.increment(d.type === "click" ? 1 : 0),
+    }
+    try {
+      await ref.set(base, { merge: true })
+      await ref.set(inc, { merge: true })
+      if (d.type === "click" && d.linkId) {
+        await ref.set(
+          { clicksByLink: { [d.linkId]: admin.firestore.FieldValue.increment(1) } },
+          { merge: true },
+        )
+      }
+      if (d.referrerHost) {
+        await ref.set(
+          { sources: { [d.referrerHost]: admin.firestore.FieldValue.increment(1) } },
+          { merge: true },
+        )
+      }
+      if (d.utms?.campaign) {
+        await ref.set(
+          { campaigns: { [d.utms.campaign]: admin.firestore.FieldValue.increment(1) } },
+          { merge: true },
+        )
+      }
+      logger.info("[SmartLoop][bio] agregado atualizado", { date: dateKey, type: d.type })
+    } catch (err) {
+      logger.error("[SmartLoop][bio] falha agregando evento", { message: err.message })
+    }
+  },
+)
+
+/* Cache em memória para getBioStats (TTL 60s). Reduz custo em cliques
+   repetidos do painel admin — não é persistido (reinício da função limpa). */
+const bioStatsCache = new Map() // days -> { ts, payload }
+const BIO_STATS_CACHE_TTL_MS = 60 * 1000
+
+exports.getBioStats = onCall({ region: REGION }, async (request) => {
+  const email = String(request.auth?.token?.email || "").toLowerCase()
+  const ADMIN_EMAILS_LIST = ["ads.deyvid@gmail.com", "deyvid.win7@gmail.com", "pvrgeral@gmail.com"]
+  if (!ADMIN_EMAILS_LIST.includes(email)) {
+    throw new HttpsError("permission-denied", "Acesso restrito.")
+  }
+  const days = Math.min(Math.max(Number(request.data?.days) || 30, 1), 90)
+
+  const cached = bioStatsCache.get(days)
+  if (cached && Date.now() - cached.ts < BIO_STATS_CACHE_TTL_MS) {
+    logger.info("[SmartLoop][bio] stats cache hit", { email, days })
+    return cached.payload
+  }
+  logger.info("[SmartLoop][bio] leitura de stats", { email, days })
+
+  const dailyCol = db.collection("bioStats").doc("daily").collection("daily")
+  const today = new Date()
+  const dailyDocs = []
+  for (let i = 0; i < days; i++) {
+    const d = new Date(today)
+    d.setUTCDate(d.getUTCDate() - i)
+    const snap = await dailyCol.doc(ymd(d)).get()
+    if (snap.exists) dailyDocs.push(snap.data())
+  }
+
+  let views = 0
+  let clicks = 0
+  const linkClicks = {}
+  const sources = {}
+  const campaigns = {}
+  for (const d of dailyDocs) {
+    views += d.views || 0
+    clicks += d.clicks || 0
+    for (const [k, v] of Object.entries(d.clicksByLink || {})) {
+      linkClicks[k] = (linkClicks[k] || 0) + v
+    }
+    for (const [k, v] of Object.entries(d.sources || {})) {
+      sources[k] = (sources[k] || 0) + v
+    }
+    for (const [k, v] of Object.entries(d.campaigns || {})) {
+      campaigns[k] = (campaigns[k] || 0) + v
+    }
+  }
+  const ctr = views > 0 ? clicks / views : 0
+
+  const since = new Date(today)
+  since.setUTCDate(since.getUTCDate() - days)
+  const evSnap = await db.collection("bioEvents")
+    .where("ts", ">=", admin.firestore.Timestamp.fromDate(since))
+    .orderBy("ts", "desc")
+    .limit(5000)
+    .get()
+  const visitors = new Set()
+  for (const ed of evSnap.docs) {
+    const v = ed.data()
+    visitors.add(`${v.ip}::${String(v.ua || "").slice(0, 64)}`)
+  }
+  const capped = evSnap.size === 5000
+  if (capped) logger.warn("[SmartLoop][bio] getBioStats atingiu cap 5000", { days })
+
+  const payload = {
+    views,
+    clicks,
+    visitors: visitors.size,
+    ctr,
+    clicksByLink: linkClicks,
+    topSources: Object.entries(sources).sort((a, b) => b[1] - a[1]).slice(0, 10),
+    topCampaigns: Object.entries(campaigns).sort((a, b) => b[1] - a[1]).slice(0, 10),
+    cappedEvents: capped,
+    days,
+  }
+  bioStatsCache.set(days, { ts: Date.now(), payload })
+  return payload
+})
+
+/* ─────────────────────────────────────────────────────────────
+   Admin geral — estatísticas agregadas de assinantes.
+   Leitura restrita à allowlist (mesma do repositório de bugs).
+───────────────────────────────────────────────────────────── */
+
+const ADMIN_EMAILS_FN = ["ads.deyvid@gmail.com", "deyvid.win7@gmail.com", "pvrgeral@gmail.com"]
+function isAdminEmail(email) {
+  return ADMIN_EMAILS_FN.includes(String(email || "").toLowerCase())
+}
+
+exports.getAdminSubscriptionStats = onCall({ region: REGION }, async (request) => {
+  const email = String(request.auth?.token?.email || "")
+  if (!isAdminEmail(email)) {
+    throw new HttpsError("permission-denied", "Acesso restrito.")
+  }
+  logger.info("[SmartLoop][admin] leitura de stats de assinatura", { email })
+
+  const snap = await db.collection("tenants").get()
+  const now = Date.now()
+  const sevenDays = now - 7 * 86_400_000
+  const thirtyDays = now - 30 * 86_400_000
+  let active = 0, trialing = 0, past_due = 0, canceled = 0, unpaid = 0, incomplete = 0
+  let newLast7 = 0, newLast30 = 0, churnLast30 = 0
+  const total = snap.size
+
+  for (const d of snap.docs) {
+    const t = d.data() || {}
+    const status = t.subscriptionStatus || "none"
+    if (status === "active") active++
+    else if (status === "trialing") trialing++
+    else if (status === "past_due") past_due++
+    else if (status === "canceled") canceled++
+    else if (status === "unpaid") unpaid++
+    else if (status === "incomplete") incomplete++
+    const created = t.createdAt?.toMillis ? t.createdAt.toMillis() : 0
+    if (created >= sevenDays) newLast7++
+    if (created >= thirtyDays) newLast30++
+    const canceledAt = t.canceledAt?.toMillis ? t.canceledAt.toMillis() : 0
+    if (canceledAt >= thirtyDays) churnLast30++
+  }
+
+  return {
+    totalTenants: total,
+    active, trialing, past_due, canceled, unpaid, incomplete,
+    newLast7, newLast30, churnLast30,
+  }
+})
