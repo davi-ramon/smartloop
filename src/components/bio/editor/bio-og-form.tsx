@@ -85,7 +85,7 @@ export function BioOgForm({ value, onChange }: BioOgFormProps) {
 
   return (
     <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
-      <div className="rounded-lg border border-[#e5e7eb] bg-[#f9fafb] p-3 text-xs text-[#6b7280] dark:border-[#334155] dark:bg-[#0f172a] dark:text-[#94a3b8]">
+      <div className="rounded-lg border border-[#e5e7eb] bg-white p-3 text-xs text-[#6b7280] dark:border-[#334155] dark:bg-[#0f172a] dark:text-[#94a3b8]">
         <p className="font-medium text-[#111827] dark:text-[#f8fafc]">Como funciona</p>
         <p className="mt-1">
           Quando alguém compartilha <code className="rounded bg-white px-1 py-0.5 text-[#111827] dark:bg-[#1e293b] dark:text-[#f8fafc]">smartloop.com.br/bio</code> no
@@ -156,7 +156,7 @@ export function BioOgForm({ value, onChange }: BioOgFormProps) {
         {previewImage && (
           <div className="mt-3 overflow-hidden rounded-lg border border-[#e5e7eb] dark:border-[#334155]">
             <img src={previewImage} alt="Pré-visualização" className="h-40 w-full object-cover" />
-            <div className="flex items-center justify-between bg-[#f9fafb] px-3 py-2 text-[11px] dark:bg-[#0f172a]">
+            <div className="flex items-center justify-between bg-white px-3 py-2 text-[11px] dark:bg-[#0f172a]">
               <span className="truncate text-[#6b7280] dark:text-[#94a3b8]">{previewImage.slice(0, 60)}…</span>
               {watch("ogImageUrl") && (
                 <button

@@ -275,7 +275,7 @@ interface SegmentedProps<T extends string> {
 }
 function Segmented<T extends string>({ value, options, onChange }: SegmentedProps<T>) {
   return (
-    <div className="inline-flex w-full rounded-lg border border-[#e5e7eb] dark:border-[#334155] bg-[#f9fafb] dark:bg-[#0f172a] p-1">
+    <div className="inline-flex w-full rounded-lg border border-[#e5e7eb] dark:border-[#334155] bg-white dark:bg-[#0f172a] p-1">
       {options.map((o) => (
         <button
           key={o.value}
@@ -318,7 +318,7 @@ function IconPicker({ value, onChange }: IconPickerProps) {
         <button
           id="icone-trigger"
           type="button"
-          className="flex w-full items-center justify-between gap-2 rounded-md border border-[#e5e7eb] dark:border-[#334155] bg-[#f9fafb] dark:bg-[#1e293b] px-3 py-2 text-sm text-[#111827] dark:text-[#f8fafc] hover:border-[#9ca3af] dark:hover:border-[#475569]"
+          className="flex w-full items-center justify-between gap-2 rounded-md border border-[#e5e7eb] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-3 py-2 text-sm text-[#111827] dark:text-[#f8fafc] hover:border-[#9ca3af] dark:hover:border-[#475569]"
         >
           <span className="flex items-center gap-2">
             <Current className="h-4 w-4" />
@@ -472,7 +472,7 @@ function CustomIconField({
         </div>
       </FormRow>
       {previewUrl && !broken && (
-        <div className="mt-2 flex items-center gap-3 rounded-md border border-[#e5e7eb] bg-[#f9fafb] p-2 dark:border-[#334155] dark:bg-[#0f172a]">
+        <div className="mt-2 flex items-center gap-3 rounded-md border border-[#e5e7eb] bg-white p-2 dark:border-[#334155] dark:bg-[#0f172a]">
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-white dark:bg-white">
             <img
               src={previewUrl}

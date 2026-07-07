@@ -144,7 +144,7 @@ export function BioThemeForm({ value, onChange }: BioThemeFormProps) {
 
           <div>
             <Label className="mb-2 block text-[#111827] dark:text-[#f8fafc]">Velocidade</Label>
-            <div className="inline-flex w-full rounded-lg border border-[#e5e7eb] bg-[#f9fafb] p-1 dark:border-[#334155] dark:bg-[#0f172a]">
+            <div className="inline-flex w-full rounded-lg border border-[#e5e7eb] bg-white p-1 dark:border-[#334155] dark:bg-[#0f172a]">
               {(
                 [
                   { value: "lenta", label: "Lenta" },
@@ -198,15 +198,18 @@ interface ColorFieldProps {
 function ColorPickerField({ label, value, onChange }: ColorFieldProps) {
   return (
     <div>
-      <Label className="mb-1.5 block text-[#111827] dark:text-[#f8fafc]">{label}</Label>
+      <Label className="mb-1.5 block text-[#111827]">{label}</Label>
       <div className="flex gap-1.5">
-        <input
-          type="color"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="h-9 w-10 cursor-pointer rounded-md border border-[#e5e7eb] dark:border-[#334155]"
-          aria-label={label}
-        />
+        <div className="relative h-9 w-10 overflow-hidden rounded-md border border-[#e5e7eb] ring-offset-[--background]">
+          <input
+            type="color"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="absolute inset-0 h-full w-full cursor-pointer border-0 bg-transparent p-0"
+            style={{ WebkitAppearance: "none", MozAppearance: "none", appearance: "none" }}
+            aria-label={label}
+          />
+        </div>
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
