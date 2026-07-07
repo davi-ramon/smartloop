@@ -132,7 +132,11 @@ export function BioLinksForm({ links, onChange }: BioLinksFormProps) {
         <ul className="space-y-2">
           <AnimatePresence mode="popLayout">
             {sorted.map((link, i) => {
+              // Fallback defensivo: `link.ativo ?? true` cobre o caso
+              // de campo undefined (docs antigos, race condition de snapshot).
+              // Só tratamos como inativo se for explicitamente === false.
               const isInactive = link.ativo === false
+              void isInactive // garantir uso futura sem warning
               const isDragging = draggingIdx === i
               const isDragOver = dragOverIdx === i && draggingIdx !== null && draggingIdx !== i
 

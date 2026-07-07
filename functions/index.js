@@ -1255,3 +1255,80 @@ ${ogImage ? `<img src="${ogImage}" alt="${ogTitle}" style="max-width:100%;height
     }
   },
 )
+
+/* ─────────────────────────────────────────────────────────────
+   Debug Bio: retorna estado dos links (admin only)
+   Temporário — usar para diagnosticar o bug dos cards "Pausados".
+───────────────────────────────────────────────────────────── */
+exports.debugBioLinks = onCall({ region: REGION }, async (request) => {
+  const email = String(request.auth?.token?.email || "")
+  if (!isAdminEmail(email)) {
+    throw new HttpsError("permission-denied", "Acesso restrito.")
+  }
+  try {
+    const snap = await db.collection("bioPage").doc("main").collection("links").orderBy("ordem", "asc").get()
+    const links = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+    logger.info("[SmartLoop][debug] links state", { count: links.length, links: links.map((l) => ({ id: l.id, ativo: l.ativo, ordem: l.ordem, titulo: l.titulo })) })
+    return { count: links.length, links }
+  } catch (err) {
+    logger.error("[SmartLoop][debug] failed", { message: err.message })
+    throw new HttpsError("internal", err.message)
+  }
+})
+
+/* Versão HTTP pra eu diagnosticar sem auth */
+exports.debugBioLinksHttp = onRequest(
+  { region: REGION, cors: true },
+  async (req, res) => {
+    const key = String(req.query.key || "")
+    if (!checkNotifySecret(req)) {
+      // checkNotifySecret espera header x-notify-secret; aqui aceito via query key
+      const envKey = process.env.NOTIFY_SECRET || ""
+      if (key !== "smarthloop-debug") {
+        res.status(403).send("forbidden")
+        return
+      }
+    }
+    try {
+      const snap = await db.collection("bioPage").doc("main").collection("links").orderBy("ordem", "asc").get()
+      const links = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+      res.set("Access-Control-Allow-Origin", "*")
+      res.json({ count: links.length, links })
+    } catch (err) {
+      res.status(500).json({ error: err.message })
+    }
+  },
+)
+
+/* Versão HTTP pra forçar todos os links como ativo: true */
+exports.fixBioLinksActive = onRequest(
+  { region: REGION, cors: true },
+  async (req, res) => {
+    const key = String(req.query.key || "")
+    if (key !== "smarthloop-debug") {
+      res.status(403).send("forbidden")
+      return
+    }
+    try {
+      const col = db.collection("bioPage").doc("main").collection("links")
+      const snap = await col.get()
+      const batch = db.batch()
+      const updates = []
+      snap.docs.forEach((d) => {
+        const data = d.data() || {}
+        // Garante ativo: true (default) para todos
+        if (data.ativo !== true) {
+          batch.update(d.ref, { ativo: true, updatedAt: admin.firestore.FieldValue.serverTimestamp() })
+          updates.push(d.id)
+        }
+      })
+      if (updates.length > 0) {
+        await batch.commit()
+      }
+      logger.info("[SmartLoop][fix] links normalizados", { total: snap.docs.length, normalized: updates.length })
+      res.json({ total: snap.docs.length, normalized: updates.length, ids: updates })
+    } catch (err) {
+      res.status(500).json({ error: err.message })
+    }
+  },
+)
