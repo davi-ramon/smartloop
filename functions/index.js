@@ -1170,19 +1170,36 @@ exports.getBioPageHtml = onRequest(
     logger.info("[SmartLoop][bio] request", { isCrawler, ua: ua.slice(0, 80) })
 
     if (!isCrawler) {
-      // Visitante humano: serve a SPA inline copiada do Next export
-      // (postbuild salva em functions/assets/bio-spa.html). Sem redirect,
-      // evita loop com rewrite /bio → function.
-      try {
-        const spaPath = path.join(__dirname, "assets", "bio-spa.html")
-        const spa = fs.readFileSync(spaPath, "utf8")
-        res.set("Cache-Control", "no-cache")
-        res.set("Content-Type", "text/html; charset=utf-8")
-        res.status(200).send(spa)
-      } catch (err) {
-        logger.error("[SmartLoop][bio] falha ao ler SPA asset", { message: err.message })
-        res.status(200).send("<h1>SmartLoop Bio</h1><p>Carregando...</p>")
-      }
+      // Visitante humano: HTML com client-side redirect para a SPA raiz
+      // com hint ?bio=1 (detecta no client e navega para /bio).
+      // Vantagem: sempre usa os chunks mais recentes do Hosting
+      // (sem cache stale de HTML estático), sem loop com rewrite.
+      // URL final do usuário: /bio/ (após router.push).
+      const spa = `<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartLoop · Bio</title>
+<meta name="theme-color" content="#2563eb">
+<link rel="icon" href="/favicon.ico">
+</head>
+<body>
+<script>
+  // Redireciona para a raiz com hint. A página / (landing) tem
+  // layout.tsx com efeito que detecta ?bio=1 e navega para /bio,
+  // preservando a URL via router.push.
+  var url = new URL(window.location.href);
+  url.searchParams.set('bio', '1');
+  url.pathname = '/';
+  window.location.replace(url.toString());
+</script>
+<p style="font-family:sans-serif;text-align:center;padding:32px;color:#6b7280;">Carregando...</p>
+</body>
+</html>`
+      res.set("Cache-Control", "no-cache")
+      res.set("Content-Type", "text/html; charset=utf-8")
+      res.status(200).send(spa)
       return
     }
 

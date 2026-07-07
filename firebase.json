@@ -22,14 +22,6 @@
     ],
     "rewrites": [
       {
-        "source": "/bio",
-        "function": "getBioPageHtml"
-      },
-      {
-        "source": "/bio/**",
-        "function": "getBioPageHtml"
-      },
-      {
         "source": "**",
         "destination": "/index.html"
       }
