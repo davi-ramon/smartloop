@@ -17,6 +17,7 @@ const schema = z.object({
   rodape: z.string().max(80, "Máximo 80").optional().or(z.literal("")),
   logoUrl: z.string().url("URL inválida").optional().or(z.literal("")),
   coverUrl: z.string().url("URL inválida").optional().or(z.literal("")),
+  fraseTopo: z.string().max(120, "Máximo 120").optional().or(z.literal("")),
 })
 type FormData = z.infer<typeof schema>
 
@@ -34,6 +35,7 @@ export function BioProfileForm({ value, onChange }: BioProfileFormProps) {
       rodape: value.rodape ?? "",
       logoUrl: value.logoUrl ?? "",
       coverUrl: value.coverUrl ?? "",
+      fraseTopo: value.fraseTopo ?? "",
     },
     mode: "onChange",
   })
@@ -47,6 +49,7 @@ export function BioProfileForm({ value, onChange }: BioProfileFormProps) {
         rodape: v.rodape ?? "",
         logoUrl: v.logoUrl ?? "",
         coverUrl: v.coverUrl ?? "",
+        fraseTopo: v.fraseTopo ?? "",
       })
     })
     return () => sub.unsubscribe()
@@ -188,6 +191,15 @@ export function BioProfileForm({ value, onChange }: BioProfileFormProps) {
             </button>
           </div>
         )}
+      </Field>
+
+      <Field label="Frase do topo" htmlFor="fraseTopo" hint="Aparece entre a capa e a foto de perfil" error={errors.fraseTopo?.message}>
+        <Input
+          id="fraseTopo"
+          placeholder="Ex.: Soluções em 24h para sua assistência"
+          maxLength={120}
+          {...register("fraseTopo")}
+        />
       </Field>
 
       <Field label="Rodapé" htmlFor="rodape" hint="Aparece no fim da página" error={errors.rodape?.message}>

@@ -250,3 +250,39 @@ body {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
+
+/* ───────────────────────────────────────────
+   Bio Background — animações procedurais CSS
+─────────────────────────────────────────── */
+
+@keyframes bio-float-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, 30px) scale(1.18); }
+}
+
+@keyframes bio-float-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-55px, -45px) scale(0.85); }
+}
+
+@keyframes bio-grid-drift {
+  from { background-position: 0 0; }
+  to { background-position: 64px 64px; }
+}
+
+@keyframes bio-rotate {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bio-particles-drift {
+  from { background-position: 0 0; }
+  to { background-position: 28px 28px; }
+}
+
+/* Respeita usuários que pedem menos movimento */
+@media (prefers-reduced-motion: reduce) {
+  .bio-bg [class*="bio-blur"],
+  .bio-bg > div[class*="animate"] {
+    animation: none !important;
+  }
+}

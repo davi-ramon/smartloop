@@ -36,40 +36,74 @@ const Instagram: IconComp = ({ className }) => (
   </svg>
 )
 
+// TikTok — versão oficial preta: "nota musical" estilizada (forma que lembra
+// o logo TikTok) com offsets coloridos ciano + magenta pra criar o efeito
+// glitch característico da marca.
 const TikTok: IconComp = ({ className }) => (
   <svg
-    viewBox="0 0 24 24"
+    viewBox="0 0 32 32"
     className={className}
     xmlns="http://www.w3.org/2000/svg"
     aria-label="TikTok"
   >
+    {/* Sombra cyan */}
     <path
-      d="M14 3v10.5a3.5 3.5 0 1 1-3.5-3.5"
+      d="M11 5v13.5a4.5 4.5 0 1 1-4.5-4.5"
       fill="none"
       stroke="#25F4EE"
-      strokeWidth="2.5"
+      strokeWidth="3.2"
       strokeLinecap="round"
+      strokeLinejoin="round"
+      transform="translate(-1.2 0)"
     />
+    {/* Sombra magenta */}
     <path
-      d="M15 3c0 2.5 2 4.5 4.5 4.5"
+      d="M11 5v13.5a4.5 4.5 0 1 1-4.5-4.5"
       fill="none"
       stroke="#FE2C55"
-      strokeWidth="2.5"
+      strokeWidth="3.2"
       strokeLinecap="round"
+      strokeLinejoin="round"
+      transform="translate(1.2 0)"
     />
+    {/* Curva principal preta (topo do logo) */}
     <path
-      d="M14.5 3v10.5a3.5 3.5 0 1 1-3.5-3.5"
+      d="M12 5v13.5a4.5 4.5 0 1 1-4.5-4.5"
       fill="none"
-      stroke="#fff"
+      stroke="#000"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* Haste superior preta — vem do topo até a junção */}
+    <path
+      d="M12 5c0 3.5 3 6.2 6.5 6.2"
+      fill="none"
+      stroke="#000"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* Acentos coloridos na haste superior */}
+    <path
+      d="M11.4 5c0 3.5 3 6.2 6.5 6.2"
+      fill="none"
+      stroke="#FE2C55"
       strokeWidth="1.2"
       strokeLinecap="round"
+      strokeLinejoin="round"
+      transform="translate(0.8 0)"
+      opacity="0.85"
     />
     <path
-      d="M15.5 3c0 2.5 2 4.5 4.5 4.5"
+      d="M12.6 5c0 3.5 3 6.2 6.5 6.2"
       fill="none"
-      stroke="#fff"
+      stroke="#25F4EE"
       strokeWidth="1.2"
       strokeLinecap="round"
+      strokeLinejoin="round"
+      transform="translate(-0.8 0)"
+      opacity="0.85"
     />
   </svg>
 )
@@ -89,6 +123,7 @@ const Facebook: IconComp = ({ className }) => (
   </svg>
 )
 
+// Google Maps — pin em gota com a letra "G" (estilo oficial).
 const GoogleMaps: IconComp = ({ className }) => (
   <svg
     viewBox="0 0 24 24"
@@ -96,16 +131,18 @@ const GoogleMaps: IconComp = ({ className }) => (
     xmlns="http://www.w3.org/2000/svg"
     aria-label="Google Maps"
   >
+    {/* Pin em gota (vermelho Google) */}
     <path
-      d="M12 2c-4 0-7 3-7 7 0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"
+      d="M12 2c-4.4 0-8 3.6-8 8 0 5.4 7 11.4 7.3 11.6.4.3 1 .3 1.4 0C13 21.4 20 15.4 20 10c0-4.4-3.6-8-8-8z"
       fill="#EA4335"
     />
-    <circle cx="12" cy="9" r="3" fill="#fff" />
-    <circle cx="12" cy="9" r="1.5" fill="#4285F4" />
-    <path d="M5 19l4-1 1 4" fill="#34A853" />
-    <path d="M19 19l-4-1-1 4" fill="#34A853" />
-    <path d="M5 19l4-1" stroke="#188038" strokeWidth="0.5" fill="none" />
-    <path d="M19 19l-4-1" stroke="#188038" strokeWidth="0.5" fill="none" />
+    {/* Círculo branco interno */}
+    <circle cx="12" cy="10" r="3.6" fill="#fff" />
+    {/* Letra "G" estilizada (azul Google) */}
+    <path
+      d="M9.5 10c0-1.4 1.1-2.5 2.5-2.5.7 0 1.3.3 1.7.7l-1 1c-.2-.2-.4-.3-.7-.3-.6 0-1.1.5-1.1 1.1 0 .6.5 1.1 1.1 1.1.4 0 .7-.1.9-.4l-.9-.9 2-.2v1.6c-.5.7-1.3 1.1-2 1.1-1.4 0-2.5-1.1-2.5-2.5z"
+      fill="#4285F4"
+    />
   </svg>
 )
 

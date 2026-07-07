@@ -10,11 +10,43 @@ const functions = getFunctions(app, "southamerica-east1")
 ───────────────────────────────────────────────────────────── */
 
 export async function fetchBio(): Promise<BioPageSnapshot> {
+  // Cache em sessionStorage (30s) — primeira carga busca Firestore,
+  // recargas (F5, voltar à aba) usam o cache sem network request.
+  if (typeof sessionStorage !== "undefined") {
+    try {
+      const raw = sessionStorage.getItem(BIO_CACHE_KEY)
+      if (raw) {
+        const { ts, data } = JSON.parse(raw) as { ts: number; data: BioPageSnapshot }
+        if (Date.now() - ts < BIO_CACHE_TTL_MS) {
+          logger.info("bio", "página pública (cache hit)", { ageMs: Date.now() - ts })
+          return data
+        }
+      }
+    } catch { /* ignora cache corrompido */ }
+  }
+
   logger.info("bio", "buscando página pública", {})
   const fn = httpsCallable(functions, "getBioPage")
   const res = await fn()
-  return res.data as BioPageSnapshot
+  const data = res.data as BioPageSnapshot
+
+  if (typeof sessionStorage !== "undefined") {
+    try {
+      sessionStorage.setItem(BIO_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }))
+    } catch { /* sessionStorage cheio */ }
+  }
+  return data
 }
+
+/** Invalida o cache da Bio (chamado após salvar no editor). */
+export function invalidateBioCache(): void {
+  if (typeof sessionStorage !== "undefined") {
+    try { sessionStorage.removeItem(BIO_CACHE_KEY) } catch { /* */ }
+  }
+}
+
+const BIO_CACHE_KEY = "smartloop_bio_cache"
+const BIO_CACHE_TTL_MS = 30 * 1000
 
 /* ─────────────────────────────────────────────────────────────
    UTMs — captura da URL + classificação do referrer.

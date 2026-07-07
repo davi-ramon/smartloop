@@ -29,6 +29,7 @@ const schema = z.object({
     .max(500, "Máximo 500")
     .regex(/^https?:\/\//, "Use http ou https"),
   icone: z.string().min(1, "Escolha um ícone"),
+  iconeUrl: z.string().max(500, "Máximo 500").optional().or(z.literal("")),
   tamanho: z.enum(["curto", "medio", "grande"]),
   aspectRatio: z.enum(["1:1", "16:9"]).optional(),
   imagemUrl: z.string().optional().or(z.literal("")),
@@ -60,6 +61,7 @@ export function BioLinkDialog({ open, onOpenChange, initial, onSave }: BioLinkDi
       subtitulo: initial?.subtitulo ?? "",
       url: initial?.url ?? "",
       icone: initial?.icone ?? "Link",
+      iconeUrl: initial?.iconeUrl ?? "",
       tamanho: (initial?.tamanho as BioTamanho) ?? "curto",
       aspectRatio: (initial?.aspectRatio as BioAspectRatio) ?? "1:1",
       imagemUrl: initial?.imagemUrl ?? "",
@@ -108,6 +110,8 @@ export function BioLinkDialog({ open, onOpenChange, initial, onSave }: BioLinkDi
     }
     const subt = data.subtitulo?.trim()
     if (subt) payload.subtitulo = subt
+    const customIcon = data.iconeUrl?.trim()
+    if (customIcon) payload.iconeUrl = customIcon
     if (data.tamanho === "grande") {
       payload.aspectRatio = data.aspectRatio ?? "1:1"
       if (data.imagemUrl) payload.imagemUrl = data.imagemUrl
@@ -155,6 +159,15 @@ export function BioLinkDialog({ open, onOpenChange, initial, onSave }: BioLinkDi
               onChange={(v) => setValue("tamanho", v, { shouldDirty: true, shouldValidate: true })}
             />
           </FormRow>
+
+          {/* Campo de ícone personalizado só para tamanho !== "curto" */}
+          {tamanho !== "curto" && (
+            <CustomIconField
+              value={watch("iconeUrl") ?? ""}
+              onChange={(url) => setValue("iconeUrl", url, { shouldDirty: true, shouldValidate: true })}
+              error={errors.iconeUrl?.message}
+            />
+          )}
 
           {tamanho === "grande" && (
             <>
@@ -367,5 +380,112 @@ function IconPicker({ value, onChange }: IconPickerProps) {
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
+  )
+}
+/**
+ * CustomIconField — URL de ícone personalizado (PNG/ICO/BMP/SVG).
+ * Valida tamanho (≤250x250) e proporção 1:1 via `<img>` onLoad.
+ * Renderiza preview do ícone se válido.
+ */
+function CustomIconField({
+  value,
+  onChange,
+  error,
+}: {
+  value: string
+  onChange: (v: string) => void
+  error?: string
+}) {
+  const [validation, setValidation] = React.useState<
+    | { ok: true }
+    | { ok: false; error: string }
+    | null
+  >(null)
+
+  function validateIconUrl(url: string): Promise<void> {
+    return new Promise((resolve) => {
+      const trimmed = url.trim()
+      if (!trimmed) { setValidation(null); resolve(); return }
+      if (!/^https?:\/\//.test(trimmed)) {
+        setValidation({ ok: false, error: "Use http ou https." })
+        resolve()
+        return
+      }
+      const img = new Image()
+      img.onload = () => {
+        const w = img.naturalWidth
+        const h = img.naturalHeight
+        if (w === 0 || h === 0) {
+          setValidation({ ok: false, error: "Não foi possível carregar a imagem." })
+        } else if (w !== h) {
+          setValidation({ ok: false, error: `Proporção deve ser 1:1 (${w}×${h}).` })
+        } else if (w > 250 || h > 250) {
+          setValidation({ ok: false, error: `Máximo 250×250 px (encontrado ${w}×${h}).` })
+        } else {
+          setValidation({ ok: true })
+          logger.success("bio", "ícone custom validado", { url: trimmed, w, h })
+        }
+        resolve()
+      }
+      img.onerror = () => {
+        setValidation({ ok: false, error: "URL inválida ou inacessível." })
+        resolve()
+      }
+      img.src = trimmed
+    })
+  }
+
+  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
+  const [broken, setBroken] = React.useState(false)
+  React.useEffect(() => {
+    if (validation?.ok) {
+      setPreviewUrl(value)
+      setBroken(false)
+    } else {
+      setPreviewUrl(null)
+    }
+  }, [validation, value])
+
+  return (
+    <div>
+      <FormRow
+        label="Ícone personalizado (URL)"
+        htmlFor="iconeUrl-input"
+        hint="PNG/ICO/BMP/SVG. Fundo transparente. Máx 250×250 px."
+        error={error ?? (validation && !validation.ok ? validation.error : undefined)}
+      >
+        <div className="flex gap-2">
+          <Input
+            id="iconeUrl-input"
+            placeholder="https://exemplo.com/icone.png"
+            value={value}
+            onChange={(e) => { setBroken(false); setValidation(null); onChange(e.target.value) }}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => validateIconUrl(value).catch(() => {})}
+          >
+            Validar
+          </Button>
+        </div>
+      </FormRow>
+      {previewUrl && !broken && (
+        <div className="mt-2 flex items-center gap-3 rounded-md border border-[#e5e7eb] bg-[#f9fafb] p-2 dark:border-[#334155] dark:bg-[#0f172a]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-white dark:bg-white">
+            <img
+              src={previewUrl}
+              alt="preview"
+              className="h-7 w-7 object-contain"
+              onError={() => setBroken(true)}
+            />
+          </div>
+          <span className="text-[11px] text-[#6b7280] dark:text-[#94a3b8]">
+            Ícone válido, vai substituir o ícone da biblioteca.
+          </span>
+        </div>
+      )}
+    </div>
   )
 }

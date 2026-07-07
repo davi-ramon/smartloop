@@ -1,9 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { motion } from "motion/react"
-import { Loader2, AlertCircle, RefreshCw } from "lucide-react"
+import { AlertCircle, RefreshCw } from "lucide-react"
 import { fetchBio, captureUtms, recordBioEvent, type BioUtmPayload } from "@/lib/firebase/bio"
+import type { BioPageSnapshot } from "@/lib/data/bio"
 import { BioPageView } from "@/components/bio/bio-page-view"
 import { ExitPopup } from "@/components/bio/exit-popup"
 import { logger } from "@/lib/logger"
@@ -21,9 +21,23 @@ import type { BioLink } from "@/lib/data/bio"
  *
  * Erros de tracking são engolidos via `recordBioEvent` (best-effort).
  */
+/** Lê o cache do sessionStorage de forma síncrona no primeiro render
+ *  (client-only — protegi contra typeof window). */
+function readBioCache(): BioPageSnapshot | null {
+  if (typeof window === "undefined") return null
+  try {
+    const raw = sessionStorage.getItem("smartloop_bio_cache")
+    if (!raw) return null
+    const { ts, data } = JSON.parse(raw) as { ts: number; data: BioPageSnapshot }
+    if (Date.now() - ts < 30 * 1000) return data
+  } catch { /* ignora */ }
+  return null
+}
+
 export default function BioPublicPage() {
-  const [profile, setProfile] = React.useState<BioPublicState["profile"]>(null)
-  const [links, setLinks] = React.useState<BioLink[]>([])
+  const [initial] = React.useState(() => readBioCache())
+  const [profile, setProfile] = React.useState<BioPublicState["profile"]>(initial?.profile ?? null)
+  const [links, setLinks] = React.useState<BioLink[]>(initial?.links ?? [])
   const [error, setError] = React.useState<string | null>(null)
   const [isPending, startTransition] = React.useTransition()
 
@@ -101,14 +115,32 @@ type BioPublicState = {
 
 function Loading() {
   return (
-    <div className="flex h-screen items-center justify-center bg-[--background]">
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-[--primary]/10 text-[--primary]"
-      >
-        <Loader2 className="h-5 w-5" />
-      </motion.div>
+    <div
+      className="min-h-screen bg-[--background]"
+      aria-busy="true"
+      aria-live="polite"
+    >
+      <div className="mx-auto max-w-md px-5 pt-0 pb-12">
+        {/* Capa skeleton */}
+        <div className="h-44 w-full animate-pulse rounded-b-2xl bg-[--muted]" />
+        {/* Avatar skeleton */}
+        <div className="-mt-20 mb-4 flex justify-center sm:-mt-24">
+          <div className="h-32 w-32 animate-pulse rounded-full border-4 bg-[--muted] sm:h-40 sm:w-40" />
+        </div>
+        {/* Título skeleton */}
+        <div className="mx-auto h-6 w-2/3 animate-pulse rounded bg-[--muted]" />
+        <div className="mx-auto mt-2 h-3 w-1/2 animate-pulse rounded bg-[--muted]" />
+        {/* 4 botões skeleton */}
+        <ul className="mt-8 space-y-3">
+          {[0, 1, 2, 3].map((i) => (
+            <li
+              key={i}
+              className="h-11 animate-pulse rounded-2xl bg-[--muted]"
+              style={{ animationDelay: `${i * 80}ms` }}
+            />
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }

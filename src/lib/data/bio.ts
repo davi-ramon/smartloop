@@ -16,6 +16,25 @@ export type BioTamanho = "curto" | "medio" | "grande"
 export type BioAspectRatio = "1:1" | "16:9"
 export type BioBgStyle = "gradient" | "solid"
 export type BioTextStyle = "light" | "dark"
+export type BioAnimacaoEstilo = "aurora" | "grade" | "ondas" | "particulas" | "desligado"
+export type BioAnimacaoVelocidade = "lenta" | "normal" | "rapida"
+
+export interface BioAnimacao {
+  estilo: BioAnimacaoEstilo
+  corPrimaria?: string
+  corSecundaria?: string
+  velocidade: BioAnimacaoVelocidade
+  /** 0..100 — controla intensidade do movimento/escala. */
+  intensidade: number
+}
+
+export const ANIMACAO_DEFAULTS: BioAnimacao = {
+  estilo: "aurora",
+  corPrimaria: "#2563eb",
+  corSecundaria: "#7c3aed",
+  velocidade: "lenta",
+  intensidade: 40,
+}
 
 export const PROFILE_DEFAULTS = {
   titulo: "SmartLoop",
@@ -26,6 +45,8 @@ export const PROFILE_DEFAULTS = {
   primary: "#2563eb",
   bgStyle: "gradient" as BioBgStyle,
   textStyle: "dark" as BioTextStyle,
+  fraseTopo: "",
+  animacao: ANIMACAO_DEFAULTS,
 }
 
 export interface BioProfile {
@@ -38,6 +59,10 @@ export interface BioProfile {
   primary: string
   bgStyle: BioBgStyle
   textStyle: BioTextStyle
+  /** Frase curta exibida entre a capa e a foto de perfil. Max 120. */
+  fraseTopo?: string
+  /** Configuração da animação procedural do fundo. */
+  animacao?: BioAnimacao
   // Open Graph (preview de compartilhamento em redes sociais / WhatsApp)
   ogTitle?: string
   ogDescription?: string
@@ -55,6 +80,8 @@ export interface BioLink {
   tamanho: BioTamanho
   aspectRatio?: BioAspectRatio
   imagemUrl?: string
+  /** URL de ícone personalizado (PNG/ICO/BMP/SVG). Só válido p/ tamanho !== "curto". */
+  iconeUrl?: string
   ativo: boolean
   ordem: number
   createdAt?: Timestamp | null
@@ -95,6 +122,11 @@ export function watchBioPage(
     (snap) => {
       const data = snap.data() as Omit<BioProfile, "id"> | undefined
       profile = data ? { id: snap.id, ...data } : { id: "main", ...PROFILE_DEFAULTS }
+      // Aplica defaults da animação caso o campo esteja ausente no Firestore
+      // (doc antigo sem o campo continua funcionando).
+      if (!profile.animacao) {
+        profile.animacao = { ...ANIMACAO_DEFAULTS }
+      }
       profileReady = true
       flush()
     },

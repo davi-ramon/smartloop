@@ -77,6 +77,103 @@ export function BioLinkRenderer({
   return renderBotao(link, index, motionProps, icon, fg, primary, onClick, className)
 }
 
+/** Wrapper de ícone: prioriza link.iconeUrl (URL externa) > brand/lucide. */
+function LinkIconSlot({
+  link,
+  icon,
+  isMedium,
+  fg,
+}: {
+  link: BioLink
+  icon: ReturnType<typeof resolveIcon>
+  isMedium: boolean
+  fg: string
+}) {
+  const Icon = icon?.Comp ?? null
+  const isBrand = icon?.kind === "brand"
+
+  // Tem URL externa? Tenta usar; se quebrar, fallback pro icon do brand/lucide.
+  if (link.iconeUrl) {
+    return <CustomIcon url={link.iconeUrl} Fallback={Icon} isMedium={isMedium} fg={fg} linkTitle={link.titulo} />
+  }
+  if (!Icon) {
+    return isMedium ? (
+      <User className="h-5 w-5 shrink-0" style={{ color: fg, opacity: 0.7 }} />
+    ) : null
+  }
+  if (isBrand) {
+    return (
+      <span
+        className={cn(
+          "flex shrink-0 items-center justify-center rounded-md bg-white shadow-sm dark:bg-white",
+          isMedium ? "h-7 w-7" : "h-6 w-6",
+        )}
+        aria-hidden="true"
+      >
+        <Icon className={cn(isMedium ? "h-5 w-5" : "h-4 w-4")} />
+      </span>
+    )
+  }
+  return (
+    <Icon
+      className={cn("shrink-0", isMedium ? "h-5 w-5" : "h-4 w-4")}
+      style={{ color: fg }}
+    />
+  )
+}
+
+function CustomIcon({
+  url,
+  Fallback,
+  isMedium,
+  fg,
+  linkTitle,
+}: {
+  url: string
+  Fallback: React.ElementType | null
+  isMedium: boolean
+  fg: string
+  linkTitle: string
+}) {
+  const [broken, setBroken] = React.useState(false)
+  if (broken && Fallback) {
+    return (
+      <span
+        className={cn(
+          "flex shrink-0 items-center justify-center rounded-md bg-white shadow-sm dark:bg-white",
+          isMedium ? "h-7 w-7" : "h-6 w-6",
+        )}
+        aria-hidden="true"
+      >
+        <Fallback className={cn(isMedium ? "h-5 w-5" : "h-4 w-4")} />
+      </span>
+    )
+  }
+  return (
+    <span
+      className={cn(
+        "flex shrink-0 items-center justify-center rounded-md bg-white shadow-sm dark:bg-white",
+        isMedium ? "h-7 w-7" : "h-6 w-6",
+      )}
+      aria-hidden="true"
+    >
+      <img
+        src={url}
+        alt={linkTitle}
+        className={cn("object-contain", isMedium ? "h-5 w-5" : "h-4 w-4")}
+        loading="lazy"
+        onError={() => {
+          // Fallback silencioso — usa o ícone nativo se URL quebrar.
+          if (typeof console !== "undefined") {
+            console.warn(`[SmartLoop][bio] ícone custom quebrou para "${linkTitle}"`)
+          }
+          setBroken(true)
+        }}
+      />
+    </span>
+  )
+}
+
 function renderBotao(
   link: BioLink,
   index: number,
@@ -88,8 +185,6 @@ function renderBotao(
   className: string | undefined,
 ) {
   const isMedium = link.tamanho === "medio"
-  const Icon = icon?.Comp ?? null
-  const isBrand = icon?.kind === "brand"
 
   return (
     <motion.a
@@ -111,28 +206,7 @@ function renderBotao(
         )}
         style={{ backgroundColor: bg, color: fg, borderColor: "rgba(0,0,0,0.05)" }}
       >
-        {Icon ? (
-          isBrand ? (
-            // Wrapper branco/escuro para preservar contraste da cor oficial da marca
-            <span
-              className={cn(
-                "flex shrink-0 items-center justify-center rounded-md bg-white shadow-sm dark:bg-white",
-                isMedium ? "h-7 w-7" : "h-6 w-6",
-              )}
-              aria-hidden="true"
-            >
-              <Icon className={cn(isMedium ? "h-5 w-5" : "h-4 w-4")} />
-            </span>
-          ) : (
-            // Lucide genérico: herda cor de fg
-            <Icon
-              className={cn("shrink-0", isMedium ? "h-5 w-5" : "h-4 w-4")}
-              style={{ color: fg }}
-            />
-          )
-        ) : isMedium ? (
-          <User className="h-5 w-5 shrink-0" style={{ color: fg, opacity: 0.7 }} />
-        ) : null}
+        <LinkIconSlot link={link} icon={icon} isMedium={isMedium} fg={fg} />
         <div className="min-w-0 flex-1">
           <div className="truncate text-sm font-medium">{link.titulo}</div>
           {isMedium && link.subtitulo && (
