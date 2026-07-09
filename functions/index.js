@@ -1332,3 +1332,97 @@ exports.fixBioLinksActive = onRequest(
     }
   },
 )
+
+/* ─────────────────────────────────────────────────────────────
+   Admin: cria usuario owner vitalicio (sem trial, sem pagamento).
+   Uso: POST /createOwner com header x-notify-secret + body { email, password, displayName, storeName }.
+   Idempotente: se usuario ja existe, so atualiza o tenant pra vitalicio.
+───────────────────────────────────────────────────────────── */
+exports.createOwner = onRequest(
+  { region: REGION, cors: true, secrets: [NOTIFY_SECRET] },
+  async (req, res) => {
+    if (req.method !== "POST") return res.status(405).send("method not allowed")
+    if (!checkNotifySecret(req)) {
+      logger.warn("[SmartLoop][Security] createOwner sem segredo valido")
+      return res.status(401).send("unauthorized")
+    }
+
+    const email = String(req.body?.email || "").trim().toLowerCase()
+    const password = String(req.body?.password || "")
+    const displayName = String(req.body?.displayName || "Pedro Victor")
+    const storeName = String(req.body?.storeName || "Connect Assistencia")
+
+    if (!email || !email.includes("@")) {
+      return res.status(400).json({ error: "email invalido" })
+    }
+    if (password.length < 8) {
+      return res.status(400).json({ error: "senha deve ter no minimo 8 caracteres" })
+    }
+
+    logger.info("[SmartLoop][admin] createOwner iniciado", { email })
+
+    try {
+      // 1) Cria usuario no Firebase Auth (ou pega existente).
+      let userRecord
+      try {
+        userRecord = await admin.auth().createUser({ email, password, displayName, emailVerified: true })
+        logger.info("[SmartLoop][admin] usuario criado no Auth", { uid: userRecord.uid, email })
+      } catch (err) {
+        if (err.code === "auth/email-already-exists") {
+          userRecord = await admin.auth().getUserByEmail(email)
+          // Atualiza a senha (caso tenha mudado) e marca como verificado.
+          await admin.auth().updateUser(userRecord.uid, { password, emailVerified: true, displayName })
+          logger.warn("[SmartLoop][admin] usuario ja existia, atualizado", { uid: userRecord.uid })
+        } else {
+          throw err
+        }
+      }
+
+      const uid = userRecord.uid
+
+      // 2) Cria/atualiza users/{uid} com role owner.
+      const userRef = db.collection("users").doc(uid)
+      await userRef.set({
+        tenantId: uid,
+        name: displayName,
+        email,
+        role: "owner",
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true })
+      logger.info("[SmartLoop][admin] users/{uid} criado/atualizado", { uid })
+
+      // 3) Cria/atualiza tenants/{uid} como PROPRIETARIO VITALICIO.
+      //    - plan: "pro" (acesso completo)
+      //    - status: "active" (sem trial)
+      //    - subscriptionStatus: "active" (bypass do accessState)
+      //    - vitalicio: true (flag logica para sabermos que e' owner)
+      //    - trialEndsAt: longe no futuro (10 anos)
+      //    - currentPeriodEnd: longe no futuro
+      const farFuture = Date.now() + 10 * 365 * 24 * 60 * 60 * 1000
+      const tenantRef = db.collection("tenants").doc(uid)
+      await tenantRef.set({
+        ownerId: uid,
+        name: storeName,
+        plan: "pro",
+        status: "active",
+        subscriptionStatus: "active",
+        vitalicio: true,
+        bypassPayment: true,
+        trialEndsAt: admin.firestore.Timestamp.fromMillis(farFuture),
+        currentPeriodEnd: admin.firestore.Timestamp.fromMillis(farFuture),
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true })
+      logger.info("[SmartLoop][admin] tenants/{uid} vitalicio criado", { uid })
+
+      res.json({
+        ok: true,
+        uid,
+        email,
+        message: "Owner vitalicio criado. Pode logar com a senha escolhida.",
+      })
+    } catch (err) {
+      logger.error("[SmartLoop][admin] createOwner falhou", { message: err.message, code: err.code })
+      res.status(500).json({ error: err.message, code: err.code })
+    }
+  },
+)
