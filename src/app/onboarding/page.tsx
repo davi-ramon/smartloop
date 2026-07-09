@@ -14,8 +14,13 @@ import { updateTenant, uploadLogo } from "@/lib/data/tenant"
 import { logger } from "@/lib/logger"
 
 const PAYMENT_METHODS = ["Dinheiro", "Cartão de Débito", "Cartão de Crédito", "PIX"]
-const LOGO_MIN = 256
-const LOGO_MAX = 2048
+
+// Limites do upload de logo (validacao client-side).
+// Storage Rules aceitam ate 5MB, mas a UX bloqueia antes pra feedback mais rapido.
+const LOGO_MIN_PX = 120
+const LOGO_MAX_PX = 1000
+const LOGO_MAX_BYTES = 2 * 1024 * 1024 // 2 MB
+const LOGO_ACCEPT = "image/png,image/jpeg,image/jpg,image/x-icon,image/vnd.microsoft.icon"
 
 /* ── Validadores ── */
 const onlyDigits = (s: string) => s.replace(/\D/g, "")
@@ -68,7 +73,7 @@ const STEPS: Step[] = [
   { type: "text", key: "whatsapp", question: "Seu WhatsApp principal", hint: "Obrigatório — DDD + número.", placeholder: "(00) 00000-0000" },
   { type: "text", key: "city", question: "Em qual cidade você atende?", hint: "Obrigatório — cidade e estado.", placeholder: "Araguaína, TO" },
   { type: "text", key: "email", question: "E-mail da loja", hint: "Obrigatório. Já preenchemos com o e-mail da sua conta.", placeholder: "contato@loja.com.br", inputType: "email" },
-  { type: "logo", question: "Adicione a logo da sua loja", hint: `Obrigatória. PNG, JPG ou WEBP, quadrada de preferência, de ${LOGO_MIN}px a ${LOGO_MAX}px, até 5MB.` },
+  { type: "logo", question: "Adicione a logo da sua loja", hint: `Opcional — pode pular e enviar depois. PNG, JPG ou ICO, quadrada de preferência. Tamanho ideal: 250x250 px ou 192x192 px. Mínimo ${LOGO_MIN_PX}px, máximo ${LOGO_MAX_PX}px, até 2 MB.` },
   { type: "payments", question: "Quais formas de pagamento você aceita?", hint: "Selecione ao menos uma." },
   { type: "finish", question: "Tudo pronto!", hint: "Você está no teste grátis de 14 dias do plano Pro." },
 ]
@@ -140,7 +145,7 @@ export default function OnboardingPage() {
         case "email": return !v ? "O e-mail da loja é obrigatório." : !isValidEmail(v) ? "E-mail inválido." : null
       }
     }
-    if (s.type === "logo") return logoUrl ? null : "Envie a logo da loja para continuar."
+    if (s.type === "logo") return null // logo é opcional — usuário pode pular
     if (s.type === "payments") return methods.length === 0 ? "Selecione ao menos uma forma de pagamento." : null
     return null
   }
@@ -164,11 +169,13 @@ export default function OnboardingPage() {
     const file = e.target.files?.[0]
     if (!file || !profile?.tenantId) return
     setError(null)
-    if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
-      setError("Formato inválido. Use PNG, JPG ou WEBP."); return
+    // Validação de formato. Aceitamos PNG, JPG/JPEG e ICO (x-icon + vnd.microsoft.icon).
+    const allowed = /^image\/(png|jpe?g|x-icon|vnd\.microsoft\.icon)$/
+    if (!allowed.test(file.type)) {
+      setError("Formato inválido. Use PNG, JPG ou ICO."); return
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setError("A logo deve ter até 5MB."); return
+    if (file.size > LOGO_MAX_BYTES) {
+      setError("A logo deve ter até 2 MB."); return
     }
     let dims: { w: number; h: number }
     try {
@@ -176,16 +183,16 @@ export default function OnboardingPage() {
     } catch {
       setError("Não foi possível ler a imagem. Tente outro arquivo."); return
     }
-    if (dims.w < LOGO_MIN || dims.h < LOGO_MIN) {
-      setError(`A logo deve ter no mínimo ${LOGO_MIN}x${LOGO_MIN} pixels.`); return
+    if (dims.w < LOGO_MIN_PX || dims.h < LOGO_MIN_PX) {
+      setError(`A logo deve ter no mínimo ${LOGO_MIN_PX}x${LOGO_MIN_PX} pixels.`); return
     }
-    if (dims.w > LOGO_MAX || dims.h > LOGO_MAX) {
-      setError(`A logo deve ter no máximo ${LOGO_MAX}x${LOGO_MAX} pixels.`); return
+    if (dims.w > LOGO_MAX_PX || dims.h > LOGO_MAX_PX) {
+      setError(`A logo deve ter no máximo ${LOGO_MAX_PX}x${LOGO_MAX_PX} pixels.`); return
     }
     setUploadingLogo(true)
     try {
       setLogoUrl(await uploadLogo(profile.tenantId, file))
-      logger.success("onboarding", "logo validada e enviada", { dims })
+      logger.success("onboarding", "logo validada e enviada", { dims, type: file.type, bytes: file.size })
     } catch {
       setError("Não foi possível enviar a logo. Tente novamente.")
     } finally {
@@ -293,22 +300,64 @@ export default function OnboardingPage() {
               )}
 
               {step.type === "logo" && (
-                <div className="flex items-center gap-4">
-                  <div
-                    onClick={() => fileRef.current?.click()}
-                    className="flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-[--border] bg-[--muted] transition-colors hover:border-[--primary]"
+                <div className="space-y-4">
+                  {/* Info-box: etapa opcional + recomendações */}
+                  <div className="rounded-xl border border-[--border] bg-[--muted]/40 p-3 text-xs text-[--muted-foreground]">
+                    <p className="font-medium text-[--foreground]">Etapa opcional</p>
+                    <p className="mt-1">
+                      Você pode <strong>pular por enquanto</strong> e enviar a logo depois em
+                      <span className="font-medium"> Configurações → Loja</span>.
+                      Tamanho ideal: <strong>250x250 px</strong> ou <strong>192x192 px</strong>.
+                      Dimensões entre {LOGO_MIN_PX} e {LOGO_MAX_PX} px. Formatos: PNG, JPG ou ICO. Até 2 MB.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div
+                      onClick={() => fileRef.current?.click()}
+                      className="flex h-24 w-24 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-[--border] bg-[--muted] transition-colors hover:border-[--primary]"
+                    >
+                      {uploadingLogo ? <Loader2 className="h-5 w-5 animate-spin text-[--muted-foreground]" />
+                        : logoUrl ? <img src={logoUrl} alt="Logo" className="h-full w-full object-cover" />
+                        : <Upload className="h-6 w-6 text-[--muted-foreground]" />}
+                    </div>
+                    <div className="flex-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileRef.current?.click()}
+                        loading={uploadingLogo}
+                      >
+                        {logoUrl ? "Trocar logo" : "Enviar logo"}
+                      </Button>
+                      {logoUrl ? (
+                        <p className="mt-2 flex items-center gap-1 text-xs font-medium text-[#10b981]">
+                          <Check className="h-3.5 w-3.5" /> Logo enviada
+                        </p>
+                      ) : (
+                        <p className="mt-2 text-[11px] text-[--muted-foreground]">
+                          Sem logo? Sem problema — pule e envie depois.
+                        </p>
+                      )}
+                      <input
+                        ref={fileRef}
+                        type="file"
+                        accept={LOGO_ACCEPT}
+                        className="hidden"
+                        onChange={handleLogo}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Botão "Pular por enquanto" — sempre visível, sem desabilitar avanço */}
+                  <button
+                    type="button"
+                    onClick={goNext}
+                    disabled={uploadingLogo || saving}
+                    className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[--border] py-2.5 text-xs font-medium text-[--muted-foreground] transition-colors hover:border-[--primary] hover:text-[--primary] disabled:opacity-50"
                   >
-                    {uploadingLogo ? <Loader2 className="h-5 w-5 animate-spin text-[--muted-foreground]" />
-                      : logoUrl ? <img src={logoUrl} alt="Logo" className="h-full w-full object-cover" />
-                      : <Upload className="h-6 w-6 text-[--muted-foreground]" />}
-                  </div>
-                  <div>
-                    <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} loading={uploadingLogo}>
-                      {logoUrl ? "Trocar logo" : "Enviar logo"}
-                    </Button>
-                    {logoUrl && <p className="mt-2 flex items-center gap-1 text-xs font-medium text-[#10b981]"><Check className="h-3.5 w-3.5" />Logo enviada</p>}
-                    <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleLogo} />
-                  </div>
+                    Pular por enquanto →
+                  </button>
                 </div>
               )}
 
