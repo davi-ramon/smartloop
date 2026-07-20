@@ -1426,3 +1426,226 @@ exports.createOwner = onRequest(
     }
   },
 )
+/* ─────────────────────────────────────────────────────────────
+   Tecnicos com login proprio (sub-tenant do dono da loja).
+   Fluxo:
+     1) Dono cadastra tecnico em /tecnicos (campos: email, role)
+     2) Dono chama inviteTechnician(technicianId) - esta funcao:
+        - Cria usuario no Firebase Auth (disabled ate confirmar)
+        - Cria users/{uid} com tenantId, role=technician, inviteStatus=pending
+        - Atualiza tenants/{ownerUid}/technicians/{docId} com uid + inviteStatus=pending
+        - Envia email com link de ativacao smartloop.com.br/ativar-convite?token={uid}
+     3) Tecnico clica no link, define senha em /ativar-convite
+     4) acceptInvite(uid, password) ativa a conta (enabled=true, emailVerified=true)
+        - Atualiza users/{uid} e tenants/{}/technicians/{uid} com inviteStatus=active
+───────────────────────────────────────────────────────────── */
+
+function buildInviteEmailHtml(acceptUrl) {
+  return `
+  <div style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:32px 0;">
+      <tr><td align="center">
+        <table role="presentation" width="100%" style="max-width:480px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(2,6,23,0.08);">
+          <tr>
+            <td style="background:linear-gradient(135deg,#2563eb,#7c3aed);padding:28px 32px;text-align:center;">
+              <span style="color:#ffffff;font-size:20px;font-weight:800;letter-spacing:-0.5px;">SmartLoop</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px;">
+              <h1 style="margin:0 0 8px;font-size:20px;color:#111827;">Voce foi convidado para o SmartLoop</h1>
+              <p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#6b7280;">
+                Voce recebeu acesso de tecnico a uma assistencia tecnica. Defina sua senha para ativar a conta.
+              </p>
+              <div style="text-align:center;margin:0 0 24px;">
+                <a href="${acceptUrl}" style="display:inline-block;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 32px;border-radius:12px;">Ativar minha conta</a>
+              </div>
+              <p style="margin:0;font-size:12px;line-height:1.5;color:#9ca3af;">
+                Se o botao nao funcionar, copie e cole este link no navegador:<br>
+                <span style="word-break:break-all;color:#6b7280;">${acceptUrl}</span>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:16px 32px;border-top:1px solid #f3f4f6;text-align:center;">
+              <span style="font-size:11px;color:#9ca3af;">SmartLoop - gestao para assistencias tecnicas</span>
+            </td>
+          </tr>
+        </table>
+      </td></tr>
+    </table>
+  </div>`
+}
+
+exports.inviteTechnician = onCall(
+  { region: REGION, secrets: [GMAIL_EMAIL, GMAIL_PASSWORD] },
+  async (request) => {
+    const ownerUid = request.auth?.uid
+    if (!ownerUid) throw new HttpsError("unauthenticated", "Faca login.")
+    const email = String(request.data?.email || "").trim().toLowerCase()
+    const technicianDocId = String(request.data?.technicianDocId || "").trim()
+    if (!email || !email.includes("@")) throw new HttpsError("invalid-argument", "E-mail invalido.")
+    if (!technicianDocId) throw new HttpsError("invalid-argument", "technicianDocId obrigatorio.")
+
+    logger.info("[SmartLoop][tecnicos] inviteTechnician iniciado", { email, technicianDocId })
+
+    try {
+      const ownerSnap = await db.collection("tenants").doc(ownerUid).get()
+      if (!ownerSnap.exists) {
+        throw new HttpsError("permission-denied", "Tenant nao encontrado.")
+      }
+      const ownerData = ownerSnap.data() || {}
+
+      const techRef = db.collection("tenants").doc(ownerUid).collection("technicians").doc(technicianDocId)
+      const techSnap = await techRef.get()
+      if (!techSnap.exists) {
+        throw new HttpsError("not-found", "Tecnico nao encontrado.")
+      }
+      const techData = techSnap.data() || {}
+      if (techData.uid && techData.inviteStatus === "active") {
+        throw new HttpsError("already-exists", "Este tecnico ja esta ativo.")
+      }
+
+      let userRecord
+      try {
+        userRecord = await admin.auth().createUser({
+          email,
+          displayName: techData.name || "",
+          disabled: true,
+        })
+      } catch (err) {
+        if (err.code === "auth/email-already-exists") {
+          userRecord = await admin.auth().getUserByEmail(email)
+        } else {
+          throw err
+        }
+      }
+      const techUid = userRecord.uid
+
+      await db.collection("users").doc(techUid).set({
+        tenantId: ownerUid,
+        name: techData.name,
+        email,
+        role: "technician",
+        active: true,
+        inviteStatus: "pending",
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true })
+
+      await techRef.update({
+        uid: techUid,
+        email,
+        inviteStatus: "pending",
+      })
+
+      const acceptUrl = `${APP_URL}/ativar-convite?token=${techUid}`
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: { user: GMAIL_EMAIL.value(), pass: GMAIL_PASSWORD.value() },
+      })
+      await transporter.sendMail({
+        from: `"SmartLoop" <${GMAIL_EMAIL.value()}>`,
+        to: email,
+        subject: `${ownerData.fantasyName || ownerData.name || "SmartLoop"} te convidou para o time`,
+        html: buildInviteEmailHtml(acceptUrl),
+      })
+
+      logger.info("[SmartLoop][tecnicos] convite enviado", { techUid, email })
+      return { ok: true, techUid, acceptUrl }
+    } catch (err) {
+      logger.error("[SmartLoop][tecnicos] inviteTechnician falhou", { message: err.message, code: err.code })
+      if (err instanceof HttpsError) throw err
+      throw new HttpsError("internal", "Nao foi possivel enviar o convite.")
+    }
+  },
+)
+
+exports.acceptInvite = onCall(
+  { region: REGION },
+  async (request) => {
+    const uid = String(request.data?.uid || "").trim()
+    const password = String(request.data?.password || "")
+    logger.info("[SmartLoop][tecnicos] acceptInvite", { uidPrefix: uid.slice(0, 6) })
+
+    if (!uid) throw new HttpsError("invalid-argument", "UID obrigatorio.")
+    if (password.length < 8) {
+      throw new HttpsError("invalid-argument", "A senha deve ter no minimo 8 caracteres.")
+    }
+
+    try {
+      const userRecord = await admin.auth().getUser(uid)
+      if (userRecord.disabled) {
+        await admin.auth().updateUser(uid, {
+          password,
+          disabled: false,
+          emailVerified: true,
+        })
+      } else {
+        await admin.auth().updateUser(uid, { password })
+      }
+
+      const userSnap = await db.collection("users").doc(uid).get()
+      if (userSnap.exists) {
+        const data = userSnap.data()
+        await db.collection("users").doc(uid).update({
+          inviteStatus: "active",
+          acceptedAt: admin.firestore.FieldValue.serverTimestamp(),
+        })
+        if (data && data.tenantId) {
+          const techsSnap = await db.collection("tenants").doc(data.tenantId).collection("technicians")
+            .where("uid", "==", uid).get()
+          for (const t of techsSnap.docs) {
+            await t.ref.update({
+              inviteStatus: "active",
+              acceptedAt: admin.firestore.FieldValue.serverTimestamp(),
+            })
+          }
+        }
+      }
+
+      logger.info("[SmartLoop][tecnicos] conta ativada", { uid })
+      return { ok: true, email: userRecord.email }
+    } catch (err) {
+      logger.error("[SmartLoop][tecnicos] acceptInvite falhou", { message: err.message })
+      if (err instanceof HttpsError) throw err
+      throw new HttpsError("internal", "Nao foi possivel ativar a conta.")
+    }
+  },
+)
+
+exports.revokeTechnician = onCall(
+  { region: REGION },
+  async (request) => {
+    const ownerUid = request.auth?.uid
+    if (!ownerUid) throw new HttpsError("unauthenticated", "Faca login.")
+    const technicianDocId = String(request.data?.technicianDocId || "").trim()
+    if (!technicianDocId) throw new HttpsError("invalid-argument", "technicianDocId obrigatorio.")
+
+    logger.info("[SmartLoop][tecnicos] revokeTechnician", { technicianDocId })
+
+    try {
+      const techRef = db.collection("tenants").doc(ownerUid).collection("technicians").doc(technicianDocId)
+      const techSnap = await techRef.get()
+      if (!techSnap.exists) throw new HttpsError("not-found", "Tecnico nao encontrado.")
+      const techData = techSnap.data() || {}
+      const techUid = techData.uid
+
+      await techRef.update({ inviteStatus: "revoked", active: false })
+      if (techUid) {
+        await db.collection("users").doc(techUid).update({ active: false, inviteStatus: "revoked" })
+        try {
+          await admin.auth().updateUser(techUid, { disabled: true })
+        } catch (err) {
+          logger.warn("[SmartLoop][tecnicos] revoke: usuario Auth nao existe", { techUid })
+        }
+      }
+
+      logger.info("[SmartLoop][tecnicos] tecnico revogado", { technicianDocId, techUid })
+      return { ok: true }
+    } catch (err) {
+      logger.error("[SmartLoop][tecnicos] revokeTechnician falhou", { message: err.message })
+      if (err instanceof HttpsError) throw err
+      throw new HttpsError("internal", "Nao foi possivel revogar o tecnico.")
+    }
+  },
+)

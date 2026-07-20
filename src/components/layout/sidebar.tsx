@@ -38,7 +38,7 @@ const NAV_GROUPS = [
       { label: "Início", href: "/home", icon: LayoutDashboard, exact: true },
       { label: "Ordens de Serviço", href: "/os", icon: ClipboardList },
       { label: "Clientes", href: "/clientes", icon: Users },
-      { label: "Técnicos", href: "/tecnicos", icon: UserCog },
+      { label: "Técnicos", href: "/tecnicos", icon: UserCog, ownerOnly: true },
       { label: "Fornecedores", href: "/fornecedores", icon: Truck },
     ],
   },
@@ -53,9 +53,9 @@ const NAV_GROUPS = [
   {
     label: "Gestão",
     items: [
-      { label: "Financeiro", href: "/financeiro", icon: BarChart2 },
+      { label: "Financeiro", href: "/financeiro", icon: BarChart2, ownerOnly: true },
       { label: "Garantia", href: "/garantia", icon: Shield },
-      { label: "Relatórios", href: "/relatorios", icon: PieChart },
+      { label: "Relatórios", href: "/relatorios", icon: PieChart, ownerOnly: true },
     ],
   },
 ]
@@ -115,7 +115,7 @@ function NavItem({ label, href, icon: Icon, isActive, isExpanded }: NavItemProps
 export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
-  const { logout, user } = useAuth()
+  const { logout, user, profile } = useAuth()
   const showAdmin = isAdmin(user?.email)
   const { isPinned, togglePin } = useSidebarStore()
   const [isHovered, setIsHovered] = useState(false)
@@ -226,7 +226,10 @@ export function Sidebar() {
                 )}
               </AnimatePresence>
               <div className="space-y-0.5">
-                {group.items.map((item) => (
+                {group.items
+                  // Filtra itens restritos ao owner quando o usuario for tecnico.
+                  .filter((item) => !("ownerOnly" in item && item.ownerOnly) || profile?.role === "owner")
+                  .map((item) => (
                   <NavItem
                     key={item.href}
                     label={item.label}
@@ -264,13 +267,16 @@ export function Sidebar() {
 
         {/* Bottom — Settings + Logout */}
         <div className="shrink-0 border-t border-[--sidebar-border] p-2 space-y-0.5">
-          <NavItem
-            label="Configurações"
-            href="/configuracoes"
-            icon={Settings}
-            isActive={isActive("/configuracoes")}
-            isExpanded={isExpanded}
-          />
+          {/* Configurações so para owner (tecnico NAO altera nome/logo da loja). */}
+          {profile?.role === "owner" && (
+            <NavItem
+              label="Configurações"
+              href="/configuracoes"
+              icon={Settings}
+              isActive={isActive("/configuracoes")}
+              isExpanded={isExpanded}
+            />
+          )}
           <button
             type="button"
             onClick={handleLogout}
