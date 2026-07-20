@@ -28,7 +28,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useSidebarStore } from "@/store/sidebar"
 import { useAuth } from "@/lib/firebase/auth-context"
-import { isAdmin } from "@/lib/admins"
+// (Removido: import isAdmin - sidebar agora checa profile.role direto)
 import { logger } from "@/lib/logger"
 
 const NAV_GROUPS = [
@@ -116,7 +116,10 @@ export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { logout, user, profile } = useAuth()
-  const showAdmin = isAdmin(user?.email)
+  // Mostrar grupo Admin apenas para o dono do tenant (nao tecnico).
+  // Antes: isAdmin(user?.email) - baseado em allowlist de e-mails (bug: tecnico
+  // com e-mail fora da allowlist mas com role=owner via Firestore tbm nao via).
+  const showAdmin = profile?.role === "owner"
   const { isPinned, togglePin } = useSidebarStore()
   const [isHovered, setIsHovered] = useState(false)
 

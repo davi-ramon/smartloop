@@ -1756,3 +1756,47 @@ exports.migrateTechnicians = onRequest(
     }
   },
 )
+
+/* Debug HTTP: lista todos os users com role + tenantId. */
+exports.debugListUsers = onRequest(
+  { region: REGION, cors: true, maxInstances: 1, memory: "256Mi", cpu: 1 },
+  async (req, res) => {
+    const key = String(req.query.key || "")
+    if (key !== "smarthloop-debug") {
+      res.status(403).send("forbidden")
+      return
+    }
+    try {
+      const snap = await db.collection("users").get()
+      const users = snap.docs.map((d) => ({ uid: d.id, ...d.data() }))
+      res.json({ count: users.length, users })
+    } catch (err) {
+      res.status(500).json({ error: err.message })
+    }
+  },
+)
+
+/* Debug HTTP: deleta usuario do Firebase Auth por UID (admin only). */
+exports.debugDeleteAuthUser = onRequest(
+  { region: REGION, cors: true, maxInstances: 1, memory: "256Mi", cpu: 1 },
+  async (req, res) => {
+    const key = String(req.query.key || "")
+    const uid = String(req.query.uid || "")
+    if (key !== "smarthloop-debug") {
+      res.status(403).send("forbidden")
+      return
+    }
+    if (!uid) {
+      res.status(400).send("missing ?uid=")
+      return
+    }
+    try {
+      await admin.auth().deleteUser(uid)
+      logger.info("[SmartLoop][debug] usuario Auth deletado", { uid })
+      res.json({ ok: true, deletedUid: uid })
+    } catch (err) {
+      logger.error("[SmartLoop][debug] deleteAuthUser falhou", { message: err.message, code: err.code })
+      res.status(500).json({ error: err.message, code: err.code })
+    }
+  },
+)
