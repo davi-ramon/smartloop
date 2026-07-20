@@ -21,14 +21,11 @@ import { BioThemeForm } from "@/components/bio/editor/bio-theme-form"
 import { BioLinksForm } from "@/components/bio/editor/bio-links-form"
 import { BioOgForm } from "@/components/bio/editor/bio-og-form"
 import { BioPreview } from "@/components/bio/editor/bio-preview"
-import { ToastProvider, useToast } from "@/components/bio/editor/use-toast"
+import { useToast } from "@/components/bio/editor/use-toast"
 
 export default function AdminBioPage() {
-  return (
-    <ToastProvider>
-      <AdminBioPageInner />
-    </ToastProvider>
-  )
+  // ToastProvider agora fica no layout raiz do dashboard (src/app/(dashboard)/layout.tsx).
+  return <AdminBioPageInner />
 }
 
 function AdminBioPageInner() {
