@@ -7,6 +7,7 @@ import {
   ShieldAlert, Loader2, AlertCircle,
   UserPlus, UserCheck, UserMinus, TrendingDown,
 } from "lucide-react"
+import { OwnerOnly } from "@/components/auth/owner-only"
 import { Header } from "@/components/layout/header"
 import { useAuth } from "@/lib/firebase/auth-context"
 import { isAdmin } from "@/lib/admins"
@@ -30,6 +31,14 @@ interface AdminSubscriptionStats {
 }
 
 export default function AdminPainelPage() {
+  return (
+    <OwnerOnly>
+      <AdminPainelPageInner />
+    </OwnerOnly>
+  )
+}
+
+function AdminPainelPageInner() {
   const { user } = useAuth()
   const admin = isAdmin(user?.email)
   const [stats, setStats] = React.useState<AdminSubscriptionStats | null>(null)

@@ -5,16 +5,17 @@ rules_version = '2';
 // Acesso decidido por:
 //   - isOwner(tenantId): request.auth.uid == tenantId (acesso total)
 //   - isTechnician(tenantId, optionalCollection): request.auth.uid eh um tecnico
-//     ativo do tenant, com permissao TRUE para a subcolecao acessada.
-//
-// NUNCA confiar no campo `role` ou `tenantId` do doc do proprio usuario para
-// decisao de acesso. As permissoes sao verificadas em isTechnician() atraves
-// do doc /tenants/{tenantId}/technicians/{techUid}.
+//     ATIVO do tenant (doc /tenants/{tenantId}/technicians/{request.auth.uid} existe
+//     com active=true E inviteStatus=active), E (se collection passada) nao eh
+//     restrita ao owner.
 //
 // Subcolecoes RESTRITAS ao dono (tecnico NAO acessa): financeiro, relatorios,
-// configuracoes. Tudo mais (os, clientes, estoque, pdv, orcamentos, fornecedores,
-// garantia, technicians) eh acessivel ao tecnico desde que a permissao do doc
-// dele seja true (default true; configuravel em iteracao futura).
+// configuracoes. Tudo mais (clientes, serviceOrders, parts, products, sales,
+// suppliers, quotes, technicians, garantia, orcamentos) eh acessivel.
+//
+// IMPORTANTE: o doc do tecnico em tenants/{tenantId}/technicians tem ID == uid
+// (definido na Cloud Function inviteTechnician via doc(uid)). Sem isso, a regra
+// abaixo nao consegue resolver o doc via get(path com request.auth.uid).
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -32,39 +33,36 @@ service cloud.firestore {
       ];
     }
 
-    // Subcolecoes que o tecnico NAO pode acessar. O dono (isOwner) sempre acessa.
     function isRestrictedToOwner(collection) {
       return collection in ['financeiro', 'relatorios', 'configuracoes'];
     }
 
-    // Verifica se o caller eh um tecnico ATIVO do tenant E (se collection
-    // passada) tem permissao TRUE naquela subcolecao. NUNCA confiar no
-    // request.resource.data do proprio doc — lemos /tenants/{tid}/technicians/{uid}.
+    // Tecnico ATIVO do tenant (doc do tecnico com ID == auth.uid, active=true,
+    // inviteStatus=active). Substitui isTechnician antigo que tentava fazer get
+    // com path estatico.
     function isTechnician(tenantId, optionalCollection) {
       return isSignedIn()
           && request.auth.uid != tenantId
           && (optionalCollection == null || !isRestrictedToOwner(optionalCollection))
+          && exists(/databases/$(database)/documents/tenants/$(tenantId)/technicians/$(request.auth.uid))
           && get(/databases/$(database)/documents/tenants/$(tenantId)/technicians/$(request.auth.uid)).data.active == true
           && get(/databases/$(database)/documents/tenants/$(tenantId)/technicians/$(request.auth.uid)).data.inviteStatus == 'active';
     }
 
-    // Perfil do usuario — cada um le/escreve o seu. Dono (uid == tenantId) tem
-    // doc proprio; tecnico (uid != tenantId) tbm pode criar seu users/{uid} na
-    // bootstrap, e depois editar apenas o seu. Backend (Cloud Functions admin) le/
-    // escreve livremente via Admin SDK.
+    // Perfil do usuario.
     match /users/{uid} {
       allow read: if isSignedIn() && request.auth.uid == uid;
       allow create: if isSignedIn() && request.auth.uid == uid
                     && request.resource.data.tenantId == uid;
       allow update: if isSignedIn() && request.auth.uid == uid
                     && request.resource.data.tenantId == resource.data.tenantId;
-      // Dono tambem pode ler o doc de cada tecnico do seu tenant (lista de membros)
+      // Dono pode ler docs de tecnicos do seu tenant (lista de membros).
       allow read, update: if isSignedIn()
                           && get(/databases/$(database)/documents/tenants/$(request.auth.uid)/technicians/$(uid)).data.uid == uid;
       allow delete: if false;
     }
 
-    // Repositorio de bugs/sugestoes (beta) — restrito a admins/devs.
+    // Repositorio de bugs/sugestoes (beta).
     match /bugReports/{id} {
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       allow read, update: if isBugAdmin();
@@ -73,32 +71,28 @@ service cloud.firestore {
 
     // Loja (tenant) e subcolecoes.
     match /tenants/{tenantId} {
-      allow read: if isOwner(tenantId);
-      allow create: if isOwner(tenantId)
-                    && request.resource.data.ownerId == request.auth.uid;
-      allow update: if isOwner(tenantId)
-                    && request.resource.data.ownerId == resource.data.ownerId;
+      // Dono sempre le/escreve. Tecnico tambem le o tenant (necessario pra
+      // header/dashboard saber nome/logo) mas NAO cria/edita.
+      allow read: if isOwner(tenantId) || isTechnician(tenantId, null);
+      allow create: if isOwner(tenantId) && request.resource.data.ownerId == request.auth.uid;
+      allow update: if isOwner(tenantId) && request.resource.data.ownerId == resource.data.ownerId;
       allow delete: if false;
 
       // Subcolecoes (customers, serviceOrders, parts, products, sales, transactions,
-      // technicians, suppliers, quotes, etc).
-      // Regra antiga: so o dono lia/escrevia. Nova: dono total, OU tecnico
-      // ativo (sem subcolecoes restritas).
+      // technicians, suppliers, quotes, garantia).
       match /{collection}/{doc=**} {
         allow read, write: if isOwner(tenantId) || isTechnician(tenantId, collection);
       }
     }
 
-    // Bio publico (link-in-bio do SmartLoop).
+    // Bio publico.
     match /bioPage/{doc=**} {
       allow read: if true;
       allow write: if isBugAdmin();
     }
-
     match /bioEvents/{eventId} {
       allow read, write: if false;
     }
-
     match /bioStats/{doc=**} {
       allow read: if isBugAdmin();
       allow write: if false;

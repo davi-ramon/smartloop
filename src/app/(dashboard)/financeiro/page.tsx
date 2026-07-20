@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { OwnerOnly } from "@/components/auth/owner-only"
 import { Header } from "@/components/layout/header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -39,6 +40,14 @@ interface Movement {
 }
 
 export default function FinanceiroPage() {
+  return (
+    <OwnerOnly>
+      <FinanceiroPageInner />
+    </OwnerOnly>
+  )
+}
+
+function FinanceiroPageInner() {
   const { profile } = useAuth()
   const tenantId = profile?.tenantId
   const [sales, setSales] = useState<Sale[]>([])

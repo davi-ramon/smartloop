@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { OwnerOnly } from "@/components/auth/owner-only"
 import { Header } from "@/components/layout/header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TrendingUp, ClipboardList, Clock, CheckCircle2, Package } from "lucide-react"
@@ -21,6 +22,14 @@ function monthKey(ts?: Timestamp | null): string | null {
 }
 
 export default function RelatoriosPage() {
+  return (
+    <OwnerOnly>
+      <RelatoriosPageInner />
+    </OwnerOnly>
+  )
+}
+
+function RelatoriosPageInner() {
   const { profile } = useAuth()
   const tenantId = profile?.tenantId
   const [orders, setOrders] = useState<ServiceOrder[]>([])

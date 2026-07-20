@@ -1532,11 +1532,27 @@ exports.inviteTechnician = onCall(
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       }, { merge: true })
 
-      await techRef.update({
-        uid: techUid,
+      // Estrategia de doc: o ID do doc technicians == techUid (pra casar com
+      // Firestore Rules: get(.../technicians/{request.auth.uid})).
+      // 1) Cria novo doc com ID = techUid contendo os dados finais.
+      // 2) Deleta doc original (com ID aleatorio gerado pelo addDoc).
+      const newTechRef = db.collection("tenants").doc(ownerUid).collection("technicians").doc(techUid)
+      await newTechRef.set({
+        name: techData.name,
         email,
+        role: techData.role,
+        phone: techData.phone || "",
+        active: true,
+        uid: techUid,
         inviteStatus: "pending",
-      })
+        createdAt: techData.createdAt || admin.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true })
+      // Deleta o doc antigo (com ID aleatorio) se for diferente do novo.
+      if (techRef.id !== techUid) {
+        try { await techRef.delete() } catch (e) {
+          logger.warn("[SmartLoop][tecnicos] nao consegui deletar doc antigo", { id: techRef.id })
+        }
+      }
 
       const acceptUrl = `${APP_URL}/ativar-convite?token=${techUid}`
       const transporter = nodemailer.createTransport({
@@ -1646,6 +1662,97 @@ exports.revokeTechnician = onCall(
       logger.error("[SmartLoop][tecnicos] revokeTechnician falhou", { message: err.message })
       if (err instanceof HttpsError) throw err
       throw new HttpsError("internal", "Nao foi possivel revogar o tecnico.")
+    }
+  },
+)
+
+/* Debug HTTP: dispara email de teste para validar credenciais Gmail */
+exports.debugSendEmail = onRequest(
+  { region: REGION, cors: true, secrets: [GMAIL_EMAIL, GMAIL_PASSWORD] },
+  async (req, res) => {
+    const to = String(req.query.to || "")
+    const key = String(req.query.key || "")
+    if (key !== "smarthloop-debug") {
+      res.status(403).send("forbidden")
+      return
+    }
+    if (!to || !to.includes("@")) {
+      res.status(400).send("missing ?to=email")
+      return
+    }
+    try {
+      logger.info("[SmartLoop][debug] sendEmail teste", { to, from: GMAIL_EMAIL.value() })
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: { user: GMAIL_EMAIL.value(), pass: GMAIL_PASSWORD.value() },
+      })
+      const info = await transporter.sendMail({
+        from: `"SmartLoop Debug" <${GMAIL_EMAIL.value()}>`,
+        to,
+        subject: "Teste de envio Gmail - SmartLoop",
+        text: "Se voce recebeu isto, o envio de email esta funcionando.",
+        html: "<h1>SmartLoop debug</h1><p>Se voce recebeu isto, o envio de email esta funcionando.</p>",
+      })
+      logger.info("[SmartLoop][debug] email enviado", { messageId: info.messageId, response: info.response })
+      res.json({
+        ok: true,
+        from: GMAIL_EMAIL.value(),
+        to,
+        messageId: info.messageId,
+        accepted: info.accepted,
+        rejected: info.rejected,
+        response: String(info.response).slice(0, 200),
+      })
+    } catch (err) {
+      logger.error("[SmartLoop][debug] email falhou", { code: err.code, message: err.message, command: err.command })
+      res.status(500).json({ error: err.message, code: err.code })
+    }
+  },
+)
+
+/* Migracao: limpa docs antigos de tecnicos com ID != uid do Auth. */
+exports.migrateTechnicians = onRequest(
+  { region: REGION, cors: true, maxInstances: 1, timeoutSeconds: 120, memory: "256Mi", cpu: 1 },
+  async (req, res) => {
+    const key = String(req.query.key || "")
+    if (key !== "smarthloop-debug") {
+      res.status(403).send("forbidden")
+      return
+    }
+    const deleteOld = req.query.delete === "1"
+    try {
+      const tenantsSnap = await db.collection("tenants").get()
+      let total = 0, migrated = 0, deleted = 0, errors = 0
+      const summary = []
+      for (const tenant of tenantsSnap.docs) {
+        const techsSnap = await tenant.ref.collection("technicians").get()
+        for (const tech of techsSnap.docs) {
+          total++
+          const data = tech.data()
+          const techUid = data.uid
+          if (!techUid || tech.id === techUid) continue
+          const newDoc = await tenant.ref.collection("technicians").doc(techUid).get()
+          if (!newDoc.exists) {
+            await tenant.ref.collection("technicians").doc(techUid).set(data, { merge: true })
+            summary.push({ tenant: tenant.id, from: tech.id, to: techUid, action: "copied" })
+            migrated++
+          } else {
+            summary.push({ tenant: tenant.id, from: tech.id, to: techUid, action: "already_exists" })
+          }
+          if (deleteOld) {
+            try {
+              await tech.ref.delete()
+              summary.push({ tenant: tenant.id, from: tech.id, action: "deleted_old" })
+              deleted++
+            } catch (e) {
+              summary.push({ tenant: tenant.id, from: tech.id, action: "delete_failed", error: e.message })
+            }
+          }
+        }
+      }
+      res.json({ total, migrated, deleted, deletedOld: deleteOld, summary })
+    } catch (err) {
+      res.status(500).json({ error: err.message })
     }
   },
 )
